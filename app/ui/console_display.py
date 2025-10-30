@@ -58,7 +58,7 @@ class ConsoleDisplay:
     def show_info(self, message: str, **kwargs) -> None:
         """Display info message with blue info icon."""
         if not self.quiet:
-            self.console.print(f"[blue]ℹ️  {message}[/blue]", **kwargs)  # noqa: RUF001
+            self.console.print(f"[blue]ℹ️  {message}[/blue]", **kwargs)
 
     def show_debug(self, message: str, **kwargs) -> None:
         """Display debug message (only in verbose mode)."""

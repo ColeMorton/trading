@@ -308,7 +308,7 @@ class StrategyExecutor(StrategyExecutorInterface):
                 await progress_tracker.update(
                     task_id,
                     progress,
-                    f"Processing {ticker} ({i+1}/{len(tickers)})",
+                    f"Processing {ticker} ({i + 1}/{len(tickers)})",
                 )
 
                 # Create strategy config

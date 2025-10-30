@@ -146,7 +146,7 @@ def create_cap_analysis_visualization():
     theoretical_max = calculate_theoretical_max_without_cap()
 
     # Create comprehensive figure
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    _fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
 
     # 1. Capped vs Uncapped Curve
     ax1.plot(
@@ -243,18 +243,18 @@ def create_cap_analysis_visualization():
     YIELD CURVE CAP ANALYSIS
 
     Cap Point Analysis:
-    • First hits 95% cap at: {exact_cap_point} days (~{exact_cap_point/30:.1f} months)
+    • First hits 95% cap at: {exact_cap_point} days (~{exact_cap_point / 30:.1f} months)
     • Cap level: 95% (9,500 basis points)
 
     Theoretical Maximum (1093 days):
-    • Expected Appreciation: {theoretical_max['expected_appreciation_bps']:.0f} bps ({theoretical_max['expected_appreciation_bps']/100:.1f}%)
-    • Time Premium: {theoretical_max['time_premium_bps']:.0f} bps ({theoretical_max['time_premium_bps']/100:.1f}%)
-    • Risk Premium: {theoretical_max['risk_premium_bps']:.0f} bps ({theoretical_max['risk_premium_bps']/100:.1f}%)
-    • Total Uncapped: {theoretical_max['total_uncapped_bps']:.0f} bps ({theoretical_max['total_uncapped_pct']:.1f}%)
+    • Expected Appreciation: {theoretical_max["expected_appreciation_bps"]:.0f} bps ({theoretical_max["expected_appreciation_bps"] / 100:.1f}%)
+    • Time Premium: {theoretical_max["time_premium_bps"]:.0f} bps ({theoretical_max["time_premium_bps"] / 100:.1f}%)
+    • Risk Premium: {theoretical_max["risk_premium_bps"]:.0f} bps ({theoretical_max["risk_premium_bps"] / 100:.1f}%)
+    • Total Uncapped: {theoretical_max["total_uncapped_bps"]:.0f} bps ({theoretical_max["total_uncapped_pct"]:.1f}%)
 
     Cap Impact:
-    • Excess over cap: {theoretical_max['excess_over_cap_bps']:.0f} bps ({theoretical_max['excess_over_cap_pct']:.1f}%)
-    • Percentage capped: {theoretical_max['excess_over_cap_bps']/theoretical_max['total_uncapped_bps']:.1%}
+    • Excess over cap: {theoretical_max["excess_over_cap_bps"]:.0f} bps ({theoretical_max["excess_over_cap_pct"]:.1f}%)
+    • Percentage capped: {theoretical_max["excess_over_cap_bps"] / theoretical_max["total_uncapped_bps"]:.1%}
 
     Primary Driver:
     • Expected appreciation dominates and would naturally
@@ -271,7 +271,7 @@ def create_cap_analysis_visualization():
         fontsize=11,
         verticalalignment="top",
         fontfamily="monospace",
-        bbox=dict(boxstyle="round", facecolor="lightblue", alpha=0.1),
+        bbox={"boxstyle": "round", "facecolor": "lightblue", "alpha": 0.1},
     )
 
     plt.tight_layout()
@@ -307,14 +307,16 @@ def evaluate_cap_rationale():
 
     print(f"1. Maximum uncapped discount: {max_uncapped:.1f}%")
     print(f"   - This means paying ${100 - max_uncapped:.1f} to get $100 of SBC")
-    print(f"   - Effective return: {max_uncapped/(100-max_uncapped)*100:.0f}%")
+    print(f"   - Effective return: {max_uncapped / (100 - max_uncapped) * 100:.0f}%")
 
     # Treasury implications
     print("\n2. Treasury safety implications:")
     print(
-        f"   - At {max_uncapped:.1f}% discount: Protocol gets ${100-max_uncapped:.1f}, owes $100 SBC"
+        f"   - At {max_uncapped:.1f}% discount: Protocol gets ${100 - max_uncapped:.1f}, owes $100 SBC"
     )
-    print(f"   - WBTC needs to appreciate {100/(100-max_uncapped):.1f}x to break even")
+    print(
+        f"   - WBTC needs to appreciate {100 / (100 - max_uncapped):.1f}x to break even"
+    )
     print("   - Historical WBTC 3-year: ~3.4x appreciation")
 
     if max_uncapped > 95:

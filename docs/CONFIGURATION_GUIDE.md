@@ -1,3 +1,12 @@
+---
+title: Configuration Guide - Equity Data Export
+version: 1.2
+last_updated: 2025-10-30
+owner: Engineering Team
+status: Active
+audience: Developers, Operators
+---
+
 # Configuration Guide - Equity Data Export
 
 ## Overview

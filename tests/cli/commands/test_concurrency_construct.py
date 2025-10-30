@@ -41,13 +41,13 @@ class TestConcurrencyConstructCommand:
             # Distribute types: 0-4=SMA, 5-6=EMA, 7-9=MACD
             if i < 5:
                 strategy_type = "SMA"
-                strategy_id = f"TEST_SMA_{10+i*5}_{50+i*10}"
+                strategy_id = f"TEST_SMA_{10 + i * 5}_{50 + i * 10}"
             elif i < 7:
                 strategy_type = "EMA"
-                strategy_id = f"TEST_EMA_{10+i*5}_{50+i*10}"
+                strategy_id = f"TEST_EMA_{10 + i * 5}_{50 + i * 10}"
             else:
                 strategy_type = "MACD"
-                strategy_id = f"TEST_MACD_{10+i*5}_{50+i*10}_9"
+                strategy_id = f"TEST_MACD_{10 + i * 5}_{50 + i * 10}_9"
 
             strategies.append(
                 {

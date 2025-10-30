@@ -85,7 +85,7 @@ def test_basic_parameter_robustness():
 
             stable_count = sum(1 for result in btc_results if result.is_stable)
             print(f"Stable parameter combinations: {stable_count}/{len(btc_results)}")
-            print(f"Stability rate: {stable_count/len(btc_results)*100:.1f}%")
+            print(f"Stability rate: {stable_count / len(btc_results) * 100:.1f}%")
 
             # Show top 3 most stable combinations
             sorted_results = sorted(
@@ -98,7 +98,7 @@ def test_basic_parameter_robustness():
             print("-" * 50)
             for i, result in enumerate(sorted_results[:3]):
                 short, long = result.parameter_combination
-                print(f"{i+1}. Windows {short}/{long}:")
+                print(f"{i + 1}. Windows {short}/{long}:")
                 print(f"   Stability Score: {result.stability_score:.3f}")
                 print(f"   Parameter Robustness: {result.parameter_robustness:.3f}")
                 print(f"   Regime Consistency: {result.regime_consistency:.3f}")

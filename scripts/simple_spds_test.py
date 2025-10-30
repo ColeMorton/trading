@@ -31,7 +31,7 @@ async def main():
 
         # Show a sample result
         if results:
-            sample_key = list(results.keys())[0]
+            sample_key = next(iter(results.keys()))
             sample_result = results[sample_key]
 
             print(f"Sample result for {sample_key}:")

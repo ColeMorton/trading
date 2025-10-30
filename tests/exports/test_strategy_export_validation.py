@@ -50,40 +50,39 @@ class TestSMAExportValidation:
 
     def test_sma_export_data_validation(self, sample_sma_data, sma_config):
         """Test that SMA strategy exports contain correct columns and metrics."""
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(sample_sma_data, "strategies", sma_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(sample_sma_data, "strategies", sma_config)
 
-                    # Verify export was called
-                    mock_write_csv.assert_called_once()
+                # Verify export was called
+                mock_write_csv.assert_called_once()
 
-                    # Verify the input data contains required SMA columns
-                    required_sma_columns = [
-                        "Ticker",
-                        "Strategy Type",
-                        "Short Window",
-                        "Long Window",
-                        "Total Return [%]",
-                        "Sharpe Ratio",
-                        "Win Rate [%]",
-                        "Total Trades",
-                        "Profit Factor",
-                    ]
+                # Verify the input data contains required SMA columns
+                required_sma_columns = [
+                    "Ticker",
+                    "Strategy Type",
+                    "Short Window",
+                    "Long Window",
+                    "Total Return [%]",
+                    "Sharpe Ratio",
+                    "Win Rate [%]",
+                    "Total Trades",
+                    "Profit Factor",
+                ]
 
-                    for column in required_sma_columns:
-                        assert (
-                            column in sample_sma_data.columns
-                        ), f"Missing required SMA column: {column}"
+                for column in required_sma_columns:
+                    assert (
+                        column in sample_sma_data.columns
+                    ), f"Missing required SMA column: {column}"
 
-                    # Verify strategy type is correct in source data
-                    assert all(sample_sma_data["Strategy Type"] == "SMA")
+                # Verify strategy type is correct in source data
+                assert all(sample_sma_data["Strategy Type"] == "SMA")
 
-                    # Verify SMA windows are present and valid in source data
-                    assert all(sample_sma_data["Short Window"] > 0)
-                    assert all(
-                        sample_sma_data["Long Window"] > sample_sma_data["Short Window"]
-                    )
+                # Verify SMA windows are present and valid in source data
+                assert all(sample_sma_data["Short Window"] > 0)
+                assert all(
+                    sample_sma_data["Long Window"] > sample_sma_data["Short Window"]
+                )
 
     def test_sma_export_column_validation(self, sample_sma_data, sma_config):
         """Test that SMA CSV exports have correct column structure."""
@@ -93,32 +92,28 @@ class TestSMAExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_sma_data, "strategies", sma_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_sma_data, "strategies", sma_config)
 
-                    # Check column types
-                    assert exported_data["Short Window"].dtype.name.startswith("int")
-                    assert exported_data["Long Window"].dtype.name.startswith("int")
-                    assert exported_data["Total Return [%]"].dtype.name.startswith(
-                        "float"
-                    )
-                    assert exported_data["Win Rate [%]"].dtype.name.startswith("float")
-                    assert exported_data["Total Trades"].dtype.name.startswith("int")
+                # Check column types
+                assert exported_data["Short Window"].dtype.name.startswith("int")
+                assert exported_data["Long Window"].dtype.name.startswith("int")
+                assert exported_data["Total Return [%]"].dtype.name.startswith("float")
+                assert exported_data["Win Rate [%]"].dtype.name.startswith("float")
+                assert exported_data["Total Trades"].dtype.name.startswith("int")
 
     def test_sma_export_filename_format(self, sample_sma_data, sma_config):
         """Test SMA export filename follows expected format."""
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(sample_sma_data, "strategies", sma_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(sample_sma_data, "strategies", sma_config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
 
-                    # Verify filename format: TICKER_D_SMA.csv
-                    assert "AAPL_D_SMA.csv" in call_args
+                # Verify filename format: TICKER_D_SMA.csv
+                assert "AAPL_D_SMA.csv" in call_args
 
 
 class TestEMAExportValidation:
@@ -163,39 +158,36 @@ class TestEMAExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_ema_data, "strategies", ema_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_ema_data, "strategies", ema_config)
 
-                    assert exported_data is not None
+                assert exported_data is not None
 
-                    # Verify EMA-specific columns
-                    required_ema_columns = [
-                        "Ticker",
-                        "Strategy Type",
-                        "Short Window",
-                        "Long Window",
-                        "Total Return [%]",
-                        "Sharpe Ratio",
-                        "Win Rate [%]",
-                        "Total Trades",
-                        "Profit Factor",
-                    ]
+                # Verify EMA-specific columns
+                required_ema_columns = [
+                    "Ticker",
+                    "Strategy Type",
+                    "Short Window",
+                    "Long Window",
+                    "Total Return [%]",
+                    "Sharpe Ratio",
+                    "Win Rate [%]",
+                    "Total Trades",
+                    "Profit Factor",
+                ]
 
-                    for column in required_ema_columns:
-                        assert (
-                            column in exported_data.columns
-                        ), f"Missing required EMA column: {column}"
+                for column in required_ema_columns:
+                    assert (
+                        column in exported_data.columns
+                    ), f"Missing required EMA column: {column}"
 
-                    # Verify strategy type is correct
-                    assert all(exported_data["Strategy Type"] == "EMA")
+                # Verify strategy type is correct
+                assert all(exported_data["Strategy Type"] == "EMA")
 
-                    # Verify EMA windows are present and valid
-                    assert all(exported_data["Short Window"] > 0)
-                    assert all(
-                        exported_data["Long Window"] > exported_data["Short Window"]
-                    )
+                # Verify EMA windows are present and valid
+                assert all(exported_data["Short Window"] > 0)
+                assert all(exported_data["Long Window"] > exported_data["Short Window"])
 
     def test_ema_export_column_validation(self, sample_ema_data, ema_config):
         """Test that EMA CSV exports have correct column structure."""
@@ -205,32 +197,30 @@ class TestEMAExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_ema_data, "strategies", ema_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_ema_data, "strategies", ema_config)
 
-                    # Check specific EMA data requirements
-                    assert all(exported_data["Strategy Type"] == "EMA")
-                    assert len(exported_data) > 0
+                # Check specific EMA data requirements
+                assert all(exported_data["Strategy Type"] == "EMA")
+                assert len(exported_data) > 0
 
-                    # Verify numeric columns have valid ranges
-                    assert all(exported_data["Win Rate [%]"] >= 0)
-                    assert all(exported_data["Win Rate [%]"] <= 100)
-                    assert all(exported_data["Total Trades"] > 0)
+                # Verify numeric columns have valid ranges
+                assert all(exported_data["Win Rate [%]"] >= 0)
+                assert all(exported_data["Win Rate [%]"] <= 100)
+                assert all(exported_data["Total Trades"] > 0)
 
     def test_ema_export_filename_format(self, sample_ema_data, ema_config):
         """Test EMA export filename follows expected format."""
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(sample_ema_data, "strategies", ema_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(sample_ema_data, "strategies", ema_config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
 
-                    # Verify filename format: TICKER_D_EMA.csv
-                    assert "MSFT_D_EMA.csv" in call_args
+                # Verify filename format: TICKER_D_EMA.csv
+                assert "MSFT_D_EMA.csv" in call_args
 
 
 class TestMACDExportValidation:
@@ -275,41 +265,38 @@ class TestMACDExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_macd_data, "strategies", macd_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_macd_data, "strategies", macd_config)
 
-                    assert exported_data is not None
+                assert exported_data is not None
 
-                    # Verify MACD-specific columns
-                    required_macd_columns = [
-                        "Ticker",
-                        "Strategy Type",
-                        "Fast Period",
-                        "Slow Period",
-                        "Signal Period",
-                        "Total Return [%]",
-                        "Sharpe Ratio",
-                        "Win Rate [%]",
-                        "Total Trades",
-                        "Profit Factor",
-                    ]
+                # Verify MACD-specific columns
+                required_macd_columns = [
+                    "Ticker",
+                    "Strategy Type",
+                    "Fast Period",
+                    "Slow Period",
+                    "Signal Period",
+                    "Total Return [%]",
+                    "Sharpe Ratio",
+                    "Win Rate [%]",
+                    "Total Trades",
+                    "Profit Factor",
+                ]
 
-                    for column in required_macd_columns:
-                        assert (
-                            column in exported_data.columns
-                        ), f"Missing required MACD column: {column}"
+                for column in required_macd_columns:
+                    assert (
+                        column in exported_data.columns
+                    ), f"Missing required MACD column: {column}"
 
-                    # Verify strategy type is correct
-                    assert all(exported_data["Strategy Type"] == "MACD")
+                # Verify strategy type is correct
+                assert all(exported_data["Strategy Type"] == "MACD")
 
-                    # Verify MACD periods are present and valid
-                    assert all(exported_data["Fast Period"] > 0)
-                    assert all(
-                        exported_data["Slow Period"] > exported_data["Fast Period"]
-                    )
-                    assert all(exported_data["Signal Period"] > 0)
+                # Verify MACD periods are present and valid
+                assert all(exported_data["Fast Period"] > 0)
+                assert all(exported_data["Slow Period"] > exported_data["Fast Period"])
+                assert all(exported_data["Signal Period"] > 0)
 
     def test_macd_export_column_validation(self, sample_macd_data, macd_config):
         """Test that MACD CSV exports have correct column structure."""
@@ -319,33 +306,29 @@ class TestMACDExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_macd_data, "strategies", macd_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_macd_data, "strategies", macd_config)
 
-                    # Check MACD-specific column types and validation
-                    assert exported_data["Fast Period"].dtype.name.startswith("int")
-                    assert exported_data["Slow Period"].dtype.name.startswith("int")
-                    assert exported_data["Signal Period"].dtype.name.startswith("int")
+                # Check MACD-specific column types and validation
+                assert exported_data["Fast Period"].dtype.name.startswith("int")
+                assert exported_data["Slow Period"].dtype.name.startswith("int")
+                assert exported_data["Signal Period"].dtype.name.startswith("int")
 
-                    # Verify MACD parameter relationships
-                    assert all(
-                        exported_data["Slow Period"] > exported_data["Fast Period"]
-                    )
+                # Verify MACD parameter relationships
+                assert all(exported_data["Slow Period"] > exported_data["Fast Period"])
 
     def test_macd_export_filename_format(self, sample_macd_data, macd_config):
         """Test MACD export filename follows expected format."""
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(sample_macd_data, "strategies", macd_config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(sample_macd_data, "strategies", macd_config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
 
-                    # Verify filename format: TICKER_D_MACD.csv
-                    assert "GOOGL_D_MACD.csv" in call_args
+                # Verify filename format: TICKER_D_MACD.csv
+                assert "GOOGL_D_MACD.csv" in call_args
 
 
 class TestMultiStrategyExportValidation:
@@ -409,7 +392,7 @@ class TestMultiStrategyExportValidation:
                     with patch(
                         "polars.DataFrame.write_csv", side_effect=capture_write_csv
                     ):
-                        result = export_csv(data, "strategies", config)
+                        export_csv(data, "strategies", config)
 
                         assert exported_data is not None
                         assert exported_data["Strategy Type"].iloc[0] == strategy_type
@@ -452,23 +435,18 @@ class TestMultiStrategyExportValidation:
             nonlocal exported_data
             exported_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(test_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(test_data, "strategies", config)
 
-                    assert exported_data is not None
+                assert exported_data is not None
 
-                    # Verify numeric data is properly formatted
-                    assert isinstance(
-                        exported_data["Total Return [%]"].iloc[0], (int, float)
-                    )
-                    assert isinstance(
-                        exported_data["Sharpe Ratio"].iloc[0], (int, float)
-                    )
-                    assert isinstance(
-                        exported_data["Win Rate [%]"].iloc[0], (int, float)
-                    )
+                # Verify numeric data is properly formatted
+                assert isinstance(
+                    exported_data["Total Return [%]"].iloc[0], (int, float)
+                )
+                assert isinstance(exported_data["Sharpe Ratio"].iloc[0], (int, float))
+                assert isinstance(exported_data["Win Rate [%]"].iloc[0], (int, float))
 
     def test_multi_strategy_concurrent_export(self):
         """Test multiple strategies exporting simultaneously."""
@@ -507,7 +485,7 @@ class TestMultiStrategyExportValidation:
             with patch("pathlib.Path.mkdir"):
                 with patch("os.access", return_value=True):
                     with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                        result = export_csv(data, "strategies", config)
+                        export_csv(data, "strategies", config)
 
                         mock_write_csv.assert_called_once()
                         call_args = mock_write_csv.call_args[0][0]
@@ -530,17 +508,19 @@ class TestMultiStrategyExportValidation:
         }
 
         # Test should not crash even with invalid paths
-        with patch(
-            "pathlib.Path.mkdir", side_effect=PermissionError("Permission denied")
+        with (
+            patch(
+                "pathlib.Path.mkdir", side_effect=PermissionError("Permission denied")
+            ),
+            patch("os.access", return_value=False),
         ):
-            with patch("os.access", return_value=False):
-                # Function should handle errors gracefully
-                try:
-                    result = export_csv(test_data, "strategies", config)
-                    # Result behavior will depend on implementation
-                except Exception as e:
-                    # If exception is raised, it should be informative
-                    assert isinstance(e, (PermissionError, OSError, IOError))
+            # Function should handle errors gracefully
+            try:
+                export_csv(test_data, "strategies", config)
+                # Result behavior will depend on implementation
+            except Exception as e:
+                # If exception is raised, it should be informative
+                assert isinstance(e, (PermissionError, OSError, IOError))
 
 
 if __name__ == "__main__":

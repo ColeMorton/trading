@@ -77,7 +77,7 @@ class TestExportDirectoryRegression:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_best",
@@ -116,7 +116,7 @@ class TestExportDirectoryRegression:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
@@ -145,7 +145,7 @@ class TestExportDirectoryRegression:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolios,
                 config=config,
                 export_type="portfolios_best",
@@ -427,7 +427,7 @@ class TestFilenameGenerationRegression:
 
         # Test portfolios_best export
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios_best",
@@ -470,7 +470,7 @@ class TestFilenameGenerationRegression:
 
         # Test portfolios_filtered export
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios_filtered",
@@ -531,7 +531,7 @@ class TestFilenameGenerationRegression:
         }
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=mixed_portfolios,
                 config=config,
                 export_type="portfolios",
@@ -572,7 +572,7 @@ class TestFilenameGenerationRegression:
         }
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=single_strategy_portfolio,
                 config=config,
                 export_type="portfolios",

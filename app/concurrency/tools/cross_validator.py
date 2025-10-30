@@ -305,7 +305,7 @@ class CSVJSONCrossValidator:
 
             if portfolio_signals > csv_total_trades * 10:
                 issues.append(
-                    f"Severe signal count inflation: {portfolio_signals:,} portfolio signals vs {csv_total_trades:,} CSV trades (ratio: {portfolio_signals/csv_total_trades:.1f}×)",
+                    f"Severe signal count inflation: {portfolio_signals:,} portfolio signals vs {csv_total_trades:,} CSV trades (ratio: {portfolio_signals / csv_total_trades:.1f}×)",
                 )
 
             # Issue 2: Expectancy magnitude
@@ -321,7 +321,7 @@ class CSVJSONCrossValidator:
                 csv_median_expectancy = csv_expectancies.median()
                 if abs(portfolio_expectancy) > abs(csv_median_expectancy) * 100:
                     issues.append(
-                        f"Expectancy magnitude issue: Portfolio expectancy {portfolio_expectancy:.2f} vs CSV median {csv_median_expectancy:.2f} (ratio: {portfolio_expectancy/csv_median_expectancy:.1f}×)",
+                        f"Expectancy magnitude issue: Portfolio expectancy {portfolio_expectancy:.2f} vs CSV median {csv_median_expectancy:.2f} (ratio: {portfolio_expectancy / csv_median_expectancy:.1f}×)",
                     )
 
             # Issue 3: Performance sign flips

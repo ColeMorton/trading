@@ -152,7 +152,7 @@ class TestPhase5ComprehensiveValidation:
         }
 
         # Test portfolio export (should apply schema validation)
-        df, success = export_csv(
+        _df, success = export_csv(
             data=sample_canonical_data,
             feature1="portfolios_best",
             config=config,
@@ -319,7 +319,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Test with compliant data
         compliant_data = pd.DataFrame(
-            [{col: "test_value" for col in CANONICAL_COLUMN_NAMES}],
+            [dict.fromkeys(CANONICAL_COLUMN_NAMES, "test_value")],
         )
         result = validate_dataframe_schema(compliant_data, strict=False)
 
@@ -432,7 +432,7 @@ class TestPhase5ComprehensiveValidation:
 
         for strategy_name, strategy_data in strategies_data.items():
             # Create a sample row for each strategy
-            row = {col: None for col in CANONICAL_COLUMN_NAMES}
+            row = dict.fromkeys(CANONICAL_COLUMN_NAMES)
             row.update(
                 {
                     "Ticker": f"TEST-{strategy_name.upper()}",
@@ -486,7 +486,7 @@ class TestPhase5ComprehensiveValidation:
 
         # Step 2: Export processing
         config = {"BASE_DIR": str(tmp_path), "TICKER": "BTC-USD"}
-        df, success = export_csv(
+        _df, success = export_csv(
             data=normalized_data,
             feature1="strategies",
             config=config,
@@ -532,7 +532,7 @@ class TestPhase5ComprehensiveValidation:
         large_dataset = sample_canonical_data * 100  # 100 rows
 
         start_time = time.time()
-        df, success = export_csv(
+        _df, success = export_csv(
             data=large_dataset,
             feature1="portfolios_best",
             config=config,

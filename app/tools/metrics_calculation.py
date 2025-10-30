@@ -222,7 +222,7 @@ class MetricsCalculator:
                     )
                     max_monthly = int(monthly_counts.max())
                     min_monthly = int(monthly_counts.min())
-                    total_signals = int(len(signals))
+                    total_signals = len(signals)
 
                     # Calculate standard deviation bounds
                     std_below_mean = float(max(0, mean_signals - signal_volatility))
@@ -651,7 +651,7 @@ class MetricsCalculator:
                         )
                         max_monthly = int(portfolio_monthly_counts.max())
                         min_monthly = int(portfolio_monthly_counts.min())
-                        total_signals = int(len(combined_signals))
+                        total_signals = len(combined_signals)
 
                         # Store portfolio metrics
                         metrics["portfolio_mean_signals_per_month"] = mean_signals
@@ -793,7 +793,7 @@ def calculate_signal_metrics(
     calculator = MetricsCalculator(log)
 
     # Extract strategy IDs
-    strategy_ids = [f"strategy_{i+1}" for i in range(len(aligned_data))]
+    strategy_ids = [f"strategy_{i + 1}" for i in range(len(aligned_data))]
 
     # Calculate portfolio metrics
     return calculator.calculate_portfolio_metrics(

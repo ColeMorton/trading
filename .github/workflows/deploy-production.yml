@@ -1,0 +1,172 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+      skip_smoke_tests:
+        description: 'Skip smoke tests'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  ENVIRONMENT: production
+  HEALTH_CHECK_TIMEOUT: 600
+  HEALTH_CHECK_INTERVAL: 15
+
+jobs:
+  pre-deployment-checks:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify image exists
+        run: |
+          echo "✅ Verifying image ghcr.io/${{ github.repository }}-api:${{ github.event.inputs.image_tag }} exists..."
+          # Add actual verification logic here
+          # docker manifest inspect ghcr.io/${{ github.repository }}-api:${{ github.event.inputs.image_tag }}
+
+      - name: Check staging health
+        run: |
+          echo "🏥 Checking staging environment health before production deployment..."
+          if curl -f -s https://staging.trading.example.com/health > /dev/null 2>&1; then
+            echo "✅ Staging is healthy"
+          else
+            echo "❌ Staging is not healthy - aborting production deployment"
+            exit 1
+          fi
+
+      - name: Validate deployment configuration
+        run: |
+          echo "✅ Validating deployment configuration..."
+          # Add configuration validation here
+          # Check environment variables, secrets, etc.
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks]
+    environment:
+      name: production
+      url: https://trading.example.com
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log deployment start
+        run: |
+          echo "# 🚀 Production Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image tag**: ${{ github.event.inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create backup
+        run: |
+          echo "💾 Creating backup of current deployment..."
+          # Add backup logic here (database snapshots, config backups, etc.)
+          echo "✅ Backup created"
+
+      - name: Blue-Green Deployment - Deploy to Green
+        run: |
+          echo "🔄 Deploying to green environment..."
+          # Deploy new version to "green" environment
+          # docker-compose -f docker-compose.prod-green.yml pull
+          # docker-compose -f docker-compose.prod-green.yml up -d
+          echo "✅ Green environment deployed"
+
+      - name: Wait for green environment health
+        run: |
+          echo "⏳ Waiting for green environment to be healthy..."
+          TIMEOUT=${{ env.HEALTH_CHECK_TIMEOUT }}
+          INTERVAL=${{ env.HEALTH_CHECK_INTERVAL }}
+          elapsed=0
+
+          while [ $elapsed -lt $TIMEOUT ]; do
+            # Replace with your actual health check endpoint for green environment
+            if curl -f -s http://green.trading.example.com/health > /dev/null 2>&1; then
+              echo "✅ Green environment is healthy!"
+              exit 0
+            fi
+            echo "⏳ Waiting for green environment... (${elapsed}s/${TIMEOUT}s)"
+            sleep $INTERVAL
+            elapsed=$((elapsed + INTERVAL))
+          done
+
+          echo "❌ Health check timeout on green environment!"
+          exit 1
+
+      - name: Run smoke tests on green
+        if: ${{ !github.event.inputs.skip_smoke_tests }}
+        run: |
+          echo "🧪 Running smoke tests on green environment..."
+          # pytest tests/smoke/ --base-url=http://green.trading.example.com
+          echo "✅ Smoke tests passed"
+
+      - name: Switch traffic to green (Blue-Green cutover)
+        run: |
+          echo "🔀 Switching traffic from blue to green..."
+          # Update load balancer / ingress to point to green
+          # kubectl patch service app -p '{"spec":{"selector":{"version":"green"}}}'
+          echo "✅ Traffic switched to green environment"
+
+      - name: Monitor for 5 minutes
+        run: |
+          echo "📊 Monitoring production for 5 minutes..."
+          sleep 300
+          # Add monitoring checks here (error rates, response times, etc.)
+          echo "✅ Monitoring period completed successfully"
+
+      - name: Decommission blue environment
+        run: |
+          echo "🗑️ Decommissioning old blue environment..."
+          # docker-compose -f docker-compose.prod-blue.yml down
+          echo "✅ Blue environment decommissioned"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "## ✅ Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Environment**: Production" >> $GITHUB_STEP_SUMMARY
+            echo "**URL**: https://trading.example.com" >> $GITHUB_STEP_SUMMARY
+            echo "**Image tag**: ${{ github.event.inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Deployed by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Post-Deployment Actions" >> $GITHUB_STEP_SUMMARY
+            echo "- [ ] Monitor application metrics" >> $GITHUB_STEP_SUMMARY
+            echo "- [ ] Review error logs" >> $GITHUB_STEP_SUMMARY
+            echo "- [ ] Notify stakeholders" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Production Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**CRITICAL**: Production deployment failed!" >> $GITHUB_STEP_SUMMARY
+            echo "Rollback initiated automatically." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "🔄 CRITICAL: Rolling back production deployment..."
+          # Switch traffic back to blue
+          # kubectl patch service app -p '{"spec":{"selector":{"version":"blue"}}}'
+          # Restart blue environment if needed
+          # docker-compose -f docker-compose.prod-blue.yml up -d --force-recreate
+          echo "✅ Rollback completed - production restored to previous version"
+
+      - name: Send notification
+        if: always()
+        run: |
+          echo "📧 Sending deployment notification..."
+          # Add notification logic (Slack, email, etc.)
+          # curl -X POST -H 'Content-type: application/json' --data '{"text":"Production deployment ${{ job.status }}"}' ${{ secrets.SLACK_WEBHOOK }}

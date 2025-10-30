@@ -116,7 +116,7 @@ class PerformanceProfiler:
             metrics.memory_current = final_memory
 
             if self.enable_memory_tracking:
-                current, peak = tracemalloc.get_traced_memory()
+                _current, peak = tracemalloc.get_traced_memory()
                 metrics.memory_peak = peak / 1024 / 1024  # MB
                 tracemalloc.stop()
             else:

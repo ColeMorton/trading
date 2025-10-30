@@ -366,7 +366,7 @@ def add(
             from pathlib import Path
 
             # Look for strategy data in latest portfolio directories
-            portfolio_pattern = f"data/raw/strategies/*/{ ticker}_{timeframe}_*.csv"
+            portfolio_pattern = f"data/raw/strategies/*/{ticker}_{timeframe}_*.csv"
             portfolio_files = glob.glob(portfolio_pattern)
 
             if not portfolio_files:

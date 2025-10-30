@@ -5,6 +5,7 @@ Provides beautiful terminal output by default, with --quiet mode for automation.
 """
 
 import argparse
+import contextlib
 import logging
 import os
 import shutil
@@ -129,10 +130,8 @@ class DailyTradingExecutor:
         cutoff_time = time.time() - (self.max_log_files * 24 * 3600)
         for log_file in self.log_dir.glob("daily_*.log"):
             if log_file.stat().st_mtime < cutoff_time:
-                try:
+                with contextlib.suppress(OSError):
                     log_file.unlink()
-                except OSError:
-                    pass
 
     def _log_and_print(self, level: str, message: str):
         """Log message using unified Rich logging."""
@@ -263,10 +262,9 @@ class DailyTradingExecutor:
                 return token in self.allowed_commands
 
         # Special case: if only global flags (like --help, --version), allow
-        if all(token.startswith("--") or token.startswith("-") for token in tokens):
-            return True
-
-        return False
+        return bool(
+            all(token.startswith("--") or token.startswith("-") for token in tokens)
+        )
 
     def _execute_command(
         self,
@@ -309,7 +307,7 @@ class DailyTradingExecutor:
                 # Read output files
                 stdout_file.seek(0)
                 stderr_file.seek(0)
-                stdout_content = stdout_file.read()
+                stdout_file.read()
                 stderr_content = stderr_file.read()
 
                 # Clean up temp files
@@ -484,7 +482,7 @@ class DailyTradingExecutor:
                 )
 
                 # Execute each command
-                for i, (cmd_index, cmd_config) in enumerate(enabled_commands):
+                for _i, (cmd_index, cmd_config) in enumerate(enabled_commands):
                     name = cmd_config.get("name", f"Command {cmd_index}")
                     command = cmd_config.get("command")
                     timeout = cmd_config.get("timeout", self.command_timeout_default)
@@ -526,7 +524,7 @@ class DailyTradingExecutor:
 
         else:
             # Quiet mode: execute without Rich features
-            for i, (cmd_index, cmd_config) in enumerate(enabled_commands):
+            for _i, (cmd_index, cmd_config) in enumerate(enabled_commands):
                 name = cmd_config.get("name", f"Command {cmd_index}")
                 command = cmd_config.get("command")
                 timeout = cmd_config.get("timeout", self.command_timeout_default)

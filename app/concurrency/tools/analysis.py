@@ -236,7 +236,7 @@ def analyze_concurrency(
 
         # Extract strategy risk contributions for portfolio efficiency calculation
         strategy_risk_contributions = [
-            risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0)
+            risk_metrics.get(f"strategy_{i + 1}_risk_contrib", 0.0)
             for i in range(len(config_list))
         ]
         log(f"Strategy risk contributions: {strategy_risk_contributions}", "info")
@@ -323,7 +323,7 @@ def analyze_concurrency(
             )
             strategy_efficiencies.append((efficiency, div, ind, act))
 
-            log(f"Strategy {i+1} efficiency components:", "info")
+            log(f"Strategy {i + 1} efficiency components:", "info")
             log(f"  Correlation: {strategy_metrics['correlation']:.4f}", "info")
             log(f"  Diversification: {div:.4f}", "info")
             log(f"  Independence: {ind:.4f}", "info")
@@ -424,7 +424,7 @@ def analyze_concurrency(
                 if "strategy_id" in config:
                     strategy_ids.append(config["strategy_id"])
                 else:
-                    strategy_ids.append(f"strategy_{i+1}")
+                    strategy_ids.append(f"strategy_{i + 1}")
 
             # Pass strategy allocations to the aggregate calculation
             aggregate_metrics = calculate_aggregate_signal_quality(
@@ -469,7 +469,7 @@ def analyze_concurrency(
                 try:
                     stop_loss = float(config["STOP_LOSS"])
                     log(
-                        f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {ticker}",
+                        f"Using stop loss {stop_loss:.4f} ({stop_loss * 100:.2f}%) for {ticker}",
                         "info",
                     )
                 except (ValueError, TypeError):
@@ -489,7 +489,7 @@ def analyze_concurrency(
                     strategy_ids.append(strategy_id)
                 except ValueError:
                     # Fallback to ticker if strategy_id cannot be generated
-                    strategy_ids.append(config.get("TICKER", f"strategy_{i+1}"))
+                    strategy_ids.append(config.get("TICKER", f"strategy_{i + 1}"))
 
         # Allocation scores feature has been removed
         log(

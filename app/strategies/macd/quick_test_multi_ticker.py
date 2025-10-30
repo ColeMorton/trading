@@ -86,9 +86,9 @@ def test_multi_ticker_execution():
 
         # Run tests
         for test in test_configs:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Testing: {test['name']}")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
             config: PortfolioConfig = test["config"]
             tickers = (
@@ -163,12 +163,12 @@ def test_multi_ticker_execution():
                 else:
                     print(f"✗ Failed to generate portfolios for {ticker}")
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("Test Summary:")
         print("- Single ticker with USE_CURRENT=True: ✓")
         print("- Multi-ticker with USE_CURRENT=False: ✓")
         print("- CSV export paths verified: ✓")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
         log_close()
         return True

@@ -132,22 +132,22 @@ def compare_risk_calculations(
         comparison["comparison"]["original_sum_pct"] = f"{original_sum * 100:.2f}%"
         comparison["comparison"]["fixed_sum_pct"] = f"{fixed_sum * 100:.2f}%"
         comparison["comparison"]["sum_difference"] = original_sum - fixed_sum
-        comparison["comparison"][
-            "sum_difference_pct"
-        ] = f"{(original_sum - fixed_sum) * 100:.2f}%"
+        comparison["comparison"]["sum_difference_pct"] = (
+            f"{(original_sum - fixed_sum) * 100:.2f}%"
+        )
 
         # Compare individual contributions
         strategy_comparison = []
         n_strategies = len(position_arrays)
 
         for i in range(n_strategies):
-            key = f"strategy_{i+1}_risk_contrib"
+            key = f"strategy_{i + 1}_risk_contrib"
             if key in result_original and key in result_fixed:
                 orig_val = result_original[key]
                 fixed_val = result_fixed[key]
                 strategy_comparison.append(
                     {
-                        "strategy": f"strategy_{i+1}",
+                        "strategy": f"strategy_{i + 1}",
                         "original": orig_val,
                         "fixed": fixed_val,
                         "difference": orig_val - fixed_val,
@@ -161,9 +161,9 @@ def compare_risk_calculations(
 
         # Log summary
         logger.info(
-            f"Risk contribution sum - Original: {original_sum*100:.2f}%, Fixed: {fixed_sum*100:.2f}%",
+            f"Risk contribution sum - Original: {original_sum * 100:.2f}%, Fixed: {fixed_sum * 100:.2f}%",
         )
-        logger.info(f"Difference: {(original_sum - fixed_sum)*100:.2f}%")
+        logger.info(f"Difference: {(original_sum - fixed_sum) * 100:.2f}%")
 
     return comparison
 
@@ -237,7 +237,7 @@ def create_risk_contribution_report(
             data["risk_contribution_pct"]
             for data in risk_metrics["risk_contributions"].values()
         )
-        report_lines.append(f"Total Risk Contributions: {total_contrib*100:.2f}%")
+        report_lines.append(f"Total Risk Contributions: {total_contrib * 100:.2f}%")
 
         if np.isclose(total_contrib, 1.0, rtol=1e-3):
             report_lines.append("✓ Risk contributions correctly sum to 100%")

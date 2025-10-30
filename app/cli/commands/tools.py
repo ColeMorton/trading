@@ -671,7 +671,7 @@ def _check_file_system_health(global_verbose: bool) -> dict:
     try:
         import shutil
 
-        total, used, free = shutil.disk_usage(project_root)
+        _total, _used, free = shutil.disk_usage(project_root)
         free_gb = free // (1024**3)
         if free_gb < 1:  # Less than 1GB free
             result["issues"] += 1

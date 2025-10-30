@@ -74,7 +74,9 @@ def validate_test_infrastructure():
         time.sleep(0.5)  # Brief pause between tests
 
     print("\n" + "=" * 60)
-    print(f"📊 FINAL RESULTS: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
+    print(
+        f"📊 FINAL RESULTS: {passed}/{total} tests passed ({passed / total * 100:.1f}%)"
+    )
 
     if passed == total:
         print("🏆 ALL INFRASTRUCTURE TESTS PASSED!")

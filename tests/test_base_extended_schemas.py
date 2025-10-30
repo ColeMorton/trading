@@ -407,9 +407,7 @@ class TestSchemaValidation:
 
     def test_validate_base_schema_valid(self):
         """Test validation of valid base schema."""
-        valid_base = {
-            col: "test_value" for col in BasePortfolioSchema.get_column_names()
-        }
+        valid_base = dict.fromkeys(BasePortfolioSchema.get_column_names(), "test_value")
 
         is_valid, errors = self.transformer.validate_schema(valid_base, SchemaType.BASE)
         assert is_valid
@@ -429,9 +427,9 @@ class TestSchemaValidation:
 
     def test_validate_extended_schema_valid(self):
         """Test validation of valid extended schema."""
-        valid_extended = {
-            col: "test_value" for col in ExtendedPortfolioSchema.get_column_names()
-        }
+        valid_extended = dict.fromkeys(
+            ExtendedPortfolioSchema.get_column_names(), "test_value"
+        )
 
         is_valid, errors = self.transformer.validate_schema(
             valid_extended,
@@ -443,9 +441,9 @@ class TestSchemaValidation:
     def test_validate_filtered_schema_valid(self):
         """Test validation of valid filtered schema."""
         # FilteredPortfolioSchema uses get_column_names() method, not COLUMNS attribute
-        valid_filtered = {
-            col: "test_value" for col in FilteredPortfolioSchema.get_column_names()
-        }
+        valid_filtered = dict.fromkeys(
+            FilteredPortfolioSchema.get_column_names(), "test_value"
+        )
 
         is_valid, errors = self.transformer.validate_schema(
             valid_filtered,
@@ -456,9 +454,9 @@ class TestSchemaValidation:
 
     def test_validate_schema_extra_columns(self):
         """Test validation with extra columns."""
-        portfolio_with_extra = {
-            col: "test_value" for col in BasePortfolioSchema.get_column_names()
-        }
+        portfolio_with_extra = dict.fromkeys(
+            BasePortfolioSchema.get_column_names(), "test_value"
+        )
         portfolio_with_extra["Extra Column"] = "extra_value"
 
         is_valid, errors = self.transformer.validate_schema(

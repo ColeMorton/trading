@@ -49,8 +49,8 @@ from app.tools.config_service import ConfigService
 from app.tools.entry_point import run_from_command_line
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
-from app.tools.exceptions import ConfigurationError as SystemConfigurationError
 from app.tools.exceptions import (
+    ConfigurationError as SystemConfigurationError,
     PortfolioLoadError,
     SyntheticTickerError,
     TradingSystemError,
@@ -310,7 +310,7 @@ def run_analysis(config: dict[str, Any]) -> bool:
                                     and strategy["STOP_LOSS"] is not None
                                 ):
                                     log(
-                                        f"Applying stop loss of {strategy['STOP_LOSS']} to strategy {i+1}",
+                                        f"Applying stop loss of {strategy['STOP_LOSS']} to strategy {i + 1}",
                                         "info",
                                     )
                                     portfolio_data[i] = apply_stop_loss_rules(
@@ -321,7 +321,7 @@ def run_analysis(config: dict[str, Any]) -> bool:
                                     )
                                 else:
                                     log(
-                                        f"No stop loss defined in CSV for strategy {i+1}, skipping",
+                                        f"No stop loss defined in CSV for strategy {i + 1}, skipping",
                                         "info",
                                     )
 

@@ -306,7 +306,7 @@ class MemoryOptimizer:
 
         logger.info(
             f"DataFrame memory optimized: {start_mem:.2f}MB -> {end_mem:.2f}MB "
-            f"({(1 - end_mem/start_mem)*100:.1f}% reduction)",
+            f"({(1 - end_mem / start_mem) * 100:.1f}% reduction)",
         )
 
         return df

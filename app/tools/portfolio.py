@@ -39,10 +39,13 @@ def process_portfolio_strategies(
             try:
                 strategy_id = generate_strategy_id(processed_strategy)
                 processed_strategy["strategy_id"] = strategy_id
-                log(f"Generated strategy ID for strategy {i+1}: {strategy_id}", "debug")
+                log(
+                    f"Generated strategy ID for strategy {i + 1}: {strategy_id}",
+                    "debug",
+                )
             except ValueError as e:
                 log(
-                    f"Could not generate strategy ID for strategy {i+1}: {e!s}",
+                    f"Could not generate strategy ID for strategy {i + 1}: {e!s}",
                     "warning",
                 )
 

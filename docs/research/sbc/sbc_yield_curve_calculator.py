@@ -232,7 +232,7 @@ class YieldCurveAnalyzer:
         vesting_periods.extend(milestones)
 
         # Remove duplicates and sort
-        vesting_periods = sorted(list(set(vesting_periods)))
+        vesting_periods = sorted(set(vesting_periods))
 
         return self.calculator.get_yield_curve(vesting_periods)
 
@@ -300,7 +300,6 @@ class YieldCurveAnalyzer:
 
         # SBC/SMA known characteristics
         sbc_daily_volatility_bps = 15  # 0.15% daily movement
-        sbc_annual_volatility_bps = 241  # 2.41% annual volatility
 
         # Compare yield curve changes to SBC price volatility
         curve_vs_sbc_ratio = (
@@ -327,7 +326,7 @@ def create_yield_curve_visualizations():
     fig = plt.figure(figsize=(20, 16))
 
     # 1. Main yield curve
-    ax1 = plt.subplot(3, 2, 1)
+    plt.subplot(3, 2, 1)
     curve_df = analyzer.generate_standard_curve()
 
     plt.plot(
@@ -369,7 +368,7 @@ def create_yield_curve_visualizations():
     plt.grid(True, alpha=0.3)
 
     # 2. Yield curve smoothness analysis
-    ax2 = plt.subplot(3, 2, 2)
+    plt.subplot(3, 2, 2)
     curve_df["daily_change"] = (
         curve_df["total_discount"].diff() / curve_df["vesting_days"].diff()
     )
@@ -396,7 +395,7 @@ def create_yield_curve_visualizations():
     plt.grid(True, alpha=0.3)
 
     # 3. Stress test scenarios
-    ax3 = plt.subplot(3, 2, 3)
+    plt.subplot(3, 2, 3)
     stress_df = analyzer.stress_test_scenarios()
 
     for scenario in stress_df["scenario"].unique():
@@ -417,7 +416,7 @@ def create_yield_curve_visualizations():
     plt.grid(True, alpha=0.3)
 
     # 4. Component dominance analysis
-    ax4 = plt.subplot(3, 2, 4)
+    plt.subplot(3, 2, 4)
 
     # Create stacked area chart
     plt.stackplot(
@@ -436,7 +435,7 @@ def create_yield_curve_visualizations():
     plt.grid(True, alpha=0.3)
 
     # 5. Mathematical validation
-    ax5 = plt.subplot(3, 2, 5)
+    plt.subplot(3, 2, 5)
 
     # Calculate exact compound growth vs approximation
     exact_growth = []
@@ -485,22 +484,22 @@ def create_yield_curve_visualizations():
     YIELD CURVE STABILITY ANALYSIS
 
     Curve Volatility Metrics:
-    • Average Daily Change: {stability_metrics['average_daily_change_bps']:.2f} bps
-    • Maximum Daily Change: {stability_metrics['maximum_daily_change_bps']:.2f} bps
-    • Standard Deviation: {stability_metrics['std_daily_change_bps']:.2f} bps
-    • Smoothness Score: {stability_metrics['curve_smoothness_score']:.3f}
+    • Average Daily Change: {stability_metrics["average_daily_change_bps"]:.2f} bps
+    • Maximum Daily Change: {stability_metrics["maximum_daily_change_bps"]:.2f} bps
+    • Standard Deviation: {stability_metrics["std_daily_change_bps"]:.2f} bps
+    • Smoothness Score: {stability_metrics["curve_smoothness_score"]:.3f}
 
     Component Analysis:
-    • Expected Appreciation Dominance: {stability_metrics['expected_appreciation_dominance']:.1%}
+    • Expected Appreciation Dominance: {stability_metrics["expected_appreciation_dominance"]:.1%}
 
     Comparison to SBC/SMA:
-    • SBC Daily Volatility: {sma_comparison['sbc_daily_volatility_bps']:.1f} bps
-    • Curve Daily Volatility: {sma_comparison['curve_daily_volatility_bps']:.1f} bps
-    • Volatility Ratio: {sma_comparison['volatility_ratio']:.2f}x
+    • SBC Daily Volatility: {sma_comparison["sbc_daily_volatility_bps"]:.1f} bps
+    • Curve Daily Volatility: {sma_comparison["curve_daily_volatility_bps"]:.1f} bps
+    • Volatility Ratio: {sma_comparison["volatility_ratio"]:.2f}x
 
-    CONCLUSION: {sma_comparison['conclusion'].upper()}
+    CONCLUSION: {sma_comparison["conclusion"].upper()}
 
-    The yield curve exhibits {sma_comparison['volatility_ratio']:.1f}x the volatility
+    The yield curve exhibits {sma_comparison["volatility_ratio"]:.1f}x the volatility
     of the underlying SBC/SMA, confirming the mathematical
     relationship between curve stability and SMA smoothness.
     """
@@ -513,7 +512,7 @@ def create_yield_curve_visualizations():
         fontsize=11,
         verticalalignment="top",
         fontfamily="monospace",
-        bbox=dict(boxstyle="round", facecolor="lightblue", alpha=0.1),
+        bbox={"boxstyle": "round", "facecolor": "lightblue", "alpha": 0.1},
     )
 
     plt.tight_layout()
@@ -559,7 +558,7 @@ def main():
 
     # Create visualizations
     print("5. Creating visualizations...")
-    fig = create_yield_curve_visualizations()
+    create_yield_curve_visualizations()
     print("   Saved visualization to sbc_yield_curve_analysis.png")
 
     # Export data

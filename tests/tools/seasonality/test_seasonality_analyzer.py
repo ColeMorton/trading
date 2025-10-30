@@ -58,10 +58,10 @@ class TestSharpeRatioCalculation:
     def test_sharpe_positive_returns(self):
         """Test Sharpe ratio calculation with positive returns."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -87,7 +87,7 @@ class TestSharpeRatioCalculation:
     def test_sharpe_negative_returns(self):
         """Test Sharpe ratio is negative when returns are negative."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -119,7 +119,7 @@ class TestSharpeRatioCalculation:
     def test_sharpe_zero_std_deviation(self):
         """CRITICAL: Test Sharpe ratio handles zero std deviation."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -143,7 +143,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_uses_downside_deviation_only(self):
         """CRITICAL: Sortino must use ONLY downside (negative) returns for std."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -171,7 +171,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_all_positive_returns(self):
         """CRITICAL: Sortino with all positive returns (no downside)."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -194,7 +194,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_differs_from_sharpe_with_asymmetric_returns(self):
         """Test that Sortino differs from Sharpe when returns are asymmetric."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -220,7 +220,7 @@ class TestMaximumDrawdown:
     def test_max_drawdown_identifies_worst_loss(self):
         """Test that max drawdown correctly identifies the worst single-period loss."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -239,7 +239,7 @@ class TestMaximumDrawdown:
     def test_max_drawdown_all_positive(self):
         """Test max drawdown with all positive returns."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -258,7 +258,7 @@ class TestMaximumDrawdown:
     def test_max_drawdown_all_negative(self):
         """Test max drawdown with all negative returns."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -281,7 +281,7 @@ class TestSkewnessCalculation:
     def test_skewness_requires_minimum_samples(self):
         """Test that skewness is 0 when fewer than 3 samples."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -301,7 +301,7 @@ class TestSkewnessCalculation:
     def test_skewness_positive_for_right_tail(self, high_skew_data):
         """Test positive skewness for right-tailed distribution."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -324,7 +324,7 @@ class TestSkewnessCalculation:
     def test_skewness_matches_scipy(self):
         """Test that skewness matches scipy.stats.skew calculation."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -350,7 +350,7 @@ class TestKurtosisCalculation:
     def test_kurtosis_requires_minimum_samples(self):
         """Test that kurtosis is 0 when fewer than 4 samples."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -370,7 +370,7 @@ class TestKurtosisCalculation:
     def test_kurtosis_matches_scipy(self):
         """Test that kurtosis matches scipy.stats.kurtosis calculation."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -396,7 +396,7 @@ class TestStatisticalSignificance:
     def test_p_value_in_valid_range(self):
         """Test that p-value is always between 0 and 1."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -417,7 +417,7 @@ class TestStatisticalSignificance:
     def test_significance_equals_one_minus_pvalue_when_significant(self):
         """Test that statistical_significance = 1 - p_value when p < confidence_level."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls(confidence_level=0.95)
 
@@ -438,7 +438,7 @@ class TestStatisticalSignificance:
     def test_significance_zero_when_not_significant(self):
         """Test that statistical_significance = 0 when p >= confidence_level."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls(confidence_level=0.95)
 
@@ -465,7 +465,7 @@ class TestConfidenceIntervals:
     def test_confidence_interval_calculated(self):
         """Test that confidence intervals are calculated."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls(confidence_level=0.95)
 
@@ -487,7 +487,7 @@ class TestConfidenceIntervals:
     def test_confidence_interval_contains_mean(self):
         """Test that confidence interval contains the mean."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls(confidence_level=0.95)
 
@@ -513,7 +513,7 @@ class TestConfidenceIntervals:
     def test_confidence_interval_width_increases_with_std(self):
         """Test that wider std deviation gives wider confidence interval."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls(confidence_level=0.95)
 
@@ -556,7 +556,7 @@ class TestConsistencyScore:
     def test_consistency_equals_win_rate(self):
         """Test that consistency score equals win rate."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -577,7 +577,7 @@ class TestConsistencyScore:
     def test_consistency_100_percent_all_positive(self, all_positive_returns_data):
         """Test 100% consistency with all positive returns."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -598,7 +598,7 @@ class TestConsistencyScore:
     def test_consistency_0_percent_all_negative(self, all_negative_returns_data):
         """Test 0% consistency with all negative returns."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -623,7 +623,7 @@ class TestEdgeCases:
     def test_single_sample(self):
         """Test pattern creation with single sample."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -644,7 +644,7 @@ class TestEdgeCases:
     def test_two_samples(self):
         """Test pattern creation with two samples."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -664,7 +664,7 @@ class TestEdgeCases:
     def test_zero_variance_returns(self, flat_returns_data):
         """Test with zero variance (all same return)."""
         analyzer_cls = get_analyzer_class()
-        pattern_type_cls = get_pattern_type()
+        get_pattern_type()
 
         analyzer = analyzer_cls()
 

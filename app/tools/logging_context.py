@@ -46,7 +46,7 @@ def logging_context(
             log("Processing completed")
     """
     # Set up logging
-    log, log_close, logger, file_handler = setup_logging(
+    log, log_close, _logger, _file_handler = setup_logging(
         module_name=module_name,
         log_file=log_file,
         level=level,

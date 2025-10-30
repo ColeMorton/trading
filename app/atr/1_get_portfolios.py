@@ -517,7 +517,7 @@ def parameter_sensitivity_analysis(
 
                 try:
                     # Analyze parameters
-                    length_val, multiplier_val, total_return = analyze_params(
+                    _length_val, _multiplier_val, total_return = analyze_params(
                         data.copy(),
                         length,
                         multiplier,

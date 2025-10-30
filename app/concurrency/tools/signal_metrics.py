@@ -289,7 +289,7 @@ def _calculate_unique_portfolio_signals(
             signal_dates = signals_df.index.tolist()
             unique_signal_dates.update(signal_dates)
 
-            log(f"Strategy {i+1}: {len(signal_dates)} signals", "info")
+            log(f"Strategy {i + 1}: {len(signal_dates)} signals", "info")
 
         # Create DataFrame with unique signal dates
         if unique_signal_dates:

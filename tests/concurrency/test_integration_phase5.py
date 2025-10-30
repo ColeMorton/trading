@@ -443,7 +443,7 @@ class TestConcurrencyIntegrationPhase5:
         (
             data_list,
             config_list,
-            expected,
+            _expected,
         ) = TestPortfolioBuilder.create_simple_test_portfolio()
 
         # Enable all fixes
@@ -485,7 +485,7 @@ class TestConcurrencyIntegrationPhase5:
         (
             data_list,
             config_list,
-            expected,
+            _expected,
         ) = TestPortfolioBuilder.create_simple_test_portfolio()
 
         fixes = [
@@ -535,7 +535,7 @@ class TestConcurrencyIntegrationPhase5:
         (
             data_list,
             config_list,
-            expected,
+            _expected,
         ) = TestPortfolioBuilder.create_simple_test_portfolio()
 
         # Enable all fixes
@@ -585,7 +585,7 @@ class TestConcurrencyIntegrationPhase5:
         (
             data_list,
             config_list,
-            expected,
+            _expected,
         ) = TestPortfolioBuilder.create_simple_test_portfolio()
 
         benchmark = PerformanceBenchmark()
@@ -631,7 +631,7 @@ class TestConcurrencyIntegrationPhase5:
         (
             data_list,
             config_list,
-            expected,
+            _expected,
         ) = TestPortfolioBuilder.create_simple_test_portfolio()
 
         # Enable all fixes

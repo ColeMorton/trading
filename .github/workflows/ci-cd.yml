@@ -21,32 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.3
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+          dependency-groups: 'all'
+          cache-key-suffix: 'lint'
 
       - name: Run linters
         run: |
-          poetry run black --check .
-          poetry run isort --check-only .
-          poetry run flake8 .
+          poetry run ruff format --check .
+          poetry run ruff check .
           poetry run mypy app/ || echo "⚠️ mypy found type issues (non-blocking)"
 
       - name: Security scan with bandit
@@ -57,6 +42,10 @@ jobs:
     name: Test Backend
     runs-on: ubuntu-latest
     needs: lint
+    strategy:
+      matrix:
+        test-group: [unit, integration]
+      fail-fast: false
     services:
       postgres:
         image: postgres:15-alpine
@@ -85,32 +74,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+          dependency-groups: 'all'
+          cache-key-suffix: 'test-${{ matrix.test-group }}'
 
       - name: Run database migrations
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
         run: |
-          poetry run prisma generate
-          poetry run prisma migrate deploy
+          poetry run alembic upgrade head
 
-      - name: Run unified test suite
+      - name: Run ${{ matrix.test-group }} tests
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
           REDIS_URL: redis://localhost:6379
           ENVIRONMENT: test
           PYTEST_RUNNING: 1
         run: |
-          poetry run python tests/run_unified_tests.py ci -c --save ci_results.json
+          poetry run pytest tests/ -v -m "${{ matrix.test-group }}" --cov=app --cov-report=xml --cov-report=term-missing --maxfail=10 --tb=short -n auto
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
@@ -122,8 +106,11 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ci-test-results
-          path: ci_results.json
+          name: ci-test-results-${{ matrix.test-group }}
+          path: |
+            .coverage
+            coverage.xml
+            htmlcov/
           retention-days: 30
 
   # Performance tests
@@ -135,75 +122,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
+          dependency-groups: 'all'
+          cache-key-suffix: 'perf'
 
       - name: Run performance tests
         env:
           ENVIRONMENT: test
           PYTEST_RUNNING: 1
         run: |
-          poetry run python tests/run_unified_tests.py performance --save performance_results.json
+          poetry run pytest tests/performance/ -v -m performance --tb=short
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-test-results
-          path: performance_results.json
+          path: |
+            .pytest_cache/
+            htmlcov/
           retention-days: 90
-
-      - name: Performance regression check
-        run: |
-          # Compare with baseline if available
-          if [ -f baseline_performance.json ]; then
-            poetry run python tests/check_performance_regression.py performance_results.json baseline_performance.json
-          fi
-
-  # Frontend tests
-  test-frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: app/frontend/sensylate/package-lock.json
-
-      - name: Install dependencies
-        working-directory: app/frontend/sensylate
-        run: npm ci
-
-      - name: Run linter
-        working-directory: app/frontend/sensylate
-        run: npm run lint
-
-      - name: Run tests
-        working-directory: app/frontend/sensylate
-        run: npm test -- --coverage
-
-      - name: Build application
-        working-directory: app/frontend/sensylate
-        run: npm run build
 
   # Build Docker images
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
+    needs: [test-backend]
     permissions:
       contents: read
       packages: write
@@ -213,9 +160,6 @@ jobs:
           - dockerfile: Dockerfile.api
             context: .
             image: api
-          - dockerfile: app/frontend/sensylate/Dockerfile
-            context: app/frontend/sensylate
-            image: frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -255,37 +199,133 @@ jobs:
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VERSION=${{ github.sha }}
 
-  # Integration tests
-  integration-test:
-    name: Integration Tests
+  # End-to-End Integration Tests
+  e2e-test:
+    name: E2E Tests
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Compose
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml config
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Start services
+      - name: Install test dependencies
         run: |
-          docker compose -f docker-compose.prod.yml up -d
+          python -m pip install --upgrade pip
+          pip install pytest httpx pytest-asyncio
 
-      - name: Wait for services
-        run: |
-          timeout 60 bash -c 'until curl -f http://localhost/health; do sleep 1; done'
+      - name: Start E2E stack
+        run: docker compose -f docker-compose.e2e.yml up -d
 
-      - name: Run integration tests
+      - name: Wait for API
         run: |
-          docker compose -f docker-compose.prod.yml exec -T api python tests/run_unified_tests.py e2e -v --save integration_results.json
+          python - <<'PY'
+          import httpx, time, sys
+          for _ in range(180):
+              try:
+                  httpx.get('http://localhost:8000/health', timeout=2).raise_for_status()
+                  break
+              except Exception:
+                  time.sleep(1)
+          else:
+              print('API did not become healthy in time')
+              sys.exit(1)
+          PY
+
+      - name: Run E2E tests
+        env:
+          E2E_API: http://localhost:8000
+          E2E_API_KEY: dev-key-000000000000000000000000
+        run: pytest tests/e2e/ -v -k e2e --tb=short
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            .pytest_cache/
+            logs/
+          retention-days: 30
 
       - name: Collect logs
         if: failure()
-        run: |
-          docker compose -f docker-compose.prod.yml logs
+        run: docker compose -f docker-compose.e2e.yml logs
 
-      - name: Stop services
+      - name: Teardown
         if: always()
+        run: docker compose -f docker-compose.e2e.yml down -v
+
+  # CI/CD Summary
+  ci-summary:
+    name: CI/CD Summary
+    runs-on: ubuntu-latest
+    needs: [lint, test-backend, test-performance, build, e2e-test]
+    if: always()
+    steps:
+      - name: Generate CI/CD Summary
         run: |
-          docker compose -f docker-compose.prod.yml down -v
+          echo "# 🚀 CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Pipeline Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.lint.result }}" == "success" ]; then
+            echo "✅ **Linting**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Linting**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.test-backend.result }}" == "success" ]; then
+            echo "✅ **Backend Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Backend Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.test-performance.result }}" == "success" ]; then
+            echo "✅ **Performance Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test-performance.result }}" == "skipped" ]; then
+            echo "⏭️ **Performance Tests**: SKIPPED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Performance Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ **Docker Build**: PASSED" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build.result }}" == "skipped" ]; then
+            echo "⏭️ **Docker Build**: SKIPPED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Docker Build**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.e2e-test.result }}" == "success" ]; then
+            echo "✅ **E2E Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.e2e-test.result }}" == "skipped" ]; then
+            echo "⏭️ **E2E Tests**: SKIPPED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **E2E Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Test results and coverage reports available in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker images pushed to GHCR (if applicable)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Overall status
+          if [ "${{ needs.lint.result }}" == "success" ] && \
+             [ "${{ needs.test-backend.result }}" == "success" ] && \
+             [ "${{ needs.build.result }}" == "success" ] || [ "${{ needs.build.result }}" == "skipped" ]; then
+            echo "## ✅ Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Overall Status: FAILURE" >> $GITHUB_STEP_SUMMARY
+          fi

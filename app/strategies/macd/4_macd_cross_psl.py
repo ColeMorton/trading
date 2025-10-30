@@ -185,9 +185,9 @@ def main():
         results.append((holding_period, total_return, num_positions, expectancy))
 
     # Plot the results with three y-axes
-    holding_periods, returns, num_positions, expectancies = zip(*results, strict=False)
+    holding_periods, _returns, num_positions, expectancies = zip(*results, strict=False)
 
-    fig, ax1 = plt.subplots(figsize=(12, 6))
+    _fig, ax1 = plt.subplots(figsize=(12, 6))
 
     color = "tab:green"
     ax1.set_xlabel("Holding Period")

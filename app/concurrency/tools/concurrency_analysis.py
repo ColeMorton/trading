@@ -74,7 +74,7 @@ class ConcurrencyAnalysis:
         strategies = load_portfolio(str(portfolio_path))
 
         # Process strategies
-        data_list, aligned_data = process_strategies(strategies, self.log, self.config)
+        _data_list, aligned_data = process_strategies(strategies, self.log, self.config)
 
         # Convert strategies to config list
         config_list = []

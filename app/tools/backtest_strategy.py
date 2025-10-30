@@ -64,7 +64,7 @@ def backtest_strategy(
                     # but execute at the candle's close price
                     params["sl_stop"] = stop_loss
                     log(
-                        f"Applied stop loss of {stop_loss*100:.2f}% with exit at candle close",
+                        f"Applied stop loss of {stop_loss * 100:.2f}% with exit at candle close",
                         "debug",
                     )
                 else:
@@ -77,12 +77,12 @@ def backtest_strategy(
                         else 1 + stop_loss
                     )
                     log(
-                        f"Applied stop loss of {stop_loss*100:.2f}% with immediate exit",
+                        f"Applied stop loss of {stop_loss * 100:.2f}% with immediate exit",
                         "debug",
                     )
             else:
                 log(
-                    f"Warning: Invalid stop loss value {stop_loss*100:.2f}% - must be between 0% and 100%",
+                    f"Warning: Invalid stop loss value {stop_loss * 100:.2f}% - must be between 0% and 100%",
                     "warning",
                 )
         else:

@@ -239,7 +239,7 @@ class SPDSDependencyAnalyzer:
             if node in visited:
                 # Found a cycle
                 cycle_start = path.index(node)
-                return [path[cycle_start:] + [node]]
+                return [[*path[cycle_start:], node]]
 
             visited.add(node)
             path.append(node)
@@ -422,7 +422,7 @@ class SPDSDependencyAnalyzer:
 
             # Find the full path for this file
             full_path = None
-            for path in self.spds_files.keys():
+            for path in self.spds_files:
                 if Path(path).name == file_name:
                     full_path = path
                     break

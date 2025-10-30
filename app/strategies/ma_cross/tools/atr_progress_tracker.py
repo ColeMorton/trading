@@ -232,7 +232,7 @@ class ATRProgressTracker:
         )
         log(f"  Chunk: {summary['current_chunk']}/{summary['total_chunks']}", "info")
         log(
-            f"  Success rate: {summary['successful_combinations']}/{summary['completed_combinations']} ({summary['successful_combinations']/max(1,summary['completed_combinations'])*100:.1f}%)",
+            f"  Success rate: {summary['successful_combinations']}/{summary['completed_combinations']} ({summary['successful_combinations'] / max(1, summary['completed_combinations']) * 100:.1f}%)",
             "info",
         )
         log(f"  Processing rate: {processing_rate:.1f} combinations/second", "info")

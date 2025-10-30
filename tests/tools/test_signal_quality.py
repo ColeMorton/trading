@@ -25,7 +25,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
     def test_calculate_signal_quality_metrics(self):
         """Test the main signal quality metrics calculation function."""
         # Create test data
-        dates = [f"2023-01-{i+1:02d}" for i in range(10)]
+        dates = [f"2023-01-{i + 1:02d}" for i in range(10)]
         signals = [0, 1, 0, -1, 0, 1, 0, 0, -1, 0]
         returns = [0.01, 0.01, 0.02, -0.02, 0.01, 0.02, -0.02, 0.01, -0.01, 0.01]
 
@@ -65,7 +65,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
     def test_horizon_metrics_integration(self):
         """Test that horizon metrics are correctly integrated with signal quality metrics."""
         # Create test data
-        dates = [f"2023-01-{i+1:02d}" for i in range(20)]
+        dates = [f"2023-01-{i + 1:02d}" for i in range(20)]
         signals = [0] * 20
         signals[1] = 1  # Signal at t=1
         signals[5] = -1  # Signal at t=5
@@ -125,7 +125,7 @@ class TestSignalQualityMetrics(unittest.TestCase):
     def test_no_signals(self):
         """Test behavior with no signals."""
         # Create test data with no signals
-        dates = [f"2023-01-{i+1:02d}" for i in range(10)]
+        dates = [f"2023-01-{i + 1:02d}" for i in range(10)]
         signals = [0] * 10
         returns = [0.01] * 10
 

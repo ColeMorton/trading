@@ -268,7 +268,7 @@ Examples:
         # Show high confidence results
         high_confidence = sum(1 for r in results.values() if r.confidence_level >= 75)
         print(
-            f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence/len(results)*100:.1f}%)",
+            f"\nHigh Confidence Results: {high_confidence}/{len(results)} ({high_confidence / len(results) * 100:.1f}%)",
         )
 
         return 0

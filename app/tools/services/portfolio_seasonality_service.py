@@ -210,7 +210,7 @@ class PortfolioSeasonalityService:
 
                 if durations:
                     # Use average duration across all signal entry strategies
-                    avg_duration = int(round(sum(durations) / len(durations)))
+                    avg_duration = round(sum(durations) / len(durations))
                     ticker_periods[ticker] = max(
                         1,
                         avg_duration,

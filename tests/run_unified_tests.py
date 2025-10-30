@@ -346,7 +346,7 @@ class UnifiedTestRunner:
 
         print(f"\n🧪 Running {category} tests: {config['description']}")
         print(
-            f"{isolation_indicator} Isolation: {config['isolation_level']} | {parallel_indicator} | ⏱️ Max: {timeout_seconds//60}m{timeout_seconds%60}s",
+            f"{isolation_indicator} Isolation: {config['isolation_level']} | {parallel_indicator} | ⏱️ Max: {timeout_seconds // 60}m{timeout_seconds % 60}s",
         )
         print(
             f"💾 Memory: {config['resource_requirements']['memory_mb']}MB | 🖥️ CPU: {config['resource_requirements']['cpu_cores']} cores",

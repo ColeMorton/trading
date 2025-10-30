@@ -146,7 +146,7 @@ class RiskMetricsCalculator:
             # Calculate distribution metrics
             skewness = stats.skew(returns_array)
             kurtosis = stats.kurtosis(returns_array)
-            jarque_bera_stat, jarque_bera_pvalue = stats.jarque_bera(returns_array)
+            _jarque_bera_stat, jarque_bera_pvalue = stats.jarque_bera(returns_array)
 
             # Calculate tail risk metrics
             tail_ratio = self._calculate_tail_ratio(returns_array)

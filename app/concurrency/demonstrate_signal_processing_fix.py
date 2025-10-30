@@ -228,7 +228,7 @@ def demonstrate_filtering_transparency():
 
     processor = SignalProcessor()
     raw_count = processor.count_raw_signals(filter_data, signal_def)
-    filtered_count, filtered_df = processor.count_filtered_signals(
+    filtered_count, _filtered_df = processor.count_filtered_signals(
         filter_data,
         signal_def,
     )
@@ -237,7 +237,7 @@ def demonstrate_filtering_transparency():
     print(f"Original signals: {raw_count}")
     print(f"After filtering: {filtered_count}")
     print(f"Signals removed: {raw_count - filtered_count}")
-    print(f"Filter efficiency: {filtered_count/raw_count:.1%}")
+    print(f"Filter efficiency: {filtered_count / raw_count:.1%}")
 
     print("\nDetailed Filtering Breakdown:")
     print("Index | Signal | Volume | RSI | Vol OK | RSI OK | Final")

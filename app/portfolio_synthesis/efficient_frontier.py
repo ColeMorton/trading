@@ -337,7 +337,7 @@ def enforce_half_rule_and_normalize(allocations):
 
     print(f"Original min: {min_ticker} = {min_value}")
     print(f"Original max: {max_ticker} = {max_value}")
-    print(f"Current ratio of min/max: {min_value/max_value}")
+    print(f"Current ratio of min/max: {min_value / max_value}")
 
     # To preserve ratios between allocations, we add a constant 'c' where:
     # (min_value + c) / (max_value + c) = 0.5

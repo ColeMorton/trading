@@ -52,9 +52,9 @@ def format_currency(value: Any) -> Text:
         val = float(value)
         color = "green" if val > 0 else "red" if val < 0 else "yellow"
         if abs(val) >= 1000000:
-            formatted = f"${val/1000000:.2f}M"
+            formatted = f"${val / 1000000:.2f}M"
         elif abs(val) >= 1000:
-            formatted = f"${val/1000:.1f}K"
+            formatted = f"${val / 1000:.1f}K"
         else:
             formatted = f"${val:.2f}"
         return Text(formatted, style=color)

@@ -6,6 +6,7 @@ functionality for progress tracking and error handling.
 """
 
 import asyncio
+import contextlib
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -151,10 +152,8 @@ class BaseCommandService:
                 # Cancel heartbeat when command completes
                 if heartbeat_task:
                     heartbeat_task.cancel()
-                    try:
+                    with contextlib.suppress(asyncio.CancelledError):
                         await heartbeat_task
-                    except asyncio.CancelledError:
-                        pass
 
             success = process.returncode == 0
 

@@ -144,7 +144,7 @@ class IntelligentCacheManager:
 
         if total_size > self.max_size_bytes * self.cleanup_threshold:
             self.logger.info(
-                f"Cache cleanup triggered. Current size: {total_size / (1024*1024):.1f}MB",
+                f"Cache cleanup triggered. Current size: {total_size / (1024 * 1024):.1f}MB",
             )
             self._cleanup_lru()
 
@@ -171,7 +171,7 @@ class IntelligentCacheManager:
 
         self._save_metadata()
         self.logger.info(
-            f"Cache cleanup complete. New size: {current_size / (1024*1024):.1f}MB",
+            f"Cache cleanup complete. New size: {current_size / (1024 * 1024):.1f}MB",
         )
 
     def get(

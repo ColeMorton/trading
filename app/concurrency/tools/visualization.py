@@ -329,11 +329,11 @@ def plot_concurrency(
 
         # Log the mathematically correct allocation
         log(
-            f"Mathematically correct allocation - Spacing: {spacing_total*100:.1f}%, Available: {available_space*100:.1f}%, Strategy plots: {strategy_space_total*100:.1f}%, Heatmap: {heatmap_space*100:.1f}%",
+            f"Mathematically correct allocation - Spacing: {spacing_total * 100:.1f}%, Available: {available_space * 100:.1f}%, Strategy plots: {strategy_space_total * 100:.1f}%, Heatmap: {heatmap_space * 100:.1f}%",
             "info",
         )
         log(
-            f"Per-strategy height: {strategy_row_height*100:.1f}%, Total: {(spacing_total + strategy_space_total + heatmap_space)*100:.1f}%",
+            f"Per-strategy height: {strategy_row_height * 100:.1f}%, Total: {(spacing_total + strategy_space_total + heatmap_space) * 100:.1f}%",
             "info",
         )
 

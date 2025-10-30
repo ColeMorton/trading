@@ -251,7 +251,7 @@ class StatisticalAnalysisReportGenerator:
         content = f"""# Statistical Performance Divergence Analysis
 ## Executive Summary
 
-**Analysis Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Analysis Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Positions Analyzed:** {total_analyses}
 **Analysis Framework:** Statistical Performance Divergence System v1.0
 
@@ -354,7 +354,7 @@ class StatisticalAnalysisReportGenerator:
         content = f"""# Statistical Performance Divergence Analysis
 ## Detailed Analysis Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Total Positions:** {len(analysis_results)}
 **Analysis Framework:** SPDS v1.0
 
@@ -448,7 +448,7 @@ class StatisticalAnalysisReportGenerator:
         content = f"""# Statistical Performance Divergence Analysis
 ## Technical Deep-Dive Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Analysis Count:** {len(analysis_results)}
 **Framework Version:** SPDS v1.0
 
@@ -464,7 +464,7 @@ class StatisticalAnalysisReportGenerator:
 
 ### Data Sources
 - **Asset Layer:** Return distribution database (./data/raw/reports/return_distribution/)
-- **Strategy Layer:** {'Trade history (./data/raw/positions/)' if self.config.USE_TRADE_HISTORY else 'Equity curves (./data/outputs/portfolio_analysis/)'}
+- **Strategy Layer:** {"Trade history (./data/raw/positions/)" if self.config.USE_TRADE_HISTORY else "Equity curves (./data/outputs/portfolio_analysis/)"}
 - **Sample Sizes:** {np.mean([r.sample_size for r in analysis_results]):.1f} average observations
 
 ---
@@ -547,8 +547,8 @@ class StatisticalAnalysisReportGenerator:
 
 ### Configuration Parameters
 - USE_TRADE_HISTORY: {self.config.USE_TRADE_HISTORY}
-- Timeframes Analyzed: {', '.join(self.config.TIMEFRAMES)}
-- Percentile Thresholds: {', '.join(f'{k}: {v}' for k, v in self.config.PERCENTILE_THRESHOLDS.items())}
+- Timeframes Analyzed: {", ".join(self.config.TIMEFRAMES)}
+- Percentile Thresholds: {", ".join(f"{k}: {v}" for k, v in self.config.PERCENTILE_THRESHOLDS.items())}
 
 ### Performance Targets
 - Exit Efficiency Target: 85% (vs 57% baseline)
@@ -628,34 +628,34 @@ class StatisticalAnalysisReportGenerator:
 
         return f"""# Portfolio Performance Analysis Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## Performance Summary
 
 ### Overall Metrics
-- **Total Positions:** {performance_data.get('total_positions', 0)}
-- **Portfolio Value:** ${performance_data.get('total_value', 0):,.2f}
-- **Unrealized P&L:** {performance_data.get('unrealized_pnl_pct', 0):.2%}
-- **Exit Efficiency:** {performance_data.get('exit_efficiency', 0):.1%}
+- **Total Positions:** {performance_data.get("total_positions", 0)}
+- **Portfolio Value:** ${performance_data.get("total_value", 0):,.2f}
+- **Unrealized P&L:** {performance_data.get("unrealized_pnl_pct", 0):.2%}
+- **Exit Efficiency:** {performance_data.get("exit_efficiency", 0):.1%}
 
 ### Performance Statistics
-- **Win Rate:** {performance_data.get('win_rate', 0):.1%}
-- **Profit Factor:** {performance_data.get('profit_factor', 0):.2f}
-- **Sharpe Ratio:** {performance_data.get('sharpe_ratio', 0):.2f}
-- **Max Drawdown:** {performance_data.get('max_drawdown', 0):.2%}
+- **Win Rate:** {performance_data.get("win_rate", 0):.1%}
+- **Profit Factor:** {performance_data.get("profit_factor", 0):.2f}
+- **Sharpe Ratio:** {performance_data.get("sharpe_ratio", 0):.2f}
+- **Max Drawdown:** {performance_data.get("max_drawdown", 0):.2%}
 
 ## Strategy Attribution
 
-{self._format_attribution_table(performance_data.get('strategy_attribution', {}))}
+{self._format_attribution_table(performance_data.get("strategy_attribution", {}))}
 
 ## Risk Analysis
 
 ### Risk Metrics
-- **Portfolio Health Score:** {performance_data.get('portfolio_health_score', 0):.1f}/100
-- **Risk Level:** {performance_data.get('risk_level', 'UNKNOWN')}
+- **Portfolio Health Score:** {performance_data.get("portfolio_health_score", 0):.1f}/100
+- **Risk Level:** {performance_data.get("risk_level", "UNKNOWN")}
 
 ### Recommendations
-{chr(10).join([f'- {rec}' for rec in performance_data.get('recommendations', [])])}
+{chr(10).join([f"- {rec}" for rec in performance_data.get("recommendations", [])])}
 
 ---
 
@@ -670,27 +670,27 @@ class StatisticalAnalysisReportGenerator:
 
         return f"""# Exit Efficiency Analysis Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## Exit Efficiency Overview
 
 ### Current Performance
-- **Current Efficiency:** {efficiency_data.get('current_efficiency', 0):.1%}
-- **Baseline Efficiency:** {efficiency_data.get('baseline_efficiency', 0.57):.1%}
-- **Improvement:** {efficiency_data.get('improvement', 0):+.1%}
-- **Target Efficiency:** {efficiency_data.get('target_efficiency', 0.85):.1%}
-- **Progress to Target:** {efficiency_data.get('progress_to_target', 0):.1%}
+- **Current Efficiency:** {efficiency_data.get("current_efficiency", 0):.1%}
+- **Baseline Efficiency:** {efficiency_data.get("baseline_efficiency", 0.57):.1%}
+- **Improvement:** {efficiency_data.get("improvement", 0):+.1%}
+- **Target Efficiency:** {efficiency_data.get("target_efficiency", 0.85):.1%}
+- **Progress to Target:** {efficiency_data.get("progress_to_target", 0):.1%}
 
 ### Efficiency Trend
-**Trend Direction:** {efficiency_data.get('efficiency_trend', 'stable').title()}
+**Trend Direction:** {efficiency_data.get("efficiency_trend", "stable").title()}
 
 ## Strategy Breakdown
 
 ### Efficiency by Strategy
-{self._format_efficiency_table(efficiency_data.get('efficiency_by_strategy', {}))}
+{self._format_efficiency_table(efficiency_data.get("efficiency_by_strategy", {}))}
 
 ### Efficiency by Timeframe
-{self._format_efficiency_table(efficiency_data.get('efficiency_by_timeframe', {}))}
+{self._format_efficiency_table(efficiency_data.get("efficiency_by_timeframe", {}))}
 
 ## Recommendations
 
@@ -712,7 +712,7 @@ class StatisticalAnalysisReportGenerator:
 
         return f"""# Correlation Analysis Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Correlations Analyzed:** {len(correlation_results)}
 
 ## Correlation Summary
@@ -774,7 +774,7 @@ class StatisticalAnalysisReportGenerator:
 
         content = f"""# Pattern Analysis Report
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Patterns Identified:** {len(pattern_results)}
 
 ## Pattern Summary
@@ -806,7 +806,7 @@ class StatisticalAnalysisReportGenerator:
 - **Confidence:** {pattern.confidence_score:.3f}
 - **Frequency:** {pattern.pattern_frequency}
 - **Success Rate:** {pattern.success_rate:.1%} (if available)
-- **Entities:** {', '.join(pattern.entities_involved[:3])}{'...' if len(pattern.entities_involved) > 3 else ''}
+- **Entities:** {", ".join(pattern.entities_involved[:3])}{"..." if len(pattern.entities_involved) > 3 else ""}
 - **Detection Method:** {pattern.detection_method}
 
 """

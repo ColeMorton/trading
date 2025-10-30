@@ -37,7 +37,7 @@ class StatisticalLibraryConsolidator:
 
         # Read the file
         with open(self.divergence_detector_path) as f:
-            content = f.read()
+            f.read()
 
         # Identify custom implementations
         custom_implementations = [
@@ -291,16 +291,16 @@ if __name__ == "__main__":
         console.print("=" * 70)
 
         # Step 1: Analyze custom implementations
-        implementations = self.analyze_custom_implementations()
+        self.analyze_custom_implementations()
 
         # Step 2: Create simplified implementations
-        simplified_code = self.create_simplified_implementations()
+        self.create_simplified_implementations()
 
         # Step 3: Calculate benefits
-        benefits = self.calculate_consolidation_benefits()
+        self.calculate_consolidation_benefits()
 
         # Step 4: Generate implementation script
-        script = self.generate_implementation_script()
+        self.generate_implementation_script()
 
         # Final recommendations
         console.print("\n[bold]🎯 Final Recommendations[/bold]")

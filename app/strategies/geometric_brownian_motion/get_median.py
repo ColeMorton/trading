@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # Create the plot
     plt.figure(figsize=(12, 6))
     plt.plot(df["Date"].to_numpy(), df["Close"].to_numpy(), linewidth=2)
-    plt.title(f'Median Price Path - {config["TICKER_1"]} vs {config["TICKER_2"]}')
+    plt.title(f"Median Price Path - {config['TICKER_1']} vs {config['TICKER_2']}")
     plt.xlabel("Date")
     plt.ylabel("Price")
     plt.grid(True)

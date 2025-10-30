@@ -211,7 +211,7 @@ class PortfolioMonteCarloManager:
             )
 
             if not strategy_type:
-                msg = f"Strategy type must be explicitly specified for Monte Carlo analysis. Strategy: {ticker or f'Strategy_{i+1}'}"
+                msg = f"Strategy type must be explicitly specified for Monte Carlo analysis. Strategy: {ticker or f'Strategy_{i + 1}'}"
                 raise ValueError(
                     msg,
                 )
@@ -237,7 +237,9 @@ class PortfolioMonteCarloManager:
             if ticker:
                 strategy_id = f"{ticker}_{strategy_type}_{short}_{long}_{signal}"
             else:
-                strategy_id = f"Strategy_{i+1}_{strategy_type}_{short}_{long}_{signal}"
+                strategy_id = (
+                    f"Strategy_{i + 1}_{strategy_type}_{short}_{long}_{signal}"
+                )
 
             # Ensure unique IDs
             base_id = strategy_id
@@ -366,7 +368,7 @@ class PortfolioMonteCarloManager:
                     base_long + long_delta,
                 )  # Long must be > short
 
-                if new_short < new_long and new_long < 100:  # Reasonable max window
+                if new_short < new_long < 100:  # Reasonable max window
                     variations.add((new_short, new_long))
 
         # Limit total variations to respect configuration
@@ -551,7 +553,7 @@ class PortfolioMonteCarloManager:
                         long + long_delta,
                     )  # Long must be > short
 
-                    if new_short < new_long and new_long < 100:  # Reasonable max window
+                    if new_short < new_long < 100:  # Reasonable max window
                         expanded_combinations.add((new_short, new_long))
 
         # Limit total combinations to respect configuration

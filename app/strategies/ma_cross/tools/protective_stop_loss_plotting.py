@@ -27,9 +27,9 @@ def plot_results(
         config (dict): The configuration dictionary
         log (Callable): Logging function
     """
-    holding_periods, returns, num_positions, expectancies = zip(*results, strict=False)
+    holding_periods, _returns, num_positions, expectancies = zip(*results, strict=False)
 
-    fig, ax1 = plt.subplots(figsize=(12, 6))
+    _fig, ax1 = plt.subplots(figsize=(12, 6))
 
     color = "tab:green"
     ax1.set_xlabel("Holding Period")
@@ -112,11 +112,13 @@ def create_protective_stop_loss_heatmap(
                 hoverongaps=False,
                 hovertemplate=(
                     "Holding Period: %{x:.0f} days<br>"
-                    + f'{metric_name.capitalize().replace("_", " ")}: '
+                    + f"{metric_name.capitalize().replace('_', ' ')}: "
                     + (
                         "%{z:.1%}"
                         if metric_name in ["returns", "win_rate"]
-                        else "%{z:.2f}" if metric_name == "sharpe_ratio" else "%{z:.0f}"
+                        else "%{z:.2f}"
+                        if metric_name == "sharpe_ratio"
+                        else "%{z:.0f}"
                     )
                     + "<extra></extra>"
                 ),
@@ -124,7 +126,7 @@ def create_protective_stop_loss_heatmap(
         )
 
         # Update layout
-        title_text = f'{ticker} Protective Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
+        title_text = f"{ticker} Protective Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace('_', ' ')}</sub>"
 
         fig.update_layout(
             title={

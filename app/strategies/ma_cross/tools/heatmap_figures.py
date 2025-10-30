@@ -150,7 +150,7 @@ def create_heatmap_figures(
 
     profit_factor_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Profit Factor<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Profit Factor<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },
@@ -176,7 +176,7 @@ def create_heatmap_figures(
 
     trades_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Total Trades<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },
@@ -202,7 +202,7 @@ def create_heatmap_figures(
 
     sortino_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Sortino Ratio<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Sortino Ratio<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },
@@ -228,7 +228,7 @@ def create_heatmap_figures(
 
     win_rate_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Win Rate<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },
@@ -254,7 +254,7 @@ def create_heatmap_figures(
 
     expectancy_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Expectancy<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },
@@ -280,7 +280,7 @@ def create_heatmap_figures(
 
     score_fig.update_layout(
         title={
-            "text": f'{config["TICKER"]} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>',
+            "text": f"{config['TICKER']} - {ma_type} Cross Strategy Score<br><sup>{title}</sup>",
             "x": 0.5,
             "xanchor": "center",
         },

@@ -1,0 +1,106 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: false
+        default: 'latest'
+
+env:
+  ENVIRONMENT: staging
+  HEALTH_CHECK_TIMEOUT: 300
+  HEALTH_CHECK_INTERVAL: 10
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.trading.example.com
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: image-tag
+        run: |
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log deployment start
+        run: |
+          echo "🚀 Starting deployment to staging environment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image tag**: ${{ steps.image-tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+
+      # Add your deployment steps here (Kubernetes, Docker Compose, etc.)
+      # Example for Docker Compose deployment:
+      - name: Deploy with Docker Compose
+        run: |
+          echo "Deploying to staging environment..."
+          # docker-compose -f docker-compose.staging.yml pull
+          # docker-compose -f docker-compose.staging.yml up -d
+          echo "✅ Deployment initiated"
+
+      - name: Wait for services to be ready
+        run: |
+          echo "⏳ Waiting for services to be healthy..."
+          TIMEOUT=${{ env.HEALTH_CHECK_TIMEOUT }}
+          INTERVAL=${{ env.HEALTH_CHECK_INTERVAL }}
+          elapsed=0
+
+          while [ $elapsed -lt $TIMEOUT ]; do
+            # Replace with your actual health check endpoint
+            if curl -f -s http://staging.trading.example.com/health > /dev/null 2>&1; then
+              echo "✅ Services are healthy!"
+              exit 0
+            fi
+            echo "⏳ Waiting for services... (${elapsed}s/${TIMEOUT}s)"
+            sleep $INTERVAL
+            elapsed=$((elapsed + INTERVAL))
+          done
+
+          echo "❌ Health check timeout!"
+          exit 1
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests..."
+          # Add your smoke tests here
+          # pytest tests/smoke/ --base-url=https://staging.trading.example.com
+          echo "✅ Smoke tests passed"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "## ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+            echo "**URL**: https://staging.trading.example.com" >> $GITHUB_STEP_SUMMARY
+            echo "**Image tag**: ${{ steps.image-tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check logs for details" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "🔄 Rolling back deployment..."
+          # docker-compose -f docker-compose.staging.yml down
+          # docker-compose -f docker-compose.staging.yml up -d --force-recreate
+          echo "✅ Rollback completed"

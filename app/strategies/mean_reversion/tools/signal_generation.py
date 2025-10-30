@@ -164,7 +164,7 @@ def generate_current_signals(config: Config, log: Callable) -> pl.DataFrame:
         step_pct = config.get("CHANGE_PCT_STEP", 0.01)
 
         # Calculate number of steps to ensure we include end_pct
-        num_steps = int(round((end_pct - start_pct) / step_pct)) + 1
+        num_steps = round((end_pct - start_pct) / step_pct) + 1
 
         # Create parameter arrays with controlled precision
         change_pcts = [round(start_pct + i * step_pct, 2) for i in range(num_steps)]

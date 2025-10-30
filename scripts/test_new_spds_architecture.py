@@ -113,7 +113,7 @@ class NewArchitectureTest:
                 "success": True,
                 "error": None,
                 "sample_result": (
-                    list(results.values())[0].to_dict() if results else None
+                    next(iter(results.values())).to_dict() if results else None
                 ),
             }
 
@@ -150,7 +150,7 @@ class NewArchitectureTest:
                 "success": True,
                 "error": None,
                 "sample_result": (
-                    list(results.values())[0].to_dict() if results else None
+                    next(iter(results.values())).to_dict() if results else None
                 ),
             }
 
@@ -168,7 +168,7 @@ class NewArchitectureTest:
         console.print("[cyan]Testing position analysis[/cyan]")
 
         # First create a small portfolio to have positions to analyze
-        portfolio_filename = self.create_test_portfolio(10)
+        self.create_test_portfolio(10)
 
         start_time = time.time()
 
@@ -189,7 +189,7 @@ class NewArchitectureTest:
                 "success": True,
                 "error": None,
                 "sample_result": (
-                    list(results.values())[0].to_dict() if results else None
+                    next(iter(results.values())).to_dict() if results else None
                 ),
             }
 

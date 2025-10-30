@@ -53,7 +53,7 @@ def analyze_protective_stop_loss_parameters(
     # Get stop loss from config
     stop_loss = config.get("STOP_LOSS", None)
     if stop_loss is not None:
-        log(f"Using stop loss of {stop_loss*100}%")
+        log(f"Using stop loss of {stop_loss * 100}%")
 
     # Find last negative candle
     max_holding_period = find_last_negative_candle(
@@ -149,7 +149,7 @@ def analyze_holding_periods(
     # Get stop loss from config
     stop_loss = config.get("STOP_LOSS", None)
     if stop_loss is not None:
-        log(f"Using stop loss of {stop_loss*100}%")
+        log(f"Using stop loss of {stop_loss * 100}%")
 
     log("Processing holding periods...")
     results = []

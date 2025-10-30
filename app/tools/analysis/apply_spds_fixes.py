@@ -195,7 +195,7 @@ class SPDSFixApplicator:
 **Portfolio**: live_signals.csv
 **Analysis Type**: Statistical Performance Divergence System (SPDS) - CORRECTED
 **Total Positions**: {len(positions)}
-**Corrections Applied**: {', '.join(correction_results.get('corrections_applied', []))}
+**Corrections Applied**: {", ".join(correction_results.get("corrections_applied", []))}
 
 ---
 
@@ -207,59 +207,59 @@ class SPDSFixApplicator:
 
 **Before (Incorrect)**:
 - Method: Sum of individual returns
-- Result: {error_analysis['portfolio_aggregation']['incorrect_method_result']:.4f} ({error_analysis['portfolio_aggregation']['incorrect_method_result']*100:.2f}%)
+- Result: {error_analysis["portfolio_aggregation"]["incorrect_method_result"]:.4f} ({error_analysis["portfolio_aggregation"]["incorrect_method_result"] * 100:.2f}%)
 
 **After (Correct)**:
 - Method: Equal-weighted average return
-- Result: {error_analysis['portfolio_aggregation']['correct_method_result']:.4f} ({error_analysis['portfolio_aggregation']['correct_method_result']*100:.2f}%)
+- Result: {error_analysis["portfolio_aggregation"]["correct_method_result"]:.4f} ({error_analysis["portfolio_aggregation"]["correct_method_result"] * 100:.2f}%)
 
-**Error Magnitude**: {error_analysis['portfolio_aggregation']['error_magnitude']:.4f} ({error_analysis['portfolio_aggregation']['error_percentage']:.1f}% error)
+**Error Magnitude**: {error_analysis["portfolio_aggregation"]["error_magnitude"]:.4f} ({error_analysis["portfolio_aggregation"]["error_percentage"]:.1f}% error)
 
 ### 2. MAE Calculation Consistency Fix ✅
 
 **Issue**: Inconsistent MAE calculations between data sources
 
 **Analysis**:
-- Positions with MAE issues: {error_analysis['mae_consistency']['positions_with_issues']}
-- Total positions: {error_analysis['mae_consistency']['total_positions']}
-- Error rate: {error_analysis['mae_consistency']['error_rate']:.1f}%
+- Positions with MAE issues: {error_analysis["mae_consistency"]["positions_with_issues"]}
+- Total positions: {error_analysis["mae_consistency"]["total_positions"]}
+- Error rate: {error_analysis["mae_consistency"]["error_rate"]:.1f}%
 
 ### 3. Sharpe Ratio Correction ✅
 
 **Issue**: Incorrect Sharpe ratio calculation methodology
 
 **Before (Incorrect)**:
-- Naive calculation: {error_analysis['sharpe_ratio']['naive_calculation']:.4f}
+- Naive calculation: {error_analysis["sharpe_ratio"]["naive_calculation"]:.4f}
 
 **After (Correct)**:
-- Proper annualized calculation: {error_analysis['sharpe_ratio']['corrected_calculation']:.4f}
+- Proper annualized calculation: {error_analysis["sharpe_ratio"]["corrected_calculation"]:.4f}
 
-**Error Multiplier**: {error_analysis['sharpe_ratio']['error_multiplier']:.2f}x
+**Error Multiplier**: {error_analysis["sharpe_ratio"]["error_multiplier"]:.2f}x
 
 ---
 
 ## 📊 Corrected Portfolio Metrics
 
 ### Portfolio Performance (Corrected)
-- **Total Return**: {correction_results['corrected_metrics'].get('total_return_equal_weighted', 0):.4f} ({correction_results['corrected_metrics'].get('total_return_equal_weighted', 0)*100:.2f}%)
-- **Success Rate**: {correction_results['corrected_metrics'].get('success_rate', 0):.1%}
-- **Average Performance**: {correction_results['corrected_metrics'].get('average_performance', 0):.4f} ({correction_results['corrected_metrics'].get('average_performance', 0)*100:.2f}%)
-- **Portfolio Volatility**: {correction_results['corrected_metrics'].get('portfolio_volatility', 0):.4f}
-- **Sharpe Ratio (Corrected)**: {correction_results['corrected_metrics'].get('sharpe_ratio', 0):.4f}
+- **Total Return**: {correction_results["corrected_metrics"].get("total_return_equal_weighted", 0):.4f} ({correction_results["corrected_metrics"].get("total_return_equal_weighted", 0) * 100:.2f}%)
+- **Success Rate**: {correction_results["corrected_metrics"].get("success_rate", 0):.1%}
+- **Average Performance**: {correction_results["corrected_metrics"].get("average_performance", 0):.4f} ({correction_results["corrected_metrics"].get("average_performance", 0) * 100:.2f}%)
+- **Portfolio Volatility**: {correction_results["corrected_metrics"].get("portfolio_volatility", 0):.4f}
+- **Sharpe Ratio (Corrected)**: {correction_results["corrected_metrics"].get("sharpe_ratio", 0):.4f}
 
 ### Risk Metrics (Validated)
-- **Maximum Drawdown**: {correction_results['corrected_metrics'].get('max_drawdown', 'N/A')}
-- **MFE/MAE Validations**: {len(correction_results.get('mae_corrections', []))} positions validated
+- **Maximum Drawdown**: {correction_results["corrected_metrics"].get("max_drawdown", "N/A")}
+- **MFE/MAE Validations**: {len(correction_results.get("mae_corrections", []))} positions validated
 
 ---
 
 ## 🔍 Data Quality Assessment
 
 ### Validation Results
-- **Data Validation**: {'✅ PASSED' if correction_results['validation_results']['is_valid'] else '❌ FAILED'}
-- **Total Positions**: {correction_results['validation_results']['statistics']['total_positions']}
-- **Open Positions**: {correction_results['validation_results']['statistics']['open_positions']}
-- **Closed Positions**: {correction_results['validation_results']['statistics']['closed_positions']}
+- **Data Validation**: {"✅ PASSED" if correction_results["validation_results"]["is_valid"] else "❌ FAILED"}
+- **Total Positions**: {correction_results["validation_results"]["statistics"]["total_positions"]}
+- **Open Positions**: {correction_results["validation_results"]["statistics"]["open_positions"]}
+- **Closed Positions**: {correction_results["validation_results"]["statistics"]["closed_positions"]}
 
 ### Corrections Applied
 """
@@ -285,9 +285,9 @@ class SPDSFixApplicator:
             total_positions = len(correction_results["mae_corrections"])
 
             report += f"""
-- **Valid Positions**: {valid_positions}/{total_positions} ({valid_positions/total_positions*100:.1f}%)
-- **Positions with Warnings**: {sum(1 for pos in correction_results['mae_corrections'] if len(pos['warnings']) > 0)}
-- **Positions with Errors**: {sum(1 for pos in correction_results['mae_corrections'] if not pos['is_valid'])}
+- **Valid Positions**: {valid_positions}/{total_positions} ({valid_positions / total_positions * 100:.1f}%)
+- **Positions with Warnings**: {sum(1 for pos in correction_results["mae_corrections"] if len(pos["warnings"]) > 0)}
+- **Positions with Errors**: {sum(1 for pos in correction_results["mae_corrections"] if not pos["is_valid"])}
 """
 
         report += f"""

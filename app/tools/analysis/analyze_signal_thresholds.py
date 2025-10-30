@@ -38,8 +38,8 @@ def analyze_signal_thresholds():
     p70_threshold = 0.1274  # 12.74% from assessment
     smci_percentile_rank = 70.91
 
-    print(f"SMCI value: {smci_value:.6f} ({smci_value*100:.2f}%)")
-    print(f"P70 threshold: {p70_threshold:.6f} ({p70_threshold*100:.2f}%)")
+    print(f"SMCI value: {smci_value:.6f} ({smci_value * 100:.2f}%)")
+    print(f"P70 threshold: {p70_threshold:.6f} ({p70_threshold * 100:.2f}%)")
     print(f"SMCI percentile rank: {smci_percentile_rank:.2f}")
     print(f"Value > P70: {smci_value > p70_threshold}")
 

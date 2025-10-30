@@ -731,7 +731,7 @@ class CorrelationAnalyzer:
             if len(correlations) >= 3:
                 # Calculate trend using linear regression
                 x = np.arange(len(correlations))
-                slope, intercept, r_value, p_value, std_err = stats.linregress(
+                slope, _intercept, r_value, p_value, _std_err = stats.linregress(
                     x,
                     correlations,
                 )

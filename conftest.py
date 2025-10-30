@@ -86,7 +86,9 @@ def test_output_dir() -> Generator[Path, None, None]:
 def sample_market_data() -> pl.DataFrame:
     """Sample market data for testing strategies."""
     return create_test_market_data(
-        ticker="TEST", days=252, start_price=100.0  # 1 year of data
+        ticker="TEST",
+        days=252,
+        start_price=100.0,  # 1 year of data
     )
 
 

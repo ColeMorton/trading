@@ -175,7 +175,7 @@ class SPDSPerformanceBenchmark:
             analyzer = PortfolioStatisticalAnalyzer(
                 portfolio_filename, use_trade_history=False
             )
-            results = await analyzer.analyze()
+            await analyzer.analyze()
 
             end_time = time.time()
             end_memory = self.get_memory_usage()
@@ -228,7 +228,7 @@ class SPDSPerformanceBenchmark:
             analyzer = PortfolioStatisticalAnalyzer(
                 portfolio_filename, use_trade_history=False
             )
-            results = await analyzer.analyze()
+            await analyzer.analyze()
 
             end_time = time.time()
             end_memory = self.get_memory_usage()
@@ -265,7 +265,7 @@ class SPDSPerformanceBenchmark:
             analyzer = PortfolioStatisticalAnalyzer(
                 portfolio_filename, use_trade_history=False
             )
-            results = await analyzer.analyze()
+            await analyzer.analyze()
 
             end_time = time.time()
             end_memory = self.get_memory_usage()

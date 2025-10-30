@@ -28,10 +28,10 @@ class TestRunner:
         timeout: int = 300,
     ) -> tuple[bool, str]:
         """Run a command and return success status and output."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Running: {description}")
         print(f"Command: {' '.join(cmd)}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         try:
             result = subprocess.run(

@@ -50,11 +50,7 @@ def is_interactive_environment() -> bool:
         "CIRCLECI",  # Circle CI
     ]
 
-    for var in non_interactive_vars:
-        if os.environ.get(var):
-            return False
-
-    return True
+    return all(not os.environ.get(var) for var in non_interactive_vars)
 
 
 def load_whitelist_patterns(base_path: Path) -> list:
@@ -129,7 +125,7 @@ def cleanup_old_files(
     print("-" * 60)
 
     for target_dir in target_dirs:
-        for root, dirs, files in os.walk(target_dir):
+        for root, _dirs, files in os.walk(target_dir):
             current_path = Path(root)
 
             # Skip excluded directories
@@ -180,7 +176,7 @@ def cleanup_old_files(
     action = "Would remove" if dry_run else "Removed"
     print(
         f"Cleanup {'preview' if dry_run else 'complete'}: {action} {removed_count} files, "
-        f"{total_size_removed / (1024*1024):.1f}MB {'would be ' if dry_run else ''}freed"
+        f"{total_size_removed / (1024 * 1024):.1f}MB {'would be ' if dry_run else ''}freed"
     )
 
     return removed_count, total_size_removed
@@ -249,7 +245,7 @@ def main():
                 sys.exit(0)
 
     try:
-        removed_count, total_size = cleanup_old_files(
+        _removed_count, _total_size = cleanup_old_files(
             args.base_path, args.exclude, args.max_age, args.dry_run
         )
 

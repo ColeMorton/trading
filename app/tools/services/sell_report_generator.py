@@ -195,12 +195,16 @@ class SellReportGenerator:
         sample_quality = (
             "Excellent"
             if data.statistics.sample_size >= 5000
-            else "Good" if data.statistics.sample_size >= 1000 else "Fair"
+            else "Good"
+            if data.statistics.sample_size >= 1000
+            else "Fair"
         )
         significance_strength = (
             "Strong"
             if data.statistics.p_value <= 0.05
-            else "Moderate" if data.statistics.p_value <= 0.1 else "Weak"
+            else "Moderate"
+            if data.statistics.p_value <= 0.1
+            else "Weak"
         )
 
         return f"""## 📈 Statistical Foundation
@@ -236,7 +240,9 @@ class SellReportGenerator:
         iqr_strength = (
             "High"
             if abs(data.statistics.iqr_divergence) > 0.15
-            else "Moderate" if abs(data.statistics.iqr_divergence) > 0.08 else "Low"
+            else "Moderate"
+            if abs(data.statistics.iqr_divergence) > 0.08
+            else "Low"
         )
 
         return f"""## 🔍 Technical Analysis
@@ -254,7 +260,7 @@ class SellReportGenerator:
   - *Assessment*: {"Rare event detected" if data.statistics.rarity_score > 0.01 else "Common occurrence"}
 
 ### Performance Metrics
-- **Current Return**: {data.performance.current_return:.4f} ({data.performance.current_return*100:.2f}%)
+- **Current Return**: {data.performance.current_return:.4f} ({data.performance.current_return * 100:.2f}%)
 - **Max Favorable Excursion (MFE)**: {data.performance.mfe:.4f}
 - **Max Adverse Excursion (MAE)**: {data.performance.mae:.4f}
 - **Unrealized P&L**: {data.performance.unrealized_pnl:.2f}%
@@ -407,7 +413,7 @@ Strategy Parameters:
 ### Appendix C: Raw Statistical Data
 **Historical Returns Sample** ({len(data.raw_returns)} observations):
 ```
-Mean Return: {sum(data.raw_returns)/len(data.raw_returns):.4f}
+Mean Return: {sum(data.raw_returns) / len(data.raw_returns):.4f}
 Std Deviation: {self._calculate_std_dev(data.raw_returns):.4f}
 Min Return: {min(data.raw_returns):.4f}
 Max Return: {max(data.raw_returns):.4f}
@@ -553,7 +559,9 @@ Max Return: {max(data.raw_returns):.4f}
         signal_strength = (
             "strong"
             if data.signal.signal_confidence > 80
-            else "moderate" if data.signal.signal_confidence > 60 else "weak"
+            else "moderate"
+            if data.signal.signal_confidence > 60
+            else "weak"
         )
 
         if data.signal.exit_signal == "SELL":
@@ -568,7 +576,7 @@ Max Return: {max(data.raw_returns):.4f}
             return f"Take profit exit approaching - Position near target ({data.performance.unrealized_pnl:.2f}% vs {data.backtesting.take_profit_pct:.2f}% target)."
         if data.performance.unrealized_pnl < -data.backtesting.stop_loss_pct * 0.5:
             return f"Risk management exit - Position approaching stop loss threshold ({data.performance.unrealized_pnl:.2f}% vs -{data.backtesting.stop_loss_pct:.2f}% limit)."
-        convergence_desc = f"dual-layer convergence at {data.statistics.dual_layer_convergence_score*100:.1f}%"
+        convergence_desc = f"dual-layer convergence at {data.statistics.dual_layer_convergence_score * 100:.1f}%"
         return f"Maintain position with active {convergence_desc} and strict risk management protocols."
 
     def _generate_timing_recommendations(self, data: UnifiedStrategyData) -> str:

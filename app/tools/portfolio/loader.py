@@ -309,13 +309,13 @@ def load_portfolio_from_yaml(
     # Convert YAML strategies to StrategyConfig format
     strategies = []
     for i, strategy_def in enumerate(strategies_def):
-        log(f"Processing strategy definition {i+1}", "info")
+        log(f"Processing strategy definition {i + 1}", "info")
 
         # Validate required fields
         required_fields = ["ticker", "fast_period", "slow_period", "strategy_type"]
         for field in required_fields:
             if field not in strategy_def:
-                error_msg = f"Strategy {i+1} missing required field: {field}"
+                error_msg = f"Strategy {i + 1} missing required field: {field}"
                 log(error_msg, "error")
                 raise ValueError(error_msg)
 

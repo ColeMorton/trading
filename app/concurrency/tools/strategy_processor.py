@@ -144,7 +144,7 @@ def process_strategies(
                 ):
                     stop_loss = float(strategy_config["STOP_LOSS"])
                     log(
-                        f"Using stop loss {stop_loss:.4f} ({stop_loss*100:.2f}%) for {strategy_config['TICKER']}",
+                        f"Using stop loss {stop_loss:.4f} ({stop_loss * 100:.2f}%) for {strategy_config['TICKER']}",
                         "info",
                     )
 

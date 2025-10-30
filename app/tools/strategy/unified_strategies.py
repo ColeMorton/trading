@@ -93,7 +93,7 @@ class UnifiedMAStrategy(BaseStrategy, StrategyInterface):
                 log(f"Calculated RSI with period {rsi_period}", "info")
 
             # Generate signals based on MA crossovers
-            entries, exits = calculate_ma_signals(data, config)
+            entries, _exits = calculate_ma_signals(data, config)
 
             # Add Signal column (-1 for short entry, 1 for long entry, 0 for no signal)
             if config.get("DIRECTION", "Long") == "Short":
@@ -270,7 +270,7 @@ class UnifiedMACDStrategy(BaseStrategy, StrategyInterface):
                 log(f"Calculated RSI with period {rsi_period}", "info")
 
             # Generate MACD signals
-            entries, exits = self._calculate_macd_signals(data, config)
+            entries, _exits = self._calculate_macd_signals(data, config)
 
             # Add Signal column
             if config.get("DIRECTION", "Long") == "Short":

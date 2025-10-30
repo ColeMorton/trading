@@ -699,7 +699,7 @@ def deduplicate_and_aggregate_portfolios(
             score = row.get("Score", "N/A")
 
             log(
-                f"  {i+1}. {ticker} {strategy} {fast_period}/{slow_period} - Score: {score}, {metric_count} types",
+                f"  {i + 1}. {ticker} {strategy} {fast_period}/{slow_period} - Score: {score}, {metric_count} types",
                 "debug",
             )
 

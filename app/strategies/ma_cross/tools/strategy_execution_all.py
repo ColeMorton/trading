@@ -197,7 +197,7 @@ def execute_strategy_all(
         if progress_tracker:
             progress_tracker.update(
                 step=i,
-                message=f"Processing {ticker} ({i+1}/{len(tickers)})",
+                message=f"Processing {ticker} ({i + 1}/{len(tickers)})",
             )
 
         # Get ALL portfolios for this ticker
@@ -214,7 +214,7 @@ def execute_strategy_all(
         # Update progress after processing ticker
         if progress_tracker:
             progress_tracker.increment(
-                message=f"Completed {ticker} ({i+1}/{len(tickers)})",
+                message=f"Completed {ticker} ({i + 1}/{len(tickers)})",
             )
 
     # Mark analysis complete

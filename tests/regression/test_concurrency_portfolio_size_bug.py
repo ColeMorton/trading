@@ -32,7 +32,7 @@ class TestPortfolioSizeBugRegression:
         """Create sample strategies for testing."""
         return [
             {
-                "strategy_id": f"TEST_SMA_{i}_{i+10}",
+                "strategy_id": f"TEST_SMA_{i}_{i + 10}",
                 "ticker": "TEST",
                 "strategy_type": (
                     "SMA" if i % 3 != 0 else ("EMA" if i % 3 == 1 else "MACD")
@@ -819,7 +819,7 @@ class TestStratifiedPortfolioSelection:
         for i in range(10):
             strategies.append(
                 {
-                    "strategy_id": f"MSTR_MACD_{15+i}_{20+i*2}_{18}",
+                    "strategy_id": f"MSTR_MACD_{15 + i}_{20 + i * 2}_{18}",
                     "strategy_type": "MACD",
                     "fast_period": 15 + i,
                     "slow_period": 20 + i * 2,
@@ -831,7 +831,7 @@ class TestStratifiedPortfolioSelection:
         for i in range(5):
             strategies.append(
                 {
-                    "strategy_id": f"MSTR_SMA_{80+i*4}_{85+i*4}",
+                    "strategy_id": f"MSTR_SMA_{80 + i * 4}_{85 + i * 4}",
                     "strategy_type": "SMA",
                     "fast_period": 80 + i * 4,
                     "slow_period": 85 + i * 4,
@@ -843,7 +843,7 @@ class TestStratifiedPortfolioSelection:
         for i in range(3):
             strategies.append(
                 {
-                    "strategy_id": f"MSTR_EMA_{10+i*6}_{55+i*8}",
+                    "strategy_id": f"MSTR_EMA_{10 + i * 6}_{55 + i * 8}",
                     "strategy_type": "EMA",
                     "fast_period": 10 + i * 6,
                     "slow_period": 55 + i * 8,

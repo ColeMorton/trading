@@ -119,10 +119,10 @@ class MACrossTestRunner:
             "success": False,
         }
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Running {suite_name.upper()} Test Suite")
         print(f"Description: {suite_config['description']}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         for test_file in suite_config["files"]:
             file_path = self.test_dir / test_file
@@ -282,9 +282,9 @@ class MACrossTestRunner:
 
     def _print_suite_summary(self, results: dict[str, Any]) -> None:
         """Print summary for a test suite."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"{results['suite'].upper()} Test Suite Summary")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Duration: {results['duration']:.2f} seconds")
         print(f"Total Tests: {results['total_tests']}")
         print(f"Passed: {results['passed_tests']}")
@@ -347,9 +347,9 @@ class MACrossTestRunner:
 
     def _print_overall_summary(self, results: dict[str, Any]) -> None:
         """Print overall test summary."""
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print("MA CROSS MODULE TEST SUMMARY")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Total Duration: {results['total_duration']:.2f} seconds")
         print(f"Total Tests: {results['total_tests']}")
         print(f"Passed: {results['passed_tests']}")
@@ -370,7 +370,7 @@ class MACrossTestRunner:
         else:
             print("\n💥 SOME TESTS FAILED!")
 
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
     def generate_report(
         self,

@@ -73,7 +73,7 @@ def test_core_monte_carlo_functionality():
             print("-" * 50)
             for i, result in enumerate(btc_results):
                 short, long = result.parameter_combination
-                print(f"{i+1}. Windows {short}/{long}:")
+                print(f"{i + 1}. Windows {short}/{long}:")
                 print(f"   Stability Score: {result.stability_score:.3f}")
                 print(f"   Parameter Robustness: {result.parameter_robustness:.3f}")
                 print(f"   Is Stable: {result.is_stable}")

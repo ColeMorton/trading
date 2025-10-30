@@ -159,7 +159,7 @@ class TestRecommendationGeneration:
             "is_normal_distribution": True,
         }
 
-        signal, confidence, reasoning = analyzer.generate_recommendation(buy_analysis)
+        signal, confidence, _reasoning = analyzer.generate_recommendation(buy_analysis)
 
         assert signal == "BUY"
         assert 0.70 <= confidence <= 0.80
@@ -187,7 +187,7 @@ class TestRecommendationGeneration:
             "is_normal_distribution": False,
         }
 
-        signal, confidence, reasoning = analyzer.generate_recommendation(sell_analysis)
+        signal, confidence, _reasoning = analyzer.generate_recommendation(sell_analysis)
 
         assert signal == "SELL"
         assert 0.70 <= confidence <= 0.80
@@ -357,9 +357,8 @@ class TestScoreBoundaries:
 
     def test_zero_values_handling(self, analyzer):
         """Test handling of zero values in analysis."""
-        zero_analysis = {
-            key: 0.0
-            for key in [
+        zero_analysis = dict.fromkeys(
+            [
                 "momentum_differential",
                 "momentum_5d",
                 "momentum_20d",
@@ -375,8 +374,9 @@ class TestScoreBoundaries:
                 "mean_daily_return",
                 "var_95",
                 "annualized_volatility",
-            ]
-        }
+            ],
+            0.0,
+        )
 
         signal, confidence, reasoning = analyzer.generate_recommendation(zero_analysis)
 

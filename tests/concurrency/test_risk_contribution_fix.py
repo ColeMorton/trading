@@ -109,7 +109,7 @@ class TestRiskContributionCalculator:
 
         # Different weights
         weights = np.array([0.4, 0.3, 0.2, 0.1])
-        strategy_names = [f"Strategy_{i+1}" for i in range(n_strategies)]
+        strategy_names = [f"Strategy_{i + 1}" for i in range(n_strategies)]
 
         calculator = RiskContributionCalculator()
         metrics = calculator.calculate_portfolio_metrics(
@@ -225,10 +225,10 @@ class TestRiskContributionCalculator:
 
         # Verify VaR/CVaR metrics are calculated
         for i in range(n_strategies):
-            assert f"strategy_{i+1}_var_95" in risk_metrics
-            assert f"strategy_{i+1}_cvar_95" in risk_metrics
-            assert f"strategy_{i+1}_var_99" in risk_metrics
-            assert f"strategy_{i+1}_cvar_99" in risk_metrics
+            assert f"strategy_{i + 1}_var_95" in risk_metrics
+            assert f"strategy_{i + 1}_cvar_95" in risk_metrics
+            assert f"strategy_{i + 1}_var_99" in risk_metrics
+            assert f"strategy_{i + 1}_cvar_99" in risk_metrics
 
     def test_fixed_implementation_always_used(self):
         """Test that the fixed implementation is always used (no feature flag)."""
@@ -280,7 +280,7 @@ class TestRiskContributionCalculator:
                 total,
                 1.0,
                 rtol=0.01,
-            ), f"Risk contributions sum to {total*100:.2f}%"
+            ), f"Risk contributions sum to {total * 100:.2f}%"
 
     def test_extreme_allocations(self):
         """Test with extreme allocation weights."""

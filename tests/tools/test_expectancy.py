@@ -106,7 +106,7 @@ class TestExpectancy(unittest.TestCase):
         returns = [-0.05, 0.08, -0.04, 0.06, -0.07, 0.03]
         stop_loss = 0.05
 
-        expectancy, components = calculate_expectancy_with_stop_loss(
+        _expectancy, components = calculate_expectancy_with_stop_loss(
             returns,
             stop_loss,
             "Short",

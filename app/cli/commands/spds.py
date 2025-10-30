@@ -844,7 +844,7 @@ async def _analyze_enhanced_parameter_mode(
         ]
         if strategy_count > 3:
             strategy_display = (
-                ", ".join(strategy_list) + f", ... (+{strategy_count-3} more)"
+                ", ".join(strategy_list) + f", ... (+{strategy_count - 3} more)"
             )
         else:
             strategy_display = ", ".join(strategy_list)
@@ -869,7 +869,7 @@ async def _analyze_enhanced_parameter_mode(
         ]
         if position_count > 3:
             position_display = (
-                ", ".join(position_list) + f", ... (+{position_count-3} more)"
+                ", ".join(position_list) + f", ... (+{position_count - 3} more)"
             )
         else:
             position_display = ", ".join(position_list)

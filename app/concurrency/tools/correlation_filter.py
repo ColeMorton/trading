@@ -219,7 +219,7 @@ def _simple_hierarchical_clustering(
     # Convert cluster indices to strategy IDs
     result = {}
     for i, cluster in enumerate(clusters):
-        cluster_name = f"cluster_{i+1}"
+        cluster_name = f"cluster_{i + 1}"
         result[cluster_name] = [strategy_ids[idx] for idx in cluster]
 
     return result

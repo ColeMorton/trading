@@ -68,23 +68,22 @@ class TestSyntheticTickerExports:
         config = mock_config.copy()
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    # Execute export
-                    result = export_csv(sample_strk_mstr_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                # Execute export
+                export_csv(sample_strk_mstr_data, "strategies", config)
 
-                    # Verify export was called
-                    mock_write_csv.assert_called_once()
+                # Verify export was called
+                mock_write_csv.assert_called_once()
 
-                    # Verify filename format for synthetic ticker
-                    call_args = mock_write_csv.call_args[0][0]
-                    assert "STRK_MSTR" in call_args
-                    assert "SMA" in call_args
-                    assert call_args.endswith(".csv")
+                # Verify filename format for synthetic ticker
+                call_args = mock_write_csv.call_args[0][0]
+                assert "STRK_MSTR" in call_args
+                assert "SMA" in call_args
+                assert call_args.endswith(".csv")
 
-                    # Expected filename: STRK_MSTR_D_SMA.csv
-                    assert "STRK_MSTR_D_SMA.csv" in call_args
+                # Expected filename: STRK_MSTR_D_SMA.csv
+                assert "STRK_MSTR_D_SMA.csv" in call_args
 
     def test_strk_mstr_ema_export(self, temp_export_dir):
         """Test STRK_MSTR pair with EMA strategy export."""
@@ -112,14 +111,13 @@ class TestSyntheticTickerExports:
             "DIRECTION": "Long",
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(ema_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(ema_data, "strategies", config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
-                    assert "STRK_MSTR_D_EMA.csv" in call_args
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
+                assert "STRK_MSTR_D_EMA.csv" in call_args
 
     def test_strk_mstr_macd_export(self, temp_export_dir):
         """Test STRK_MSTR pair with MACD strategy export."""
@@ -148,15 +146,14 @@ class TestSyntheticTickerExports:
             "DIRECTION": "Long",
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(macd_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(macd_data, "strategies", config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
-                    # MACD strategy exports with different naming convention
-                    assert "STRK_MSTR_D" in call_args and call_args.endswith(".csv")
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
+                # MACD strategy exports with different naming convention
+                assert "STRK_MSTR_D" in call_args and call_args.endswith(".csv")
 
     def test_synthetic_ticker_filename_generation(self, temp_export_dir):
         """Test that synthetic tickers generate correct filenames."""
@@ -177,13 +174,13 @@ class TestSyntheticTickerExports:
                     "BASE_DIR": temp_export_dir,
                     "TICKER": [ticker],
                     "STRATEGY_TYPE": strategy,
-                    "USE_MA": True if strategy in ["SMA", "EMA"] else False,
+                    "USE_MA": strategy in ["SMA", "EMA"],
                 }
 
                 with patch("pathlib.Path.mkdir"):
                     with patch("os.access", return_value=True):
                         with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                            result = export_csv(data, "strategies", config)
+                            export_csv(data, "strategies", config)
 
                             mock_write_csv.assert_called_once()
                             call_args = mock_write_csv.call_args[0][0]
@@ -217,22 +214,21 @@ class TestSyntheticTickerExports:
             nonlocal written_data
             written_data = self.to_pandas()
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                    result = export_csv(sample_strk_mstr_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
+                export_csv(sample_strk_mstr_data, "strategies", config)
 
-                    # Verify data integrity
-                    assert written_data is not None
-                    assert len(written_data) == len(sample_strk_mstr_data)
+                # Verify data integrity
+                assert written_data is not None
+                assert len(written_data) == len(sample_strk_mstr_data)
 
-                    # Check that all original columns are preserved
-                    original_columns = set(sample_strk_mstr_data.columns)
-                    written_columns = set(written_data.columns)
-                    assert original_columns.issubset(written_columns)
+                # Check that all original columns are preserved
+                original_columns = set(sample_strk_mstr_data.columns)
+                written_columns = set(written_data.columns)
+                assert original_columns.issubset(written_columns)
 
-                    # Verify ticker values are maintained
-                    assert all(written_data["Ticker"] == "STRK_MSTR")
+                # Verify ticker values are maintained
+                assert all(written_data["Ticker"] == "STRK_MSTR")
 
     def test_multiple_synthetic_tickers_export(self, temp_export_dir):
         """Test export with multiple synthetic tickers."""
@@ -256,18 +252,17 @@ class TestSyntheticTickerExports:
             "USE_MA": True,
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(multi_ticker_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(multi_ticker_data, "strategies", config)
 
-                    # Should call write_csv for each unique ticker
-                    assert mock_write_csv.call_count >= 1
+                # Should call write_csv for each unique ticker
+                assert mock_write_csv.call_count >= 1
 
-                    # Check that synthetic ticker naming is handled correctly
-                    all_calls = [call[0][0] for call in mock_write_csv.call_args_list]
-                    assert any("STRK_MSTR" in call for call in all_calls)
-                    assert any("BTC_USD" in call for call in all_calls)
+                # Check that synthetic ticker naming is handled correctly
+                all_calls = [call[0][0] for call in mock_write_csv.call_args_list]
+                assert any("STRK_MSTR" in call for call in all_calls)
+                assert any("BTC_USD" in call for call in all_calls)
 
 
 class TestSyntheticTickerDetection:
@@ -276,12 +271,12 @@ class TestSyntheticTickerDetection:
     def test_detect_strk_mstr_synthetic_ticker(self):
         """Test detection of STRK_MSTR as synthetic ticker."""
         is_synthetic = detect_synthetic_ticker("STRK_MSTR")
-        assert is_synthetic == True
+        assert is_synthetic
 
     def test_detect_non_synthetic_ticker(self):
         """Test detection of regular ticker as non-synthetic."""
         is_synthetic = detect_synthetic_ticker("AAPL")
-        assert is_synthetic == False
+        assert not is_synthetic
 
     def test_process_strk_mstr_synthetic_config(self):
         """Test processing of STRK_MSTR synthetic ticker configuration."""
@@ -326,13 +321,12 @@ class TestSyntheticTickerEdgeCases:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(empty_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv"):
+                export_csv(empty_data, "strategies", config)
 
-                    # Should handle empty data gracefully
-                    # Behavior may vary based on implementation
+                # Should handle empty data gracefully
+                # Behavior may vary based on implementation
 
     def test_invalid_synthetic_ticker_format(self, temp_export_dir):
         """Test handling of invalid synthetic ticker formats."""
@@ -350,11 +344,10 @@ class TestSyntheticTickerEdgeCases:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    # Should handle invalid formats without crashing
-                    result = export_csv(invalid_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv"):
+                # Should handle invalid formats without crashing
+                export_csv(invalid_data, "strategies", config)
 
     def test_synthetic_ticker_with_special_characters(self, temp_export_dir):
         """Test synthetic tickers with special characters in filenames."""
@@ -372,16 +365,15 @@ class TestSyntheticTickerEdgeCases:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("pathlib.Path.mkdir"):
-            with patch("os.access", return_value=True):
-                with patch("polars.DataFrame.write_csv") as mock_write_csv:
-                    result = export_csv(special_data, "strategies", config)
+        with patch("pathlib.Path.mkdir"), patch("os.access", return_value=True):
+            with patch("polars.DataFrame.write_csv") as mock_write_csv:
+                export_csv(special_data, "strategies", config)
 
-                    mock_write_csv.assert_called_once()
-                    call_args = mock_write_csv.call_args[0][0]
+                mock_write_csv.assert_called_once()
+                call_args = mock_write_csv.call_args[0][0]
 
-                    # Should handle special characters in filename
-                    assert "BTC-USD" in call_args or "BTC_USD" in call_args
+                # Should handle special characters in filename
+                assert "BTC-USD" in call_args or "BTC_USD" in call_args
 
 
 if __name__ == "__main__":

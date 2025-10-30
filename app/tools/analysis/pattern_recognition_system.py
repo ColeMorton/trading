@@ -578,7 +578,7 @@ class PatternRecognitionSystem:
 
             # Standardize subsequences
             scaler = StandardScaler()
-            x_features = scaler.fit_transform(subsequences)
+            scaler.fit_transform(subsequences)
 
             # Determine optimal number of clusters
             max_clusters = min(len(subsequences) // 2, 10)
@@ -832,7 +832,7 @@ class PatternRecognitionSystem:
             from statsmodels.stats.diagnostic import het_arch
 
             if len(squared_returns) > 20:
-                lm_stat, lm_pvalue, f_stat, f_pvalue = het_arch(
+                _lm_stat, _lm_pvalue, f_stat, f_pvalue = het_arch(
                     squared_returns.dropna(),
                     maxlag=5,
                 )

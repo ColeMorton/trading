@@ -75,7 +75,7 @@ def plot_rod_model(streak_data, rate_of_decay, output_path):
     :param rate_of_decay: Calculated rate of decay
     :param output_path: Path to save the plot
     """
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12))
+    _fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12))
 
     ax1.plot(streak_data["Streak Length"], streak_data["Equity"])
     ax1.set_title("Equity Curve During Loss Streak")

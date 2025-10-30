@@ -574,16 +574,16 @@ class DashboardGenerator:
 <body>
     <div class="header">
         <h1>Trading System Performance Dashboard</h1>
-        <p>Last {hours_back} hours | Generated at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p>Last {hours_back} hours | Generated at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
     </div>
 
     <div class="dashboard-grid">
         <!-- System Health -->
         <div class="card health-card">
             <h3>System Health</h3>
-            <div class="health-score">{health_score.get('overall_score', 0):.0f}</div>
+            <div class="health-score">{health_score.get("overall_score", 0):.0f}</div>
             <div style="text-align: center;">
-                <span class="status-badge">{health_score.get('status', 'unknown').upper()}</span>
+                <span class="status-badge">{health_score.get("status", "unknown").upper()}</span>
             </div>
         </div>
 
@@ -595,27 +595,27 @@ class DashboardGenerator:
 
         <!-- Operation Analysis -->
         <div class="card">
-            <h3>Operations ({operation_analysis.get('period_hours', 0)}h)</h3>
+            <h3>Operations ({operation_analysis.get("period_hours", 0)}h)</h3>
             <div class="metric-row">
                 <span>Total Operations</span>
-                <span class="metric-value">{sum(op.get('total_executions', 0) for op in operation_analysis.get('operations', {}).values())}</span>
+                <span class="metric-value">{sum(op.get("total_executions", 0) for op in operation_analysis.get("operations", {}).values())}</span>
             </div>
             <div class="metric-row">
                 <span>Total Alerts</span>
-                <span class="metric-value">{operation_analysis.get('total_alerts', 0)}</span>
+                <span class="metric-value">{operation_analysis.get("total_alerts", 0)}</span>
             </div>
-            {self._generate_operations_table(operation_analysis.get('operations', {}))}
+            {self._generate_operations_table(operation_analysis.get("operations", {}))}
         </div>
 
         <!-- Health Factors -->
         <div class="card">
             <h3>Health Factors</h3>
-            {self._generate_health_factors_html(health_score.get('factors', {}))}
+            {self._generate_health_factors_html(health_score.get("factors", {}))}
         </div>
     </div>
 
     <!-- Recommendations -->
-    {self._generate_recommendations_html(health_score.get('recommendations', []))}
+    {self._generate_recommendations_html(health_score.get("recommendations", []))}
 
     <div class="footer">
         <p>Trading System Performance Dashboard - Phase 4 Advanced Optimization</p>
@@ -687,9 +687,9 @@ class DashboardGenerator:
             html += f"""
             <tr>
                 <td>{operation}</td>
-                <td>{data.get('total_executions', 0)}</td>
-                <td>{data.get('avg_duration_ms', 0):.1f}ms</td>
-                <td>{data.get('error_count', 0)}</td>
+                <td>{data.get("total_executions", 0)}</td>
+                <td>{data.get("avg_duration_ms", 0):.1f}ms</td>
+                <td>{data.get("error_count", 0)}</td>
             </tr>
             """
 

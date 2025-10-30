@@ -286,7 +286,7 @@ class SignalDataAggregator:
 
         except Exception as e:
             logger.exception(f"Error loading multiple strategies: {e}")
-            return {identifier: None for identifier in strategy_identifiers}
+            return dict.fromkeys(strategy_identifiers)
 
     def refresh_strategy_data(self, strategy_identifier: str) -> StrategyData | None:
         """
@@ -2117,20 +2117,20 @@ if __name__ == "__main__":
             # Format as human-readable text
             output = f"""
 === DATA QUALITY REPORT ===
-Generated: {report['report_timestamp']}
+Generated: {report["report_timestamp"]}
 
 OVERVIEW:
-- Total Strategies: {report['total_strategies']}
-- Strategies with Issues: {report['strategies_with_issues']}
-- Critical Issues: {report['critical_issues']}
-- Warning Issues: {report['warning_issues']}
-- Pipeline Health: {report['data_pipeline_health']}
+- Total Strategies: {report["total_strategies"]}
+- Strategies with Issues: {report["strategies_with_issues"]}
+- Critical Issues: {report["critical_issues"]}
+- Warning Issues: {report["warning_issues"]}
+- Pipeline Health: {report["data_pipeline_health"]}
 
 ISSUE BREAKDOWN:
-- Mathematical Impossibilities: {report['issue_categories']['mathematical_impossibility']}
-- Missing Trade Data: {report['issue_categories']['missing_trade_data']}
-- Extreme Values: {report['issue_categories']['extreme_values']}
-- Statistical Inconsistencies: {report['issue_categories']['statistical_inconsistency']}
+- Mathematical Impossibilities: {report["issue_categories"]["mathematical_impossibility"]}
+- Missing Trade Data: {report["issue_categories"]["missing_trade_data"]}
+- Extreme Values: {report["issue_categories"]["extreme_values"]}
+- Statistical Inconsistencies: {report["issue_categories"]["statistical_inconsistency"]}
 
 RECOMMENDATIONS:
 """

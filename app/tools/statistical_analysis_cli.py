@@ -1324,10 +1324,10 @@ Examples:
         # Generate markdown content
         content = f"""# Portfolio Analysis Summary
 
-**Portfolio:** {summary['portfolio']}
-**Total Strategies:** {summary['total_strategies']}
-**Data Source:** {'Trade History' if summary['use_trade_history'] else 'Equity Curves'}
-**Analysis Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Portfolio:** {summary["portfolio"]}
+**Total Strategies:** {summary["total_strategies"]}
+**Data Source:** {"Trade History" if summary["use_trade_history"] else "Equity Curves"}
+**Analysis Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## 🎯 Signal Distribution
 
@@ -1339,8 +1339,8 @@ Examples:
         content += f"""
 ## 📊 Analysis Quality
 
-- **High Confidence:** {summary['high_confidence_analyses']}
-- **Confidence Rate:** {summary['confidence_rate']:.1%}
+- **High Confidence:** {summary["high_confidence_analyses"]}
+- **Confidence Rate:** {summary["confidence_rate"]:.1%}
 
 ## 🚨 Action Items
 

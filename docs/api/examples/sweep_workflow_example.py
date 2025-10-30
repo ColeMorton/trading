@@ -18,7 +18,9 @@ class TradingAPIClient:
     retrieving results.
     """
 
-    def __init__(self, base_url: str = "http://localhost:8000", api_key: str = None):
+    def __init__(
+        self, base_url: str = "http://localhost:8000", api_key: str | None = None
+    ):
         """
         Initialize the API client.
 

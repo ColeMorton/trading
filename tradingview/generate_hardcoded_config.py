@@ -112,16 +112,15 @@ def generate_pine_script_from_template(
 
     # Extract date from filename if possible
     filename = os.path.basename(csv_path)
-    date_str = ""
     if "_" in filename and filename.endswith(".csv"):
         parts = filename.split("_")
         if len(parts) > 1:
             date_part = parts[-1].replace(".csv", "")
             if date_part.isdigit() and len(date_part) == 8:  # YYYYMMDD format
-                date_str = date_part
+                pass
 
     # Generate ticker options for input
-    ticker_options = sorted(list(tickers))
+    ticker_options = sorted(tickers)
     if len(ticker_options) > 1 and "ALL" not in ticker_options:
         ticker_options.insert(0, "ALL")
 
@@ -319,7 +318,7 @@ def interactive_update(csv_path, pine_script_path, ticker_filter=None):
         (
             strategy_blocks,
             strategy_count,
-            tickers,
+            _tickers,
             ticker_strategy_counts,
         ) = generate_hardcoded_strategies(csv_path, ticker_filter)
 
@@ -372,7 +371,7 @@ def interactive_update(csv_path, pine_script_path, ticker_filter=None):
             "maxval=11", f"maxval={strategy_count}"
         )
         new_pine_script = new_pine_script.replace(
-            "maxval=10", f"maxval={strategy_count-1}"
+            "maxval=10", f"maxval={strategy_count - 1}"
         )
 
         # Update the strategy configuration comment

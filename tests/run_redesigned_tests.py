@@ -32,9 +32,9 @@ class TestRunner:
         verbosity: int = 1,
     ) -> bool:
         """Run a specific layer of tests."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"🧪 RUNNING {layer_name.upper()} TESTS")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         start_time = time.time()
 
@@ -94,9 +94,9 @@ class TestRunner:
 
     def print_final_summary(self):
         """Print final test execution summary."""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("📋 FINAL TEST SUMMARY")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         total_tests = sum(r["tests_run"] for r in self.results.values())
         total_failures = sum(r["failures"] for r in self.results.values())
@@ -179,9 +179,9 @@ def run_comparison_with_old_tests():
     """Run both old and new tests for comparison."""
     print("🔄 COMPARISON: Running both old and redesigned tests")
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("📊 OLD TESTS (Current Implementation)")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Run some existing tests for comparison
     old_runner = TestRunner()
@@ -190,16 +190,16 @@ def run_comparison_with_old_tests():
         "test_use_current_export.py",
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("🆕 NEW TESTS (Redesigned)")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Run redesigned tests
     new_success = run_all_redesigned_tests()
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("🔍 COMPARISON SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Old Tests: {'✅ Passed' if old_success else '❌ Failed'}")
     print(f"New Tests: {'✅ Passed' if new_success else '❌ Failed'}")
 

@@ -246,7 +246,7 @@ def calculate_signal_quality_metrics(
             returns_np = returns_np.copy()
 
             log(
-                f"Applying stop loss of {stop_loss*100:.2f}% to signal quality metrics for {strategy_id}",
+                f"Applying stop loss of {stop_loss * 100:.2f}% to signal quality metrics for {strategy_id}",
                 "info",
             )
 

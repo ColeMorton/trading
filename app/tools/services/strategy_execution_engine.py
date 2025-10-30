@@ -383,7 +383,7 @@ class StrategyExecutionEngine:
                 progress = 20.0 + (i / len(strategy_types)) * 60.0
                 await progress_callback(
                     progress,
-                    f"Analyzing {strategy_type} strategy ({i+1}/{len(strategy_types)})",
+                    f"Analyzing {strategy_type} strategy ({i + 1}/{len(strategy_types)})",
                 )
 
                 # Execute the strategy using optimal execution method in a thread pool

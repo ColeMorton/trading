@@ -5,6 +5,8 @@ This module provides CLI commands for executing and analyzing MA Cross
 and MACD strategies with various configuration options.
 """
 
+import builtins
+import contextlib
 from pathlib import Path
 
 import pandas as pd
@@ -1617,12 +1619,16 @@ async def _persist_sweep_results_to_database(
             "market_type": (
                 config.market_type.value
                 if hasattr(config.market_type, "value")
-                else str(config.market_type) if config.market_type else None
+                else str(config.market_type)
+                if config.market_type
+                else None
             ),
             "direction": (
                 config.direction.value
                 if hasattr(config.direction, "value")
-                else str(config.direction) if config.direction else None
+                else str(config.direction)
+                if config.direction
+                else None
             ),
             "minimums": {
                 "win_rate": config.minimums.win_rate,
@@ -1701,10 +1707,8 @@ async def _persist_sweep_results_to_database(
         console.error(f"Failed to persist results to database: {e}")
         console.info("Results are still available in CSV files")
         # Close database connection on error
-        try:
+        with contextlib.suppress(builtins.BaseException):
             await db_manager.close()
-        except:
-            pass
         # Don't raise - allow execution to continue
 
 
@@ -1911,7 +1915,7 @@ def _display_strategy_summary(
 
     # Execution performance
     if summary.execution_time > 60:
-        time_display = f"{summary.execution_time/60:.1f} minutes"
+        time_display = f"{summary.execution_time / 60:.1f} minutes"
     else:
         time_display = f"{summary.execution_time:.1f} seconds"
 

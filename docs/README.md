@@ -2,6 +2,14 @@
 
 Comprehensive documentation for the trading strategy analysis platform.
 
+## 📚 Documentation Hub
+
+### Essential Documentation
+
+- **[Documentation Index](DOCUMENTATION_INDEX.md)** - Complete catalog with metadata for all 164 docs
+- **[Changelog](CHANGELOG.md)** - System evolution history and version tracking
+- **[Audit Report](DOCUMENTATION_AUDIT_REPORT.md)** - Documentation quality assessment
+
 ## Quick Navigation
 
 ### New to the System?
@@ -154,5 +162,27 @@ This documentation follows these principles:
 
 ---
 
-**Navigation**: [Master Index](../INDEX.md) | [Main README](../README.md)
-**Status**: Documentation reorganized and consolidated October 28, 2025
+---
+
+## Documentation Infrastructure
+
+### Quality Metrics (2025-10-30 Audit)
+
+- ✅ **164 markdown files** across 25+ directories
+- ✅ **93.2% link validity** rate (150/161 links valid)
+- ✅ **Frontmatter standards** applied to core documents
+- ✅ **Version tracking** via centralized changelog
+- ✅ **Comprehensive indexing** with metadata catalog
+
+### Recent Updates
+
+- **2025-10-30**: Documentation audit completed, changelog created, frontmatter standardization
+- **2025-10-28**: Major documentation reorganization, structure consolidated
+- **2025-10-19**: API documentation expanded, sweep results endpoints
+- **2025-09-10**: GraphQL documentation added, frontend guides updated
+
+---
+
+**Navigation**: [Documentation Index](DOCUMENTATION_INDEX.md) | [Changelog](CHANGELOG.md) | [Audit Report](DOCUMENTATION_AUDIT_REPORT.md) | [Main README](../README.md)
+
+**Status**: Documentation infrastructure upgraded October 30, 2025

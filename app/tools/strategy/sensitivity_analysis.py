@@ -341,9 +341,9 @@ class SensitivityAnalyzerBase(ABC):
                             remaining = len(parameter_sets) - completed_count
                             eta_seconds = remaining / rate if rate > 0 else 0
                             if eta_seconds > 3600:
-                                eta_str = f"{eta_seconds/3600:.1f}h"
+                                eta_str = f"{eta_seconds / 3600:.1f}h"
                             elif eta_seconds > 60:
-                                eta_str = f"{eta_seconds/60:.1f}m"
+                                eta_str = f"{eta_seconds / 60:.1f}m"
                             else:
                                 eta_str = f"{eta_seconds:.0f}s"
 

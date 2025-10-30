@@ -1030,7 +1030,7 @@ def _display_risk_comparison_matrix(
         if sectors:
             sector_names = ", ".join([s["ticker"] for s in sectors[:5]])  # Show first 5
             if len(sectors) > 5:
-                sector_names += f" (+{len(sectors)-5} more)"
+                sector_names += f" (+{len(sectors) - 5} more)"
 
             avg_score = sum([s["score"] for s in sectors]) / len(sectors)
             avg_sharpe = sum([s["sharpe_ratio"] for s in sectors]) / len(sectors)

@@ -169,7 +169,7 @@ class TestRiskAllocationCalculator:
         assert self.calculator.risk_percentage == 0.15
 
         # Invalid update
-        success, message = self.calculator.update_risk_percentage(-0.05)
+        success, _message = self.calculator.update_risk_percentage(-0.05)
         assert not success
         assert self.calculator.risk_percentage == 0.15  # Unchanged
 

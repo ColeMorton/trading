@@ -709,7 +709,7 @@ if __name__ == "__main__":
 
         # Example 3: Quick analysis function
         print("\n=== Quick Analysis ===")
-        results3, summary3 = await analyze_portfolio(
+        _results3, summary3 = await analyze_portfolio(
             "momentum.csv",
             use_trade_history=True,
         )

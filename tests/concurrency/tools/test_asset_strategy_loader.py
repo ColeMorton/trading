@@ -68,7 +68,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_load_strategies_for_asset_success(self, sample_strategy_csv):
         """Test loading strategies for a specific asset."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         strategies = loader.load_strategies_for_asset("TEST", min_score=0.0)
@@ -88,7 +88,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_load_strategies_filters_by_min_score(self, sample_strategy_csv):
         """Test that strategies are filtered by minimum score."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         # Filter for score >= 1.4
@@ -108,7 +108,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_load_strategies_sorts_by_score_descending(self, sample_strategy_csv):
         """Test that strategies are sorted by score (highest first)."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         strategies = loader.load_strategies_for_asset("TEST", min_score=0.0)
@@ -132,7 +132,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_load_strategies_handles_macd_signal_period(self, sample_strategy_csv):
         """Test that MACD strategies properly include signal_period."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         strategies = loader.load_strategies_for_asset("TEST", min_score=0.0)
@@ -147,7 +147,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_generate_strategy_id_format(self, sample_strategy_csv):
         """Test that strategy IDs are generated in correct format."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         strategies = loader.load_strategies_for_asset("TEST", min_score=0.0)
@@ -170,7 +170,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_validate_asset_data_viable(self, sample_strategy_csv):
         """Test validation of viable asset data."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         validation = loader.validate_asset_data("TEST")
@@ -228,7 +228,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_validate_asset_data_strategy_type_distribution(self, sample_strategy_csv):
         """Test that validation includes strategy type distribution."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         validation = loader.validate_asset_data("TEST")
@@ -247,7 +247,7 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
     def test_validate_asset_data_parameter_ranges(self, sample_strategy_csv):
         """Test that validation includes parameter ranges."""
-        data_dir, csv_file = sample_strategy_csv
+        data_dir, _csv_file = sample_strategy_csv
         loader = AssetStrategyLoader(data_dir=data_dir)
 
         validation = loader.validate_asset_data("TEST")

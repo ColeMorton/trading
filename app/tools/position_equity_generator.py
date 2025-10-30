@@ -214,9 +214,9 @@ class DirectEquityCalculator:
         self.precision_fee_calculator = PrecisionFeeCalculator(self.fee_rate)
         self.precision_equity_calculator = PrecisionEquityCalculator(self.fee_rate)
         self.baseline_calculator = PortfolioBaselineCalculator(self.fee_rate)
-        self._positions_cache: list[dict[str, Any]] = (
-            []
-        )  # Cache for position data access
+        self._positions_cache: list[
+            dict[str, Any]
+        ] = []  # Cache for position data access
 
     def _default_log(self, message: str, level: str = "info") -> None:
         """Default logging function when none provided."""
@@ -1139,7 +1139,7 @@ class PositionEquityGenerator:
             # Calculate portfolio equity directly
             (
                 combined_equity,
-                price_data,
+                _price_data,
             ) = self.equity_calculator.reconstruct_portfolio(positions, init_cash)
 
             # Create a mock VectorBT portfolio from combined equity data

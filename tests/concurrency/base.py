@@ -239,7 +239,7 @@ class MockDataMixin:
 
         for i in range(num_strategies):
             strategy = {
-                "ticker": f"TEST{i+1}",
+                "ticker": f"TEST{i + 1}",
                 "timeframe": "D",
                 "type": "SMA" if i % 2 == 0 else "EMA",
                 "direction": "long",

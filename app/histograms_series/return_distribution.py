@@ -337,7 +337,7 @@ def plot_return_distribution(
             color=SECONDARY_DATA,
             linestyle="--",
             linewidth=2,
-            label=f"Strike (+{strike_return*100:.2f}%): {historical_prob:.2f}% hist vs {market_prob:.2f}% implied",
+            label=f"Strike (+{strike_return * 100:.2f}%): {historical_prob:.2f}% hist vs {market_prob:.2f}% implied",
         )
 
         # Add comparison text
@@ -782,7 +782,7 @@ def main():
                     ),
                 ],
                 ["Expected Return", f"{np.mean(custom_returns):.2%}"],
-                ["Max Profit Probability", f"{100-historical_prob:.2f}%"],
+                ["Max Profit Probability", f"{100 - historical_prob:.2f}%"],
             ]
 
             table = summary_ax.table(

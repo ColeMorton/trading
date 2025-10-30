@@ -50,9 +50,9 @@ def main():
                 ):
                     contrib = strategy["risk_metrics"]["risk_contribution"]["value"]
                     total_risk_contrib += contrib
-                    print(f"{strategy['id']}: {contrib*100:.2f}%")
+                    print(f"{strategy['id']}: {contrib * 100:.2f}%")
 
-            print(f"\nTotal Risk Contributions: {total_risk_contrib*100:.2f}%")
+            print(f"\nTotal Risk Contributions: {total_risk_contrib * 100:.2f}%")
 
             # Check portfolio metrics
             if (
@@ -78,7 +78,7 @@ def main():
                 print("   The 441% error has been fixed!")
             else:
                 print(
-                    f"⚠️  WARNING: Risk contributions sum to {total_risk_contrib*100:.2f}%",
+                    f"⚠️  WARNING: Risk contributions sum to {total_risk_contrib * 100:.2f}%",
                 )
             print("=" * 80)
 

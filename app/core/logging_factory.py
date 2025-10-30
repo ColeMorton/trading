@@ -23,7 +23,7 @@ def ensure_logging_initialized() -> None:
     Called automatically by get_logger(), but can be called explicitly
     at application startup for early initialization.
     """
-    global _initialized  # noqa: PLW0603
+    global _initialized
     if not _initialized:
         initialize_logging()
         _initialized = True

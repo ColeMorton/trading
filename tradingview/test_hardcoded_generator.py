@@ -26,14 +26,14 @@ def run_generator(csv_path, pine_script_path=None, ticker_filter=None):
     if ticker_filter:
         cmd.append(ticker_filter)
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("Running hardcoded generator with:")
     print(f"  CSV: {csv_path}")
     if pine_script_path:
         print(f"  Pine script: {pine_script_path}")
     if ticker_filter:
         print(f"  Ticker: {ticker_filter}")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)

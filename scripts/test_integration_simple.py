@@ -79,7 +79,7 @@ async def test_basic_functionality():
         # Test 4: Validate Result Structure
         if results:
             print("\n4. Validating result structure...")
-            sample_key = list(results.keys())[0]
+            sample_key = next(iter(results.keys()))
             sample_result = results[sample_key]
 
             print(f"   Position UUID: {sample_result.position_uuid}")

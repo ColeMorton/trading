@@ -232,7 +232,7 @@ def process_ticker_portfolios(
                 (
                     sma_portfolio,
                     ema_portfolio,
-                    result_config,
+                    _result_config,
                     sma_data,
                     ema_data,
                 ) = legacy_result
@@ -420,11 +420,11 @@ def export_summary_results(
                 ticker = portfolio.get("Ticker", "Unknown")
                 strategy_type = portfolio.get("Strategy Type", "Unknown")
                 log(
-                    f"DEBUG PORTFOLIO {i+1} ({ticker} {strategy_type}): Keys available: {list(portfolio.keys())[:10]}...",
+                    f"DEBUG PORTFOLIO {i + 1} ({ticker} {strategy_type}): Keys available: {list(portfolio.keys())[:10]}...",
                     "info",
                 )
                 log(
-                    f"DEBUG PORTFOLIO {i+1}: Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}, Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}",
+                    f"DEBUG PORTFOLIO {i + 1}: Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}, Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}",
                     "info",
                 )
 

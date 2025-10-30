@@ -116,7 +116,9 @@ class BTCMonthlyConsistencyAnalyzer:
 
         return sorted(periods)
 
-    def find_first_consistent_period(self, max_periods_to_test: int = None) -> dict:
+    def find_first_consistent_period(
+        self, max_periods_to_test: int | None = None
+    ) -> dict:
         """Find the first (lowest) period with consistent monthly growth."""
         available_periods = self.get_available_periods()
 
@@ -253,7 +255,7 @@ class BTCMonthlyConsistencyAnalyzer:
             volatility = first_consistent["monthly_volatility"]
 
             report.append(
-                f"• Minimum Smoothing Required: {optimal_period} days (~{optimal_period/30:.1f} months)"
+                f"• Minimum Smoothing Required: {optimal_period} days (~{optimal_period / 30:.1f} months)"
             )
             report.append(
                 f"• Monthly Performance: {avg_return:+.2f}% average return with {volatility:.2f}% volatility"

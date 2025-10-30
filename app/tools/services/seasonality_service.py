@@ -574,7 +574,9 @@ class SeasonalityService:
             risk = (
                 "Low"
                 if pattern.std_dev < 3
-                else "Moderate" if pattern.std_dev < 5 else "High"
+                else "Moderate"
+                if pattern.std_dev < 5
+                else "High"
             )
             risk_color = (
                 "green" if risk == "Low" else "yellow" if risk == "Moderate" else "red"
@@ -833,7 +835,9 @@ class SeasonalityService:
                 else (
                     "Moderate"
                     if strength > 0.4
-                    else "Weak" if strength > 0.2 else "Very Weak"
+                    else "Weak"
+                    if strength > 0.2
+                    else "Very Weak"
                 )
             )
         )
@@ -853,10 +857,10 @@ class SeasonalityService:
             best_month = max(monthly_patterns, key=lambda p: p.average_return)
             worst_month = min(monthly_patterns, key=lambda p: p.average_return)
             self.console.print(
-                f"Best Month: [green]{best_month.period} (+{best_month.average_return:.2f}%, {best_month.win_rate*100:.0f}% win rate)[/green]",
+                f"Best Month: [green]{best_month.period} (+{best_month.average_return:.2f}%, {best_month.win_rate * 100:.0f}% win rate)[/green]",
             )
             self.console.print(
-                f"Worst Month: [red]{worst_month.period} ({worst_month.average_return:.2f}%, {worst_month.win_rate*100:.0f}% win rate)[/red]",
+                f"Worst Month: [red]{worst_month.period} ({worst_month.average_return:.2f}%, {worst_month.win_rate * 100:.0f}% win rate)[/red]",
             )
 
         # Best and worst days
@@ -867,10 +871,10 @@ class SeasonalityService:
             best_day = max(weekly_patterns, key=lambda p: p.average_return)
             worst_day = min(weekly_patterns, key=lambda p: p.average_return)
             self.console.print(
-                f"Best Day: [green]{best_day.period} (+{best_day.average_return:.2f}%, {best_day.win_rate*100:.0f}% win rate)[/green]",
+                f"Best Day: [green]{best_day.period} (+{best_day.average_return:.2f}%, {best_day.win_rate * 100:.0f}% win rate)[/green]",
             )
             self.console.print(
-                f"Worst Day: [red]{worst_day.period} ({worst_day.average_return:.2f}%, {worst_day.win_rate*100:.0f}% win rate)[/red]",
+                f"Worst Day: [red]{worst_day.period} ({worst_day.average_return:.2f}%, {worst_day.win_rate * 100:.0f}% win rate)[/red]",
             )
 
         # Consistency score (avg of all monthly consistency scores)
@@ -882,7 +886,9 @@ class SeasonalityService:
             cons_color = (
                 "green"
                 if consistency_pct >= 60
-                else "yellow" if consistency_pct >= 50 else "red"
+                else "yellow"
+                if consistency_pct >= 50
+                else "red"
             )
             self.console.print(
                 f"Overall Consistency: [{cons_color}]{consistency_pct:.0f}% (months with positive returns)[/{cons_color}]",

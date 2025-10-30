@@ -102,7 +102,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
         mock_process = Mock(return_value=({"data": "processed"}, permutation))
         mock_analyze = Mock(return_value=({"efficiency_score": 0.85}, []))
 
-        stats, aligned = analyze_permutation(
+        _stats, _aligned = analyze_permutation(
             permutation,
             mock_process,
             mock_analyze,
@@ -192,7 +192,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
             call_count += 1
             return {"efficiency_score": score}, []
 
-        best_perm, best_stats, best_aligned = find_optimal_permutation(
+        best_perm, best_stats, _best_aligned = find_optimal_permutation(
             strategies,
             mock_process,
             mock_analyze,
@@ -245,7 +245,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
             return {"efficiency_score": 0.8}, []
 
         # Should still find best despite errors
-        best_perm, best_stats, best_aligned = find_optimal_permutation(
+        _best_perm, best_stats, _best_aligned = find_optimal_permutation(
             strategies,
             mock_process,
             mock_analyze,

@@ -267,7 +267,7 @@ def integrate_signal_value_metrics(
         for i, (signals_df, returns_df) in enumerate(
             zip(signals_df_list, returns_df_list, strict=False),
         ):
-            strategy_id = f"strategy_{i+1}"
+            strategy_id = f"strategy_{i + 1}"
 
             # Get risk metrics for this strategy
             strategy_risk_metrics = risk_metrics.get(strategy_id, {})
@@ -288,7 +288,9 @@ def integrate_signal_value_metrics(
         aggregate_metrics = _calculate_aggregate_signal_value_metrics(results, log)
         results["aggregate"] = aggregate_metrics
 
-        log(f"Calculated signal value metrics for {len(results)-1} strategies", "info")
+        log(
+            f"Calculated signal value metrics for {len(results) - 1} strategies", "info"
+        )
 
         return results
     except Exception as e:

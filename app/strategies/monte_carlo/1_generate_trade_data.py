@@ -134,7 +134,7 @@ def run(config: dict[str, Any]) -> bool:
         # Export results
         csv_filename = os.path.join(
             csv_dir,
-            f'{config["TICKER_1"]}_trade_data_ema_cross.csv',
+            f"{config['TICKER_1']}_trade_data_ema_cross.csv",
         )
         trade_results.to_csv(csv_filename, index=False)
         log(f"Exported trade data to {csv_filename}")

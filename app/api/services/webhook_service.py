@@ -59,7 +59,7 @@ class WebhookService:
                 )
 
                 logger.info(
-                    f"Webhook sent for job {job_id}: " f"status={response.status_code}",
+                    f"Webhook sent for job {job_id}: status={response.status_code}",
                 )
 
                 return response.status_code, response.text
@@ -104,7 +104,7 @@ class WebhookService:
         }
 
         # Send webhook (non-blocking)
-        status_code, response_text = await WebhookService.send_webhook(
+        status_code, _response_text = await WebhookService.send_webhook(
             job_id=str(job.id),
             webhook_url=job.webhook_url,
             payload=payload,

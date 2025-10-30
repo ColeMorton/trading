@@ -199,15 +199,15 @@ class RiskContributionCalculator:
                 "marginal_contribution": float(marginal_contributions[i]),
                 "risk_contribution": float(component_contributions[i]),
                 "risk_contribution_pct": float(risk_contributions_pct[i]),
-                "risk_contribution_pct_display": f"{risk_contributions_pct[i]*100:.2f}%",
+                "risk_contribution_pct_display": f"{risk_contributions_pct[i] * 100:.2f}%",
             }
 
         # Log summary
         logger.info(
-            f"Risk contributions calculated - Total: {total_contribution*100:.2f}%",
+            f"Risk contributions calculated - Total: {total_contribution * 100:.2f}%",
         )
         for name, contrib in zip(strategy_names, risk_contributions_pct, strict=False):
-            logger.info(f"  {name}: {contrib*100:.2f}%")
+            logger.info(f"  {name}: {contrib * 100:.2f}%")
 
         return risk_metrics
 
@@ -227,10 +227,10 @@ class RiskContributionCalculator:
         total = sum(risk_contributions.values())
 
         if np.isclose(total, 1.0, rtol=1e-3):  # 0.1% tolerance
-            return True, f"Risk contributions valid: {total*100:.2f}%"
+            return True, f"Risk contributions valid: {total * 100:.2f}%"
         return (
             False,
-            f"Risk contributions invalid: {total*100:.2f}% (expected 100%)",
+            f"Risk contributions invalid: {total * 100:.2f}% (expected 100%)",
         )
 
     @staticmethod
@@ -296,7 +296,7 @@ class RiskContributionCalculator:
                 "weight": float(weights[i]),
                 "risk_contribution": float(risk_contribution),
                 "risk_contribution_pct": float(risk_contributions_pct[i]),
-                "risk_contribution_pct_display": f"{risk_contributions_pct[i]*100:.2f}%",
+                "risk_contribution_pct_display": f"{risk_contributions_pct[i] * 100:.2f}%",
             }
 
         # Normalize risk contributions to sum to 100%
@@ -318,7 +318,7 @@ class RiskContributionCalculator:
                 )
                 risk_contributions[strategy_names[i]][
                     "risk_contribution_pct_display"
-                ] = f"{risk_contributions_pct[i]*100:.2f}%"
+                ] = f"{risk_contributions_pct[i] * 100:.2f}%"
 
         # Create output dictionary
         risk_metrics = {
@@ -344,7 +344,7 @@ class RiskContributionCalculator:
             f"Portfolio risk from returns - Volatility: {portfolio_std:.6f}, VaR 95%: {var_95:.4f}",
         )
         logger.info(
-            f"Risk contributions calculated from portfolio returns - Total: {np.sum(risk_contributions_pct)*100:.2f}%",
+            f"Risk contributions calculated from portfolio returns - Total: {np.sum(risk_contributions_pct) * 100:.2f}%",
         )
 
         return risk_metrics
@@ -528,15 +528,15 @@ class RiskContributionCalculator:
                 "marginal_contribution": float(marginal_contributions[i]),
                 "risk_contribution": float(component_contributions[i]),
                 "risk_contribution_pct": float(risk_contributions_pct[i]),
-                "risk_contribution_pct_display": f"{risk_contributions_pct[i]*100:.2f}%",
+                "risk_contribution_pct_display": f"{risk_contributions_pct[i] * 100:.2f}%",
             }
 
         # Log summary
         logger.info(
-            f"Risk contributions calculated - Total: {total_contribution*100:.2f}%",
+            f"Risk contributions calculated - Total: {total_contribution * 100:.2f}%",
         )
         for name, contrib in zip(strategy_names, risk_contributions_pct, strict=False):
-            logger.info(f"  {name}: {contrib*100:.2f}%")
+            logger.info(f"  {name}: {contrib * 100:.2f}%")
 
         return risk_metrics
 
@@ -959,10 +959,10 @@ class RiskContributionCalculator:
                         )
 
                     # Add to risk metrics in expected format
-                    risk_metrics[f"strategy_{i+1}_var_95"] = var_95
-                    risk_metrics[f"strategy_{i+1}_cvar_95"] = cvar_95
-                    risk_metrics[f"strategy_{i+1}_var_99"] = var_99
-                    risk_metrics[f"strategy_{i+1}_cvar_99"] = cvar_99
+                    risk_metrics[f"strategy_{i + 1}_var_95"] = var_95
+                    risk_metrics[f"strategy_{i + 1}_cvar_95"] = cvar_95
+                    risk_metrics[f"strategy_{i + 1}_var_99"] = var_99
+                    risk_metrics[f"strategy_{i + 1}_cvar_99"] = cvar_99
 
                 log(
                     f"Portfolio risk calculation completed successfully for {len(strategy_names)} strategies",
@@ -1017,7 +1017,7 @@ def calculate_risk_contributions_fixed(
         log(f"Calculating risk contributions for {n_strategies} strategies", "info")
 
         # Generate strategy names if not provided
-        strategy_names = [f"strategy_{i+1}" for i in range(n_strategies)]
+        strategy_names = [f"strategy_{i + 1}" for i in range(n_strategies)]
 
         # Always use the fixed calculation method
         log("Using fixed risk contribution calculation", "info")
@@ -1071,7 +1071,7 @@ def calculate_risk_contributions_fixed(
             strategy_returns.append(avg_return)
 
             log(
-                f"Strategy {i+1} - Average Return: {avg_return:.6f}, Volatility: {vol:.6f}",
+                f"Strategy {i + 1} - Average Return: {avg_return:.6f}, Volatility: {vol:.6f}",
                 "info",
             )
 
@@ -1083,25 +1083,25 @@ def calculate_risk_contributions_fixed(
         for i in range(n_strategies):
             strategy_name = strategy_names[i]
             contrib_data = risk_metrics["risk_contributions"][strategy_name]
-            risk_contributions[f"strategy_{i+1}_risk_contrib"] = contrib_data[
+            risk_contributions[f"strategy_{i + 1}_risk_contrib"] = contrib_data[
                 "risk_contribution_pct"
             ]
 
             # Add VaR/CVaR metrics
-            risk_contributions[f"strategy_{i+1}_var_95"] = risk_metrics.get(
-                f"strategy_{i+1}_var_95",
+            risk_contributions[f"strategy_{i + 1}_var_95"] = risk_metrics.get(
+                f"strategy_{i + 1}_var_95",
                 0.0,
             )
-            risk_contributions[f"strategy_{i+1}_cvar_95"] = risk_metrics.get(
-                f"strategy_{i+1}_cvar_95",
+            risk_contributions[f"strategy_{i + 1}_cvar_95"] = risk_metrics.get(
+                f"strategy_{i + 1}_cvar_95",
                 0.0,
             )
-            risk_contributions[f"strategy_{i+1}_var_99"] = risk_metrics.get(
-                f"strategy_{i+1}_var_99",
+            risk_contributions[f"strategy_{i + 1}_var_99"] = risk_metrics.get(
+                f"strategy_{i + 1}_var_99",
                 0.0,
             )
-            risk_contributions[f"strategy_{i+1}_cvar_99"] = risk_metrics.get(
-                f"strategy_{i+1}_cvar_99",
+            risk_contributions[f"strategy_{i + 1}_cvar_99"] = risk_metrics.get(
+                f"strategy_{i + 1}_cvar_99",
                 0.0,
             )
 
@@ -1120,16 +1120,16 @@ def calculate_risk_contributions_fixed(
             # Handle potential NaN values in alpha
             if np.isnan(risk_adjusted_alpha):
                 log(
-                    f"Warning: NaN detected in alpha for strategy {i+1}, setting to 0",
+                    f"Warning: NaN detected in alpha for strategy {i + 1}, setting to 0",
                     "warning",
                 )
                 risk_adjusted_alpha = 0.0
 
-            risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(
+            risk_contributions[f"strategy_{i + 1}_alpha_to_portfolio"] = float(
                 risk_adjusted_alpha,
             )
             log(
-                f"Strategy {i+1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}",
+                f"Strategy {i + 1} excess return: {excess_return:.6f}, alpha to portfolio: {risk_adjusted_alpha:.6f}",
                 "info",
             )
 
@@ -1157,16 +1157,16 @@ def calculate_risk_contributions_fixed(
 
                 # Add weighted contribution
                 combined_var_95 += (
-                    risk_contributions[f"strategy_{i+1}_var_95"] * allocation_weight
+                    risk_contributions[f"strategy_{i + 1}_var_95"] * allocation_weight
                 )
                 combined_var_99 += (
-                    risk_contributions[f"strategy_{i+1}_var_99"] * allocation_weight
+                    risk_contributions[f"strategy_{i + 1}_var_99"] * allocation_weight
                 )
                 combined_cvar_95 += (
-                    risk_contributions[f"strategy_{i+1}_cvar_95"] * allocation_weight
+                    risk_contributions[f"strategy_{i + 1}_cvar_95"] * allocation_weight
                 )
                 combined_cvar_99 += (
-                    risk_contributions[f"strategy_{i+1}_cvar_99"] * allocation_weight
+                    risk_contributions[f"strategy_{i + 1}_cvar_99"] * allocation_weight
                 )
 
             risk_contributions["combined_var_95"] = combined_var_95
@@ -1197,7 +1197,7 @@ def calculate_risk_contributions_fixed(
         contrib_sum = sum(
             v for k, v in risk_contributions.items() if k.endswith("_risk_contrib")
         )
-        log(f"Risk contributions sum: {contrib_sum*100:.2f}%", "info")
+        log(f"Risk contributions sum: {contrib_sum * 100:.2f}%", "info")
 
         return risk_contributions
 

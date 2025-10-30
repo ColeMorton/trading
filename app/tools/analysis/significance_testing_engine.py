@@ -497,7 +497,7 @@ class SignificanceTestingEngine:
             p_values_array = np.array(p_values)
 
             # Apply correction
-            rejected, corrected_p_values, alpha_sidak, alpha_bonf = multipletests(
+            rejected, corrected_p_values, _alpha_sidak, alpha_bonf = multipletests(
                 p_values_array,
                 alpha=alpha,
                 method=method,

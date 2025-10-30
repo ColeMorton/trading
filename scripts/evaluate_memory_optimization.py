@@ -94,11 +94,10 @@ class MemoryOptimizationEvaluator:
                         analysis["imports"].append(alias.name)
                         if alias.name not in analysis["dependencies"]:
                             analysis["dependencies"].append(alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        analysis["imports"].append(node.module)
-                        if node.module not in analysis["dependencies"]:
-                            analysis["dependencies"].append(node.module)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    analysis["imports"].append(node.module)
+                    if node.module not in analysis["dependencies"]:
+                        analysis["dependencies"].append(node.module)
 
             # Calculate complexity score
             analysis["complexity_score"] = (
@@ -226,7 +225,7 @@ class MemoryOptimizationEvaluator:
             return "Automatic performance tuning"
         # Try to infer from classes and functions
         classes = analysis.get("classes", [])
-        functions = analysis.get("functions", [])
+        analysis.get("functions", [])
 
         if any("Cache" in c for c in classes):
             return "Caching"
@@ -347,9 +346,7 @@ class MemoryOptimizationEvaluator:
             "cache_manager.py",
             "streaming_processor.py",
         ]
-        peripheral_files = [
-            f for f in self.analysis_results.keys() if f not in core_files
-        ]
+        peripheral_files = [f for f in self.analysis_results if f not in core_files]
 
         if len(peripheral_files) > 5:
             recommendations.append(

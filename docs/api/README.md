@@ -1,3 +1,12 @@
+---
+title: Trading CLI API Documentation
+version: 1.0.0
+last_updated: 2025-10-30
+owner: API Team
+status: Active
+audience: API Consumers, Developers
+---
+
 # Trading CLI API Documentation
 
 ## Overview

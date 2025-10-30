@@ -1450,11 +1450,11 @@ def construct(
         for ticker_idx, asset_name in enumerate(asset_names, 1):
             # Show progress for multiple tickers
             if len(asset_names) > 1:
-                rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
+                rprint(f"\n[bold cyan]{'=' * 60}[/bold cyan]")
                 rprint(
                     f"[bold cyan]Processing ticker {ticker_idx}/{len(asset_names)}: {asset_name}[/bold cyan]",
                 )
-                rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
+                rprint(f"[bold cyan]{'=' * 60}[/bold cyan]\n")
 
             # Validate asset feasibility
             rprint(f"[dim]Filtering criteria: Score >= {min_score}[/dim]")
@@ -1943,11 +1943,11 @@ def construct(
 
         # Display summary for multiple tickers
         if len(asset_names) > 1:
-            rprint(f"\n[bold cyan]{'='*60}[/bold cyan]")
+            rprint(f"\n[bold cyan]{'=' * 60}[/bold cyan]")
             rprint(
                 f"[bold cyan]Summary: Processed {len(asset_names)} Tickers[/bold cyan]",
             )
-            rprint(f"[bold cyan]{'='*60}[/bold cyan]\n")
+            rprint(f"[bold cyan]{'=' * 60}[/bold cyan]\n")
 
             successful = [r for r in all_results if r["success"]]
             failed = [r for r in all_results if not r["success"]]
@@ -1974,7 +1974,7 @@ def construct(
                     )
 
             rprint(
-                f"\n[bold]Overall Success Rate: {len(successful)}/{len(asset_names)} ({len(successful)/len(asset_names)*100:.1f}%)[/bold]",
+                f"\n[bold]Overall Success Rate: {len(successful)}/{len(asset_names)} ({len(successful) / len(asset_names) * 100:.1f}%)[/bold]",
             )
 
     except Exception as e:

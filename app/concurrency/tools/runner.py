@@ -145,16 +145,16 @@ def run_analysis(
                     strategy_id = generate_strategy_id(updated_strategy)
                     updated_strategy["strategy_id"] = strategy_id
                     log(
-                        f"Generated strategy ID for strategy {i+1}: {strategy_id}",
+                        f"Generated strategy ID for strategy {i + 1}: {strategy_id}",
                         "debug",
                     )
                 except ValueError as e:
                     log(
-                        f"Could not generate strategy ID for strategy {i+1}: {e!s}",
+                        f"Could not generate strategy ID for strategy {i + 1}: {e!s}",
                         "warning",
                     )
                     # Use a fallback ID based on index
-                    updated_strategy["strategy_id"] = f"strategy_{i+1}"
+                    updated_strategy["strategy_id"] = f"strategy_{i + 1}"
 
             updated_strategies.append(updated_strategy)
 
@@ -377,7 +377,7 @@ def run_analysis(
                 (
                     optimal_strategies,
                     optimal_stats,
-                    optimal_aligned_data,
+                    _optimal_aligned_data,
                 ) = find_optimal_permutation(
                     updated_strategies,
                     process_strategies,
@@ -393,9 +393,9 @@ def run_analysis(
                     strategy_id = strategy.get("strategy_id", None)
                     ticker = strategy.get("TICKER", "unknown")
                     if strategy_id:
-                        log(f"  {i+1}. {ticker} (ID: {strategy_id})", "info")
+                        log(f"  {i + 1}. {ticker} (ID: {strategy_id})", "info")
                     else:
-                        log(f"  {i+1}. {ticker}", "info")
+                        log(f"  {i + 1}. {ticker}", "info")
 
                 # Log comparison
                 log("Comparison of optimal vs. all strategies:", "info")

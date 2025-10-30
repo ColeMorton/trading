@@ -189,18 +189,18 @@ for i in range(5):  # Plot 5 simulations for each model
     plt.plot(
         dates,
         jd_simulations[:, i],
-        label=f'{"Merton" if USE_MERTON else "GBM"} Sim {i+1}' if i == 0 else "",
+        label=f"{'Merton' if USE_MERTON else 'GBM'} Sim {i + 1}" if i == 0 else "",
         alpha=0.7,
     )
     plt.plot(
         dates,
         gbm_simulations[:, i],
-        label=f"GBM Sim {i+1}" if i == 0 else "",
+        label=f"GBM Sim {i + 1}" if i == 0 else "",
         alpha=0.7,
     )
 
 plt.title(
-    f'{"Merton Jump-Diffusion" if USE_MERTON else "Geometric Brownian Motion"} vs GBM Model - SOL-USD',
+    f"{'Merton Jump-Diffusion' if USE_MERTON else 'Geometric Brownian Motion'} vs GBM Model - SOL-USD",
 )
 plt.xlabel("Date")
 plt.ylabel("Price")

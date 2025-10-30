@@ -352,7 +352,7 @@ class RiskMetricsValidator:
                     strict=False,
                 ):
                     log(
-                        f"  {name}: {contrib:.4f} ({contrib/portfolio_total_risk:.1%} of total)",
+                        f"  {name}: {contrib:.4f} ({contrib / portfolio_total_risk:.1%} of total)",
                         "info",
                     )
 
@@ -751,7 +751,7 @@ class VolatilityAggregator:
             log("Risk contributions calculated:", "info")
             total_rc = sum(risk_contributions)
             for i, rc in enumerate(risk_contributions):
-                log(f"  Strategy {i}: {rc:.4f} ({rc/total_rc:.1%} of total)", "info")
+                log(f"  Strategy {i}: {rc:.4f} ({rc / total_rc:.1%} of total)", "info")
             log(f"  Total: {total_rc:.4f} (should ≈ 1.0)", "info")
 
         return risk_contributions

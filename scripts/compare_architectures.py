@@ -141,8 +141,10 @@ class ArchitectureComparison:
             console.print(f"[red]Old architecture failed: {e}[/red]")
             return time.time() - start_time, False
 
-    async def run_comparison(self, sizes: list[int] = [100, 500, 1000]):
+    async def run_comparison(self, sizes: list[int] | None = None):
         """Run comprehensive comparison."""
+        if sizes is None:
+            sizes = [100, 500, 1000]
         console.print("[bold]⚡ Comparing SPDS Architectures[/bold]")
         console.print("-" * 50)
 
@@ -170,7 +172,7 @@ class ArchitectureComparison:
                 if speedup > 1.0:
                     improvement = f"{speedup:.1f}x faster"
                 else:
-                    improvement = f"{1/speedup:.1f}x slower"
+                    improvement = f"{1 / speedup:.1f}x slower"
             else:
                 speedup = 0.0
                 improvement = "N/A"
@@ -261,7 +263,7 @@ class ArchitectureComparison:
                 )
             else:
                 console.print(
-                    f"[red]❌ New architecture is {1/avg_speedup:.1f}x slower on average[/red]"
+                    f"[red]❌ New architecture is {1 / avg_speedup:.1f}x slower on average[/red]"
                 )
 
         # Architecture complexity comparison

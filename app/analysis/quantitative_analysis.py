@@ -520,7 +520,7 @@ class QuantitativeAnalyzer:
                     f"• Portfolio Sharpe Ratio: {existing.sharpe_ratio:.3f}",
                 )
                 report_lines.append(
-                    f"• Annualized Return: {existing.annualized_return*100:.2f}%",
+                    f"• Annualized Return: {existing.annualized_return * 100:.2f}%",
                 )
                 report_lines.append(f"• Maximum Drawdown: {existing.max_drawdown:.2f}%")
 
@@ -533,13 +533,13 @@ class QuantitativeAnalyzer:
                     f"• Incoming Sharpe Ratio: {incoming.sharpe_ratio:.3f}",
                 )
                 report_lines.append(
-                    f"• Incoming Annualized Return: {incoming.annualized_return*100:.2f}%",
+                    f"• Incoming Annualized Return: {incoming.annualized_return * 100:.2f}%",
                 )
 
             if "enhancement_impact" in comparison:
                 impact = comparison["enhancement_impact"]
                 report_lines.append(
-                    f"• Expected Return Enhancement: {impact['return_improvement']*100:.2f}%",
+                    f"• Expected Return Enhancement: {impact['return_improvement'] * 100:.2f}%",
                 )
                 report_lines.append(
                     f"• Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}",
@@ -554,15 +554,15 @@ class QuantitativeAnalyzer:
                 report_lines.append("-" * 40)
                 report_lines.append(f"Total Strategies: {existing.total_strategies}")
                 report_lines.append(
-                    f"Annualized Return: {existing.annualized_return*100:.2f}%",
+                    f"Annualized Return: {existing.annualized_return * 100:.2f}%",
                 )
                 report_lines.append(
-                    f"Annualized Volatility: {existing.annualized_volatility*100:.2f}%",
+                    f"Annualized Volatility: {existing.annualized_volatility * 100:.2f}%",
                 )
                 report_lines.append(f"Sharpe Ratio: {existing.sharpe_ratio:.3f}")
                 report_lines.append(f"Maximum Drawdown: {existing.max_drawdown:.2f}%")
-                report_lines.append(f"95% VaR: {existing.var_95*100:.2f}%")
-                report_lines.append(f"99% VaR: {existing.var_99*100:.2f}%")
+                report_lines.append(f"95% VaR: {existing.var_95 * 100:.2f}%")
+                report_lines.append(f"99% VaR: {existing.var_99 * 100:.2f}%")
                 report_lines.append(
                     f"Diversification Ratio: {existing.diversification_ratio:.3f}",
                 )
@@ -587,10 +587,10 @@ class QuantitativeAnalyzer:
                 report_lines.append("-" * 40)
                 report_lines.append(f"Total Strategies: {incoming.total_strategies}")
                 report_lines.append(
-                    f"Annualized Return: {incoming.annualized_return*100:.2f}%",
+                    f"Annualized Return: {incoming.annualized_return * 100:.2f}%",
                 )
                 report_lines.append(
-                    f"Annualized Volatility: {incoming.annualized_volatility*100:.2f}%",
+                    f"Annualized Volatility: {incoming.annualized_volatility * 100:.2f}%",
                 )
                 report_lines.append(f"Sharpe Ratio: {incoming.sharpe_ratio:.3f}")
                 report_lines.append(f"Maximum Drawdown: {incoming.max_drawdown:.2f}%")
@@ -608,7 +608,7 @@ class QuantitativeAnalyzer:
                 report_lines.append("PORTFOLIO ENHANCEMENT ANALYSIS")
                 report_lines.append("-" * 40)
                 report_lines.append(
-                    f"Expected Return Enhancement: {impact['return_improvement']*100:.2f}%",
+                    f"Expected Return Enhancement: {impact['return_improvement'] * 100:.2f}%",
                 )
                 report_lines.append(
                     f"Expected Sharpe Improvement: {impact['sharpe_improvement']:.3f}",
@@ -663,10 +663,10 @@ class QuantitativeAnalyzer:
                         f"99% Confidence Interval: {mc_results['var_99']:.3f}",
                     )
                     report_lines.append(
-                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%",
+                        f"Probability of Loss: {mc_results['probability_of_loss'] * 100:.1f}%",
                     )
                     report_lines.append(
-                        f"Probability of Doubling: {mc_results['probability_of_doubling']*100:.1f}%",
+                        f"Probability of Doubling: {mc_results['probability_of_doubling'] * 100:.1f}%",
                     )
                     report_lines.append("")
 

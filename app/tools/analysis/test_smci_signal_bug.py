@@ -50,7 +50,7 @@ async def test_smci_signal_generation():
     current_return = smci_row["Current_Unrealized_PnL"]
 
     logger.info(
-        f"SMCI Current Return: {current_return:.6f} ({current_return*100:.2f}%)",
+        f"SMCI Current Return: {current_return:.6f} ({current_return * 100:.2f}%)",
     )
 
     # Create SPDS config
@@ -134,7 +134,7 @@ async def test_smci_signal_generation():
     # The bug analysis
     logger.info("\n=== BUG ANALYSIS ===")
     logger.info(
-        f"SMCI current return: {current_return:.6f} ({current_return*100:.2f}%)",
+        f"SMCI current return: {current_return:.6f} ({current_return * 100:.2f}%)",
     )
     logger.info("P70 threshold: 0.1274 (12.74%)")
     logger.info(f"Condition: {current_return:.6f} > 0.1274 = {current_return > 0.1274}")
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     if result and result["bug_detected"]:
         print("\n🚨 BUG CONFIRMED: SMCI signal generation is incorrect!")
-        print(f"   Current return: {result['current_return']*100:.2f}%")
+        print(f"   Current return: {result['current_return'] * 100:.2f}%")
         print(f"   Estimated percentile rank: {result['estimated_rank']:.2f}")
         print(f"   Expected signal: {result['expected_signal']}")
     else:

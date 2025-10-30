@@ -133,7 +133,7 @@ class PortfolioMonteCarloVisualizer:
         cols = min(3, n_tickers)
         rows = (n_tickers + cols - 1) // cols
 
-        fig, axes = plt.subplots(
+        _fig, axes = plt.subplots(
             rows,
             cols,
             figsize=(
@@ -189,7 +189,7 @@ class PortfolioMonteCarloVisualizer:
                 ax.set_yticklabels(heatmap_data.index)
                 plt.colorbar(im, ax=ax, shrink=0.8)
 
-            ax.set_title(f'{ticker} - {metric.replace("_", " ").title()}')
+            ax.set_title(f"{ticker} - {metric.replace('_', ' ').title()}")
             ax.set_xlabel("Fast Period")
             ax.set_ylabel("Slow Period")
 
@@ -259,7 +259,7 @@ class PortfolioMonteCarloVisualizer:
             df["stability_score"].mean(),
             color="red",
             linestyle="--",
-            label=f'Mean: {df["stability_score"].mean():.3f}',
+            label=f"Mean: {df['stability_score'].mean():.3f}",
         )
         axes[0, 0].set_title("Stability Score Distribution")
         axes[0, 0].set_xlabel("Stability Score")
@@ -278,7 +278,7 @@ class PortfolioMonteCarloVisualizer:
             df["parameter_robustness"].mean(),
             color="red",
             linestyle="--",
-            label=f'Mean: {df["parameter_robustness"].mean():.3f}',
+            label=f"Mean: {df['parameter_robustness'].mean():.3f}",
         )
         axes[0, 1].set_title("Parameter Robustness Distribution")
         axes[0, 1].set_xlabel("Parameter Robustness")
@@ -297,7 +297,7 @@ class PortfolioMonteCarloVisualizer:
             df["regime_consistency"].mean(),
             color="red",
             linestyle="--",
-            label=f'Mean: {df["regime_consistency"].mean():.3f}',
+            label=f"Mean: {df['regime_consistency'].mean():.3f}",
         )
         axes[1, 0].set_title("Regime Consistency Distribution")
         axes[1, 0].set_xlabel("Regime Consistency")
@@ -377,15 +377,15 @@ class PortfolioMonteCarloVisualizer:
         # Portfolio metrics summary
         metrics_text = f"""Portfolio Metrics:
 
-Total Tickers: {portfolio_metrics.get('total_tickers_analyzed', 0)}
-Stable Tickers: {portfolio_metrics.get('stable_tickers_count', 0)}
-Stable %: {portfolio_metrics.get('stable_tickers_percentage', 0):.1f}%
-Avg Stability: {portfolio_metrics.get('average_stability_score', 0):.3f}
+Total Tickers: {portfolio_metrics.get("total_tickers_analyzed", 0)}
+Stable Tickers: {portfolio_metrics.get("stable_tickers_count", 0)}
+Stable %: {portfolio_metrics.get("stable_tickers_percentage", 0):.1f}%
+Avg Stability: {portfolio_metrics.get("average_stability_score", 0):.3f}
 
 Simulation Parameters:
-Simulations: {portfolio_metrics.get('simulation_parameters', {}).get('num_simulations', 'N/A')}
-Confidence: {portfolio_metrics.get('simulation_parameters', {}).get('confidence_level', 'N/A')}
-Max Params: {portfolio_metrics.get('simulation_parameters', {}).get('max_parameters_tested', 'N/A')}"""
+Simulations: {portfolio_metrics.get("simulation_parameters", {}).get("num_simulations", "N/A")}
+Confidence: {portfolio_metrics.get("simulation_parameters", {}).get("confidence_level", "N/A")}
+Max Params: {portfolio_metrics.get("simulation_parameters", {}).get("max_parameters_tested", "N/A")}"""
 
         axes[0, 1].text(
             0.1,

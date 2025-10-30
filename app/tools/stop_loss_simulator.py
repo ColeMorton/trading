@@ -69,9 +69,7 @@ def apply_stop_loss_to_returns(
     # Create arrays to track position-specific data
     position_ids = np.zeros_like(signals)  # Unique ID for each position
     current_position_id = 0
-    position_cumulative_returns = (
-        {}
-    )  # Dictionary to track cumulative returns by position ID
+    position_cumulative_returns = {}  # Dictionary to track cumulative returns by position ID
 
     # Assign position IDs and initialize tracking
     for i in range(len(positions)):
@@ -144,7 +142,7 @@ def apply_stop_loss_to_returns(
                     break
 
     log(
-        f"Applied stop loss of {stop_loss*100:.2f}% to returns. "
+        f"Applied stop loss of {stop_loss * 100:.2f}% to returns. "
         + f"Triggered {int(np.sum(stop_loss_triggers))} times.",
         "info",
     )
@@ -345,7 +343,7 @@ def compare_stop_loss_levels(
     for stop_loss in stop_loss_levels:
         metrics = calculate_stop_loss_adjusted_metrics(returns, signals, stop_loss, log)
 
-        results[f"stop_loss_{int(stop_loss*100)}pct"] = metrics
+        results[f"stop_loss_{int(stop_loss * 100)}pct"] = metrics
 
     # Calculate metrics without stop loss for comparison
     # Use a very large stop loss value that won't be triggered
@@ -431,7 +429,7 @@ def find_optimal_stop_loss(
         }
 
     log(
-        f"Found optimal stop loss of {best_stop_loss*100:.2f}% based on {optimization_metric}",
+        f"Found optimal stop loss of {best_stop_loss * 100:.2f}% based on {optimization_metric}",
         "info",
     )
 
@@ -528,6 +526,8 @@ def apply_stop_loss_to_signal_quality_metrics(
     )
     updated_metrics["expectancy_per_signal"] = expectancy
 
-    log(f"Applied stop loss of {stop_loss*100:.2f}% to signal quality metrics", "info")
+    log(
+        f"Applied stop loss of {stop_loss * 100:.2f}% to signal quality metrics", "info"
+    )
 
     return updated_metrics

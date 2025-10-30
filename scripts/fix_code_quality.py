@@ -219,7 +219,9 @@ def print_analysis(stats: dict):
         color = (
             Colors.RED
             if priority == 1
-            else Colors.YELLOW if priority == 2 else Colors.CYAN
+            else Colors.YELLOW
+            if priority == 2
+            else Colors.CYAN
         )
         print(
             f"  {color}[{prefix}]{Colors.RESET} {name:30} {count:5} issues  (Priority: {priority}, Auto-fix: {safe})"
@@ -300,7 +302,7 @@ def fix_category(category: str):
     print(f"Found {len(cat_issues)} issues in category {category}")
 
     # Get all unique codes in this category
-    codes = set(issue.get("code") for issue in cat_issues)
+    codes = {issue.get("code") for issue in cat_issues}
 
     print(f"{Colors.CYAN}Issue types in this category:{Colors.RESET}")
     for code in sorted(codes):

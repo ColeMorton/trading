@@ -1,0 +1,160 @@
+name: PR Test Results Comment
+
+on:
+  workflow_run:
+    workflows: ['CI/CD Pipeline']
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  contents: read
+  actions: read
+
+jobs:
+  pr-comment:
+    name: Comment Test Results on PR
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'cancelled'
+    steps:
+      - name: Download artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+
+            const coverageArtifact = artifacts.data.artifacts.find(
+              artifact => artifact.name.startsWith('ci-test-results')
+            );
+
+            if (coverageArtifact) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: coverageArtifact.id,
+                archive_format: 'zip',
+              });
+
+              const fs = require('fs');
+              fs.writeFileSync('${{ github.workspace }}/artifacts.zip', Buffer.from(download.data));
+            }
+
+      - name: Extract artifacts
+        run: |
+          if [ -f artifacts.zip ]; then
+            unzip -q artifacts.zip -d artifacts/
+          fi
+
+      - name: Get PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: '${{ github.event.workflow_run.head_sha }}',
+            });
+
+            if (pullRequests.length > 0) {
+              return pullRequests[0].number;
+            }
+
+      - name: Parse test results
+        id: test-results
+        run: |
+          if [ -f artifacts/coverage.xml ]; then
+            # Parse coverage percentage (simple grep, could use more sophisticated parsing)
+            COVERAGE=$(grep -o 'line-rate="[0-9.]*"' artifacts/coverage.xml | head -1 | grep -o '[0-9.]*' | awk '{printf "%.1f", $1*100}')
+            echo "coverage=${COVERAGE}%" >> $GITHUB_OUTPUT
+          else
+            echo "coverage=N/A" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update PR comment
+        uses: actions/github-script@v7
+        if: steps.pr.outputs.result != ''
+        with:
+          script: |
+            const prNumber = ${{ steps.pr.outputs.result }};
+            const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}`;
+            const conclusion = '${{ github.event.workflow_run.conclusion }}';
+            const coverage = '${{ steps.test-results.outputs.coverage }}';
+
+            let emoji = '✅';
+            let status = 'Passed';
+            let color = '🟢';
+
+            if (conclusion === 'failure') {
+              emoji = '❌';
+              status = 'Failed';
+              color = '🔴';
+            } else if (conclusion === 'cancelled') {
+              emoji = '⚠️';
+              status = 'Cancelled';
+              color = '🟡';
+            }
+
+            const body = `## ${emoji} Test Results - ${status}
+
+            ${color} **Pipeline Status**: ${status}
+            📊 **Coverage**: ${coverage}
+            🔗 [View Full Results](${runUrl})
+
+            ---
+
+            <details>
+            <summary>Test Summary</summary>
+
+            - **Backend Tests**: ${conclusion === 'success' ? '✅ Passed' : '❌ Failed'}
+            - **Coverage**: ${coverage}
+            - **Build**: ${conclusion === 'success' ? '✅ Success' : '❌ Failed'}
+
+            </details>
+
+            <details>
+            <summary>What's next?</summary>
+
+            ${conclusion === 'success'
+              ? '✨ All checks passed! Your PR is ready for review.'
+              : '⚠️ Some checks failed. Please review the logs and fix the issues.'}
+
+            </details>
+
+            ---
+            *Automated comment by GitHub Actions - [Workflow Run](${runUrl})*
+            `;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Test Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: body
+              });
+            }

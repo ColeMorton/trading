@@ -10,8 +10,10 @@ import asyncio
 import time
 import traceback
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import ThreadPoolExecutor as ConcurrentExecutor
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    ThreadPoolExecutor as ConcurrentExecutor,
+)
 
 # API removed - creating local model definitions
 from dataclasses import dataclass
@@ -277,7 +279,7 @@ class ServiceCoordinator:
             )
             log, log_close, _, _ = setup_logging(
                 module_name="api",
-                log_file=f'strategy_analysis_{strategy_type_str}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                log_file=f"strategy_analysis_{strategy_type_str}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
                 log_subdir="strategy_analysis",
             )
 
@@ -450,7 +452,7 @@ class ServiceCoordinator:
             try:
                 log, log_close, _, _ = setup_logging(
                     module_name="api_async",
-                    log_file=f'async_analysis_{execution_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                    log_file=f"async_analysis_{execution_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
                     log_subdir="strategy_analysis",
                 )
 

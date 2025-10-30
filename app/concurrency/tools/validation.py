@@ -189,7 +189,7 @@ class PortfolioMetricsValidator:
                         expected_value=csv_total_trades,
                         actual_value=quality_signal_count,
                         tolerance=tolerance,
-                        error_message=f"Signal quality count {quality_signal_count} differs from CSV trades {csv_total_trades} by {abs(ratio - 1.0)*100:.1f}%",
+                        error_message=f"Signal quality count {quality_signal_count} differs from CSV trades {csv_total_trades} by {abs(ratio - 1.0) * 100:.1f}%",
                         severity="critical" if abs(ratio - 1.0) > 0.5 else "warning",
                     ),
                 )

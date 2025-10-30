@@ -339,9 +339,9 @@ class PositionCalculator:
                                 "difference": eff_diff,
                             },
                         )
-                        results["corrected_values"][
-                            "Exit_Efficiency_Fixed"
-                        ] = expected_efficiency
+                        results["corrected_values"]["Exit_Efficiency_Fixed"] = (
+                            expected_efficiency
+                        )
 
             return results
 
@@ -436,12 +436,12 @@ class PositionCalculator:
                 )
 
                 if refreshed_data.get("PnL") != new_pnl:
-                    changes_made.append(f'PnL: {refreshed_data.get("PnL")} → {new_pnl}')
+                    changes_made.append(f"PnL: {refreshed_data.get('PnL')} → {new_pnl}")
                     refreshed_data["PnL"] = new_pnl
 
                 if refreshed_data.get("Return") != new_return:
                     changes_made.append(
-                        f'Return: {refreshed_data.get("Return")} → {new_return}',
+                        f"Return: {refreshed_data.get('Return')} → {new_return}",
                     )
                     refreshed_data["Return"] = new_return
 
@@ -453,7 +453,7 @@ class PositionCalculator:
                 mfe_rounded = round(mfe, STANDARD_MFE_MAE_PRECISION)
                 if refreshed_data.get("Max_Favourable_Excursion") != mfe_rounded:
                     changes_made.append(
-                        f'MFE: {refreshed_data.get("Max_Favourable_Excursion")} → {mfe_rounded}',
+                        f"MFE: {refreshed_data.get('Max_Favourable_Excursion')} → {mfe_rounded}",
                     )
                     refreshed_data["Max_Favourable_Excursion"] = mfe_rounded
 
@@ -461,7 +461,7 @@ class PositionCalculator:
                 mae_rounded = round(mae, STANDARD_MFE_MAE_PRECISION)
                 if refreshed_data.get("Max_Adverse_Excursion") != mae_rounded:
                     changes_made.append(
-                        f'MAE: {refreshed_data.get("Max_Adverse_Excursion")} → {mae_rounded}',
+                        f"MAE: {refreshed_data.get('Max_Adverse_Excursion')} → {mae_rounded}",
                     )
                     refreshed_data["Max_Adverse_Excursion"] = mae_rounded
 
@@ -473,7 +473,7 @@ class PositionCalculator:
                 new_ratio = self.calculate_mfe_mae_ratio(current_mfe, current_mae)
                 if refreshed_data.get("MFE_MAE_Ratio") != new_ratio:
                     changes_made.append(
-                        f'MFE/MAE Ratio: {refreshed_data.get("MFE_MAE_Ratio")} → {new_ratio}',
+                        f"MFE/MAE Ratio: {refreshed_data.get('MFE_MAE_Ratio')} → {new_ratio}",
                     )
                     refreshed_data["MFE_MAE_Ratio"] = new_ratio
 
@@ -487,7 +487,7 @@ class PositionCalculator:
                 if new_efficiency is not None:
                     if refreshed_data.get("Exit_Efficiency_Fixed") != new_efficiency:
                         changes_made.append(
-                            f'Exit Efficiency: {refreshed_data.get("Exit_Efficiency_Fixed")} → {new_efficiency}',
+                            f"Exit Efficiency: {refreshed_data.get('Exit_Efficiency_Fixed')} → {new_efficiency}",
                         )
                         refreshed_data["Exit_Efficiency_Fixed"] = new_efficiency
 
@@ -497,7 +497,7 @@ class PositionCalculator:
                 new_days = self.calculate_days_since_entry(entry_timestamp)
                 if refreshed_data.get("Days_Since_Entry") != new_days:
                     changes_made.append(
-                        f'Days Since Entry: {refreshed_data.get("Days_Since_Entry")} → {new_days}',
+                        f"Days Since Entry: {refreshed_data.get('Days_Since_Entry')} → {new_days}",
                     )
                     refreshed_data["Days_Since_Entry"] = new_days
 
@@ -506,7 +506,7 @@ class PositionCalculator:
                 new_status = self.calculate_excursion_status(current_excursion)
                 if refreshed_data.get("Current_Excursion_Status") != new_status:
                     changes_made.append(
-                        f'Excursion Status: {refreshed_data.get("Current_Excursion_Status")} → {new_status}',
+                        f"Excursion Status: {refreshed_data.get('Current_Excursion_Status')} → {new_status}",
                     )
                     refreshed_data["Current_Excursion_Status"] = new_status
 
@@ -519,7 +519,7 @@ class PositionCalculator:
                 )
                 if refreshed_data.get("Trade_Quality") != new_quality:
                     changes_made.append(
-                        f'Trade Quality: {refreshed_data.get("Trade_Quality")} → {new_quality}',
+                        f"Trade Quality: {refreshed_data.get('Trade_Quality')} → {new_quality}",
                     )
                     refreshed_data["Trade_Quality"] = new_quality
 

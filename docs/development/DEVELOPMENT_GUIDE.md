@@ -1,3 +1,12 @@
+---
+title: Development Guide
+version: 2.0
+last_updated: 2025-10-30
+owner: Development Team
+status: Active
+audience: Developers
+---
+
 # Development Guide
 
 This guide covers development environment setup, coding standards, and contribution guidelines.

@@ -377,7 +377,7 @@ def calculate_portfolio_unique_signals_v2(
             all_signal_dates.update(signal_dates)
 
         if log:
-            log(f"Strategy {i+1}: {strategy_signal_count} signals", "info")
+            log(f"Strategy {i + 1}: {strategy_signal_count} signals", "info")
 
     # Calculate portfolio metrics
     unique_signal_count = len(all_signal_dates)

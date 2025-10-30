@@ -49,17 +49,17 @@ def calculate_allocations(
 
     # Extract strategy IDs
     strategy_ids = [
-        metrics.get("strategy_id", f"strategy_{i+1}")
+        metrics.get("strategy_id", f"strategy_{i + 1}")
         for i, metrics in enumerate(strategy_metrics)
     ]
 
     # Initialize allocations
-    allocations = {strategy_id: 0.0 for strategy_id in strategy_ids}
+    allocations = dict.fromkeys(strategy_ids, 0.0)
 
     if mode == AllocationMode.EQUAL:
         # Equal allocation to all strategies
         equal_weight = 1.0 / len(strategy_ids)
-        allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+        allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     elif mode == AllocationMode.SIGNAL_COUNT:
         # Allocation based on signal count
@@ -72,7 +72,7 @@ def calculate_allocations(
         else:
             # Fallback to equal allocation if no signals
             equal_weight = 1.0 / len(strategy_ids)
-            allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+            allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     elif mode == AllocationMode.PERFORMANCE:
         # Allocation based on historical performance
@@ -95,7 +95,7 @@ def calculate_allocations(
         else:
             # Fallback to equal allocation if total performance is zero or negative
             equal_weight = 1.0 / len(strategy_ids)
-            allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+            allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     elif mode == AllocationMode.RISK_ADJUSTED:
         # Allocation based on risk-adjusted metrics
@@ -132,7 +132,7 @@ def calculate_allocations(
         else:
             # Fallback to equal allocation if total score is zero
             equal_weight = 1.0 / len(strategy_ids)
-            allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+            allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     elif mode == AllocationMode.INVERSE_VOLATILITY:
         # Allocation based on inverse volatility
@@ -166,7 +166,7 @@ def calculate_allocations(
         else:
             # Fallback to equal allocation
             equal_weight = 1.0 / len(strategy_ids)
-            allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+            allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     elif mode == AllocationMode.CUSTOM:
         # Custom allocation specified by user
@@ -187,22 +187,20 @@ def calculate_allocations(
             else:
                 # Fallback to equal allocation if total is zero
                 equal_weight = 1.0 / len(strategy_ids)
-                allocations = {
-                    strategy_id: equal_weight for strategy_id in strategy_ids
-                }
+                allocations = dict.fromkeys(strategy_ids, equal_weight)
         else:
             # No custom allocations provided, fallback to equal
             if log:
                 log("No custom allocations provided, using equal allocation", "warning")
             equal_weight = 1.0 / len(strategy_ids)
-            allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+            allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     else:
         # Invalid mode, fallback to equal allocation
         if log:
             log(f"Invalid allocation mode: {mode}. Using equal allocation.", "warning")
         equal_weight = 1.0 / len(strategy_ids)
-        allocations = {strategy_id: equal_weight for strategy_id in strategy_ids}
+        allocations = dict.fromkeys(strategy_ids, equal_weight)
 
     # Ensure allocations sum to 1.0 (handle floating point precision issues)
     total = sum(allocations.values())

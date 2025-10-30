@@ -150,7 +150,7 @@ class TestExportedCSVSchemaValidation:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolio_data,
                 config=config,
                 export_type="portfolios",
@@ -208,7 +208,7 @@ class TestExportedCSVSchemaValidation:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolio_data,
                 config=config,
                 export_type="portfolios_filtered",
@@ -224,7 +224,7 @@ class TestExportedCSVSchemaValidation:
 
         # Read the actual CSV file
         csv_file = csv_files[0]
-        df_pandas, df_polars = self.read_csv_file(csv_file)
+        df_pandas, _df_polars = self.read_csv_file(csv_file)
 
         # Verify file has correct number of rows
         assert len(df_pandas) == 3
@@ -267,7 +267,7 @@ class TestExportedCSVSchemaValidation:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolio_data,
                 config=config,
                 export_type="portfolios_best",
@@ -287,7 +287,7 @@ class TestExportedCSVSchemaValidation:
         assert any(char.isdigit() for char in filename)  # Contains timestamp
 
         # Read the actual CSV file
-        df_pandas, df_polars = self.read_csv_file(csv_file)
+        df_pandas, _df_polars = self.read_csv_file(csv_file)
 
         # Verify file has correct number of rows
         assert len(df_pandas) == 3
@@ -334,7 +334,7 @@ class TestExportedCSVSchemaValidation:
 
         for export_type in export_types:
             with patch("app.tools.strategy.export_portfolios.logging_context"):
-                df, success = export_portfolios(
+                _df, success = export_portfolios(
                     portfolios=sample_portfolio_data,
                     config=config,
                     export_type=export_type,
@@ -387,7 +387,7 @@ class TestExportedCSVSchemaValidation:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolio_data,
                 config=config,
                 export_type="portfolios_filtered",
@@ -401,7 +401,7 @@ class TestExportedCSVSchemaValidation:
         csv_files = list(export_path.glob("*.csv"))
         assert len(csv_files) > 0
 
-        df_pandas, df_polars = self.read_csv_file(csv_files[0])
+        df_pandas, _df_polars = self.read_csv_file(csv_files[0])
 
         # Test string columns
         string_columns = ["Ticker", "Strategy Type", "Metric Type"]
@@ -451,7 +451,7 @@ class TestExportedCSVSchemaValidation:
         config["TICKER"] = ["TEST"]
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=special_portfolio,
                 config=config,
                 export_type="portfolios_filtered",
@@ -519,7 +519,7 @@ class TestExportedCSVSchemaValidation:
         config["TICKER"] = ["AAPL", "MSFT"]
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=aggregated_portfolios,
                 config=config,
                 export_type="portfolios_best",
@@ -575,7 +575,7 @@ class TestExportedCSVSchemaValidation:
         config["TICKER"] = tickers[:5]  # First 5 unique tickers
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=large_portfolios,
                 config=config,
                 export_type="portfolios_filtered",
@@ -614,7 +614,7 @@ class TestExportedCSVSchemaValidation:
         config = base_config.copy()
 
         with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
+            _df, success = export_portfolios(
                 portfolios=sample_portfolio_data,
                 config=config,
                 export_type="portfolios",

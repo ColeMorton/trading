@@ -24,62 +24,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-            ~/.cache/pip
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction --no-ansi
+          poetry-version: ${{ env.POETRY_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'concurrency'
 
       - name: Run unit tests
         run: |
-          cd tests/concurrency
-          poetry run python run_tests.py --type unit --failfast --output unit_results.json
+          poetry run pytest tests/concurrency/ -v -m "unit" --tb=short -n auto
 
       - name: Run integration tests
         run: |
-          cd tests/concurrency
-          poetry run python run_tests.py --type integration --output integration_results.json
+          poetry run pytest tests/concurrency/ -v -m "integration" --tb=short
 
       - name: Run error handling tests
         run: |
-          cd tests/concurrency
-          poetry run python run_tests.py --type error --output error_results.json
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: tests/concurrency/*_results.json
+          poetry run pytest tests/concurrency/ -v -m "error_handling" --tb=short
 
       - name: Run coverage analysis
         run: |
-          cd tests/concurrency
-          poetry run python run_tests.py --coverage --output coverage_results.json
+          poetry run pytest tests/concurrency/ -v --cov=app/concurrency --cov-report=xml --cov-report=html --cov-report=term-missing
 
-      - name: Upload coverage report
+      - name: Upload test results and coverage
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coverage-report
-          path: tests/coverage_html/
+          name: concurrency-test-results
+          path: |
+            .coverage
+            coverage.xml
+            htmlcov/
+            .pytest_cache/
+          retention-days: 30
 
   performance:
     runs-on: ubuntu-latest
@@ -88,50 +67,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction --no-ansi
+          poetry-version: ${{ env.POETRY_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'concurrency-perf'
 
       - name: Run performance tests
         run: |
-          cd tests/concurrency
-          poetry run python run_tests.py --type performance --output performance_results.json
+          poetry run pytest tests/concurrency/ -v -m "performance" --tb=short --benchmark-only
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
         with:
-          name: performance-results
-          path: tests/concurrency/performance_results.json
+          name: concurrency-performance-results
+          path: |
+            .pytest_cache/
+            .benchmarks/
+          retention-days: 90
 
-      - name: Comment PR with performance results
+      - name: Generate performance summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('tests/concurrency/performance_results.json', 'utf8'));
-
-            const comment = `## Performance Test Results
-
-            - Tests run: ${results.tests_run}
-            - Duration: ${results.duration.toFixed(2)}s
-            - Success rate: ${(results.success_rate * 100).toFixed(1)}%
-
-            See artifacts for detailed results.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+        run: |
+          echo "## 🚀 Concurrency Performance Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Performance tests completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See artifacts for detailed benchmark results." >> $GITHUB_STEP_SUMMARY

@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-black lint-imports lint-flake8 lint-mypy lint-pylint lint-bandit lint-vulture format-black format-imports lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-ruff lint-mypy lint-pylint lint-bandit lint-vulture format-ruff lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
 
 # Default target
 help:
@@ -39,6 +39,9 @@ help:
 	@echo "  docker-up   - Start all services with Docker Compose"
 	@echo "  docker-down - Stop all services"
 	@echo "  docker-logs - View service logs"
+	@echo "  e2e-up      - Start E2E test stack (API+worker+db+redis)"
+	@echo "  e2e-down    - Stop E2E test stack and remove volumes"
+	@echo "  e2e-test    - Run Python E2E tests against containerized API"
 	@echo ""
 	@echo "Database:"
 	@echo "  setup-db    - Complete database setup (schema + migration)"
@@ -169,6 +172,22 @@ docker-logs: check-docker
 docker-clean: check-docker
 	docker-compose down -v
 	docker system prune -f
+
+# E2E stack for API black-box tests
+e2e-up: check-docker
+	@echo "Starting E2E stack (API, worker, Postgres, Redis)..."
+	docker compose -f docker-compose.e2e.yml up -d
+	@echo "✅ E2E stack started: http://localhost:8000"
+
+e2e-down: check-docker
+	@echo "Stopping E2E stack and removing volumes..."
+	docker compose -f docker-compose.e2e.yml down -v
+
+e2e-test: e2e-up
+	@echo "Waiting for API to become healthy..."
+	@bash -c 'for i in {1..180}; do if curl -sfL http://localhost:8000/health/ >/dev/null; then exit 0; fi; sleep 1; done; echo "API did not become healthy in time"; exit 1'
+	poetry run pytest -q tests/e2e/test_sweep_e2e.py || ( $(MAKE) e2e-down; exit 1 )
+	$(MAKE) e2e-down
 
 # Local development commands (without Docker)
 check-deps:
@@ -387,26 +406,21 @@ lint-help:
 	@echo "⚠️  CRITICAL: All tools run via Poetry"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "❌ WRONG:  black --check ."
-	@echo "✅ RIGHT:  poetry run black --check ."
-	@echo "✅ BETTER: make lint-black"
+	@echo "❌ WRONG:  ruff check ."
+	@echo "✅ RIGHT:  poetry run ruff check ."
+	@echo "✅ BETTER: make lint-ruff"
 	@echo ""
 	@echo "Linting and Code Quality Commands:"
 	@echo ""
 	@echo "Individual Linters (check only):"
-	@echo "  lint-black   - Check code formatting with Black"
-	@echo "  lint-imports - Check import sorting with Ruff"
-	@echo "  lint-ruff    - Check code with Ruff (fast, modern linter)"
-	@echo "  lint-flake8  - Check code style with Flake8 (deprecated)"
+	@echo "  lint-ruff    - Check code with Ruff (format, imports, linting)"
 	@echo "  lint-mypy    - Check type hints with mypy"
 	@echo "  lint-pylint  - Check code quality with pylint"
 	@echo "  lint-bandit  - Security vulnerability scanning"
 	@echo "  lint-vulture - Find dead code"
 	@echo ""
 	@echo "Code Formatters (auto-fix):"
-	@echo "  format-black   - Auto-format code with Black"
-	@echo "  format-imports - Auto-sort imports with Ruff"
-	@echo "  format-ruff    - Auto-fix issues with Ruff"
+	@echo "  format-ruff    - Auto-format and fix issues with Ruff"
 	@echo ""
 	@echo "Aggregate Commands:"
 	@echo "  lint-python    - Run all Python linters (check only)"
@@ -426,25 +440,11 @@ lint-help:
 	@echo "  make lint-ruff         # Quick modern linting with Ruff"
 
 # Individual Python linters (check only)
-lint-black:
-	@echo "Checking code formatting with Black..."
-	poetry run black --check --diff app tests
-	@echo "✅ Black check complete"
-
-lint-imports:
-	@echo "Checking import sorting with Ruff..."
-	poetry run ruff check --select I app tests
-	@echo "✅ Import check complete"
-
 lint-ruff:
-	@echo "Checking code with Ruff..."
+	@echo "Checking code with Ruff (format, imports, linting)..."
+	poetry run ruff format --check app tests
 	poetry run ruff check app tests
 	@echo "✅ Ruff check complete"
-
-lint-flake8:
-	@echo "Checking code style with Flake8..."
-	poetry run flake8 app tests
-	@echo "✅ Flake8 check complete"
 
 lint-mypy:
 	@echo "Checking type hints with mypy..."
@@ -467,26 +467,17 @@ lint-vulture:
 	@echo "✅ Dead code check complete"
 
 # Python formatters (auto-fix)
-format-black:
-	@echo "Auto-formatting code with Black..."
-	poetry run black app tests
-	@echo "✅ Black formatting complete"
-
-format-imports:
-	@echo "Auto-sorting imports with Ruff..."
-	poetry run ruff check --select I --fix app tests
-	@echo "✅ Import formatting complete"
-
 format-ruff:
-	@echo "Auto-fixing issues with Ruff..."
+	@echo "Auto-formatting and fixing issues with Ruff..."
+	poetry run ruff format app tests
 	poetry run ruff check --fix app tests
-	@echo "✅ Ruff auto-fix complete"
+	@echo "✅ Ruff formatting and auto-fix complete"
 
 # Aggregate Python commands
-lint-python: lint-black lint-ruff lint-mypy
+lint-python: lint-ruff lint-mypy
 	@echo "✅ All Python linting checks complete"
 
-format-python: format-imports format-black format-ruff
+format-python: format-ruff
 	@echo "✅ All Python formatting complete"
 
 # Security and code quality scanning

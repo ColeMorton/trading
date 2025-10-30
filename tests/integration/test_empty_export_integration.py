@@ -352,7 +352,7 @@ class TestEmptyExportIntegration:
         assert "Old,Content" in old_content
 
         # Export empty portfolios (should overwrite)
-        df, success = export_portfolios(
+        _df, success = export_portfolios(
             portfolios=[],
             config=test_config,
             export_type="portfolios",
@@ -377,7 +377,7 @@ class TestEmptyExportIntegration:
         """Test that appropriate log messages are generated for empty exports."""
 
         # Test export_portfolios logging
-        df, success = export_portfolios(
+        _df, success = export_portfolios(
             portfolios=[],
             config=test_config,
             export_type="portfolios",
@@ -476,7 +476,7 @@ class TestEmptyExportEdgeCases:
         }
 
         # Should handle missing optional fields gracefully
-        df, success = export_portfolios(
+        df, _success = export_portfolios(
             portfolios=[],
             config=minimal_config,
             export_type="portfolios",
@@ -532,4 +532,4 @@ class TestEmptyExportEdgeCases:
             csv_files = list(export_path.glob("*.csv"))
             assert (
                 len(csv_files) >= i + 1
-            ), f"Expected at least {i+1} files after config {i}"
+            ), f"Expected at least {i + 1} files after config {i}"

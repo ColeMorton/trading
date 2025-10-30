@@ -555,9 +555,9 @@ class UnifiedMetricsCalculator:
                     # Use CSV value as the correction
                     if ticker in corrected_metrics.get("ticker_metrics", {}):
                         metric_key = discrepancy.metric_name
-                        corrected_metrics["ticker_metrics"][ticker][
-                            metric_key
-                        ] = discrepancy.csv_value
+                        corrected_metrics["ticker_metrics"][ticker][metric_key] = (
+                            discrepancy.csv_value
+                        )
                         corrections_applied += 1
 
         if corrections_applied > 0 and log:

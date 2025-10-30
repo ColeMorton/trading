@@ -110,10 +110,10 @@ class PineScriptGenerator:
         header = "//@version=5\n"
         header += 'indicator("Multi-Ticker Strategy Breadth", shorttitle="Breadth", overlay=false)\n\n'
         header += "// ================ Script Metadata ================\n"
-        header += f'// Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n'
+        header += f"// Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         header += f"// Source CSV: {self.csv_path.name}\n"
         header += f"// Total Strategies: {total_strategies}\n"
-        header += f'// Tickers: {", ".join(tickers)}\n'
+        header += f"// Tickers: {', '.join(tickers)}\n"
 
         if self.ticker_filter_applied:
             header += "// Filter Applied: Yes\n"

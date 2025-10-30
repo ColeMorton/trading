@@ -180,7 +180,7 @@ def custom_openapi():
     if settings.is_local_development:
         openapi_schema["components"]["securitySchemes"]["APIKeyHeader"][
             "x-default-value"
-        ] = ("dev-key-" + "0" * 24)
+        ] = "dev-key-" + "0" * 24
 
     # Apply security to all endpoints except health and root
     # Health endpoints are public, others require API key

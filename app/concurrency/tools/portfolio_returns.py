@@ -232,7 +232,7 @@ class PortfolioReturnsCalculator:
 
         # Log summary
         self.log(
-            f"Portfolio volatility: {portfolio_std:.6f} ({portfolio_std*np.sqrt(252)*100:.2f}% annualized)",
+            f"Portfolio volatility: {portfolio_std:.6f} ({portfolio_std * np.sqrt(252) * 100:.2f}% annualized)",
             "info",
         )
         self.log(f"Diversification ratio: {diversification_ratio:.4f}", "info")
@@ -390,7 +390,7 @@ class PortfolioReturnsCalculator:
 
                 # Parse strategy info from name
                 parts = name.split("_")
-                ticker = parts[0] if len(parts) > 0 else f"STRATEGY{i+1}"
+                ticker = parts[0] if len(parts) > 0 else f"STRATEGY{i + 1}"
                 strategy_type = parts[1] if len(parts) > 1 else "unknown"
                 period = parts[2] if len(parts) > 2 else "D"
 

@@ -46,7 +46,7 @@ def process_single_ticker(
 
         if config.get("REFRESH", True) is False:
             # Construct file path using BASE_DIR
-            file_name = f'{ticker}{"_H" if config.get("USE_HOURLY", False) else "_D"}'
+            file_name = f"{ticker}{'_H' if config.get('USE_HOURLY', False) else '_D'}"
             directory = os.path.join(config["BASE_DIR"], "csv", "macd", "portfolios")
 
             # Ensure directory exists

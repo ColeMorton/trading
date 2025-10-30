@@ -52,7 +52,7 @@ class TestEquityDataConfigValidation:
         for export_value in test_cases:
             config = {"EQUITY_DATA": {"EXPORT": export_value, "METRIC": "median"}}
 
-            is_valid, validated_config, warnings = validate_equity_data_config(config)
+            is_valid, validated_config, _warnings = validate_equity_data_config(config)
 
             assert is_valid is True
             assert validated_config["EXPORT"] is True
@@ -65,7 +65,7 @@ class TestEquityDataConfigValidation:
         for export_value in test_cases:
             config = {"EQUITY_DATA": {"EXPORT": export_value, "METRIC": "best"}}
 
-            is_valid, validated_config, warnings = validate_equity_data_config(config)
+            is_valid, validated_config, _warnings = validate_equity_data_config(config)
 
             assert is_valid is True
             assert validated_config["EXPORT"] is False
@@ -322,7 +322,7 @@ class TestEdgeCases:
         """Test validation with empty EQUITY_DATA section."""
         config = {"EQUITY_DATA": {}}
 
-        is_valid, validated_config, warnings = validate_equity_data_config(config)
+        is_valid, validated_config, _warnings = validate_equity_data_config(config)
 
         assert is_valid is True
         assert validated_config["EXPORT"] is False  # Default
@@ -339,7 +339,7 @@ class TestEdgeCases:
             },
         }
 
-        is_valid, validated_config, warnings = validate_equity_data_config(config)
+        is_valid, validated_config, _warnings = validate_equity_data_config(config)
 
         assert is_valid is True
         assert validated_config["EXPORT"] is True

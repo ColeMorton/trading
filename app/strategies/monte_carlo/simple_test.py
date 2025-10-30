@@ -88,7 +88,9 @@ def test_bootstrap_sampling():
         bootstrap_sample = analyzer.bootstrap_prices(data, seed=i)
         sample_length = len(bootstrap_sample)
 
-        print(f"  Bootstrap {i+1}: Original={original_length}, Sample={sample_length}")
+        print(
+            f"  Bootstrap {i + 1}: Original={original_length}, Sample={sample_length}"
+        )
 
         # Verify sample is not empty and within reasonable bounds
         assert sample_length > 0
@@ -123,7 +125,7 @@ def test_parameter_noise():
         noisy_params.append((noisy_short, noisy_long))
 
         print(
-            f"  Test {i+1}: {original_short}/{original_long} → {noisy_short}/{noisy_long}",
+            f"  Test {i + 1}: {original_short}/{original_long} → {noisy_short}/{noisy_long}",
         )
 
         # Verify constraints

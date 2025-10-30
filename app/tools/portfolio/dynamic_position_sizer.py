@@ -552,7 +552,7 @@ class DynamicPositionSizer:
 
             for rec in recommendations:
                 rec.recommended_size *= scaling_factor
-                rec.rationale += f"; Scaled down by {(1-scaling_factor)*100:.1f}% for portfolio limits"
+                rec.rationale += f"; Scaled down by {(1 - scaling_factor) * 100:.1f}% for portfolio limits"
 
         # Ensure minimum diversification
         if len(recommendations) > 1:
@@ -561,6 +561,6 @@ class DynamicPositionSizer:
             for rec in recommendations:
                 if rec.recommended_size > max_single_position:
                     rec.recommended_size = max_single_position
-                    rec.rationale += f"; Capped at {max_single_position*100:.0f}% for diversification"
+                    rec.rationale += f"; Capped at {max_single_position * 100:.0f}% for diversification"
 
         return recommendations

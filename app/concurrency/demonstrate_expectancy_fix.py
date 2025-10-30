@@ -54,7 +54,7 @@ def demonstrate_variance_issue():
     print(f"Average Loss: {avg_loss:.4%}")
     print(f"\nLegacy (R-ratio) Expectancy: {legacy:.2%}")
     print(f"Fixed (Standard) Expectancy: {fixed:.4%}")
-    print(f"Variance: {(legacy/fixed - 1)*100:,.0f}%")
+    print(f"Variance: {(legacy / fixed - 1) * 100:,.0f}%")
 
     # Scenario 2: Normal average loss
     print("\n\nScenario 2: Normal Average Loss")
@@ -80,7 +80,7 @@ def demonstrate_variance_issue():
     print(f"Average Loss: {avg_loss_normal:.2%}")
     print(f"\nLegacy (R-ratio) Expectancy: {legacy_normal:.2%}")
     print(f"Fixed (Standard) Expectancy: {fixed_normal:.4%}")
-    print(f"Variance: {(legacy_normal/fixed_normal - 1)*100:.0f}%")
+    print(f"Variance: {(legacy_normal / fixed_normal - 1) * 100:.0f}%")
 
 
 def demonstrate_real_portfolio():
@@ -101,7 +101,7 @@ def demonstrate_real_portfolio():
     np.random.shuffle(returns)
 
     # Calculate using both methods
-    legacy_exp, legacy_comp = calc.calculate_from_returns(returns, legacy_mode=True)
+    legacy_exp, _legacy_comp = calc.calculate_from_returns(returns, legacy_mode=True)
     fixed_exp, fixed_comp = calc.calculate_from_returns(returns, legacy_mode=False)
 
     print("Portfolio Statistics:")

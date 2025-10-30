@@ -69,11 +69,12 @@ def extract_simulations(csv_content: str) -> tuple[dict, pl.DataFrame]:
     if num_simulations <= 6:
         # If 6 or fewer simulations, export all of them
         results = {
-            f"simulation_{i+1}_performance": perf for i, perf in enumerate(performances)
+            f"simulation_{i + 1}_performance": perf
+            for i, perf in enumerate(performances)
         }
         df_dict = {"timestamp": timestamps}
         for i, sim in enumerate(simulations):
-            df_dict[f"simulation_{i+1}"] = sim
+            df_dict[f"simulation_{i + 1}"] = sim
         df = pl.DataFrame(df_dict)
     else:
         # If 7 or more simulations, export the specific 6 simulations

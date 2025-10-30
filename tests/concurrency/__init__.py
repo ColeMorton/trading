@@ -121,7 +121,7 @@ def create_test_strategies(
     for i in range(count):
         if strategy_type in ["SMA", "EMA"]:
             strategy = {
-                "ticker": f"TEST{i+1}",
+                "ticker": f"TEST{i + 1}",
                 "timeframe": "D",
                 "type": strategy_type,
                 "direction": "long",
@@ -131,7 +131,7 @@ def create_test_strategies(
             }
         else:  # MACD
             strategy = {
-                "ticker": f"TEST{i+1}",
+                "ticker": f"TEST{i + 1}",
                 "timeframe": "D",
                 "type": "MACD",
                 "direction": "long",

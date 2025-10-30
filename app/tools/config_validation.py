@@ -136,7 +136,7 @@ def get_validated_equity_config(config: dict[str, Any]) -> dict[str, Any]:
         ConfigurationError: For critical validation errors
     """
     try:
-        is_valid, validated_config, warnings = validate_equity_data_config(config)
+        _is_valid, validated_config, warnings = validate_equity_data_config(config)
         if warnings:
             # In a real system, these would be logged
             pass
@@ -191,7 +191,7 @@ def log_configuration_validation(config: dict[str, Any], log_func):
         log_func: Logging function with signature (message, level)
     """
     try:
-        is_valid, validated_config, warnings = validate_configuration_schema(config)
+        _is_valid, validated_config, warnings = validate_configuration_schema(config)
 
         if warnings:
             for warning in warnings:

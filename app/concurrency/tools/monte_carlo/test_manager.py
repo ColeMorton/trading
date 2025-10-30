@@ -144,7 +144,7 @@ class TestPortfolioMonteCarloManager(unittest.TestCase):
         self.assertIsNotNone(result)
         # Verify download_data was called with proper config
         mock_download.assert_called_once()
-        args, kwargs = mock_download.call_args
+        args, _kwargs = mock_download.call_args
         self.assertEqual(args[0], "AAPL")  # ticker
         self.assertIsInstance(args[1], dict)  # config
         self.assertEqual(args[2], self.manager.log)  # log function

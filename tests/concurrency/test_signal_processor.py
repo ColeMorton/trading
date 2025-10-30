@@ -92,7 +92,7 @@ class TestSignalProcessor(unittest.TestCase):
 
     def test_filtered_signal_counting(self):
         """Test filtered signal counting with criteria."""
-        filtered_count, filtered_df = self.processor.count_filtered_signals(
+        filtered_count, _filtered_df = self.processor.count_filtered_signals(
             self.test_data,
             self.signal_def,
         )

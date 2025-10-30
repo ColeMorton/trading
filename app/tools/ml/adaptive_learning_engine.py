@@ -228,7 +228,7 @@ class AdaptiveLearningEngine:
             return 0.0, (0.0, 0.0)
 
         # Convert thresholds to feature vector
-        x_features = self._thresholds_to_features(new_thresholds).reshape(1, -1)
+        self._thresholds_to_features(new_thresholds).reshape(1, -1)
 
         # Predict with GP
         y_pred, y_std = self.gp.predict(X, return_std=True)
@@ -275,9 +275,9 @@ class AdaptiveLearningEngine:
 
             # Suggest specific adjustments
             if current_performance.get("premature_exits", 0) > 0.2:
-                recommendations["threshold_adjustments"][
-                    "percentile_threshold"
-                ] = 5  # Increase
+                recommendations["threshold_adjustments"]["percentile_threshold"] = (
+                    5  # Increase
+                )
             if current_performance.get("late_exits", 0) > 0.2:
                 recommendations["threshold_adjustments"][
                     "percentile_threshold"
@@ -363,7 +363,7 @@ class AdaptiveLearningEngine:
         """Perform Bayesian optimization using Gaussian Process."""
         # Prepare training data from history
         if self.performance_history:
-            x_features = np.array(
+            np.array(
                 [
                     self._thresholds_to_features(p.thresholds)
                     for p in self.performance_history

@@ -47,13 +47,13 @@ class TestResults:
 
     def print_summary(self):
         """Print test summary."""
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"Test Summary: {self.tests_passed}/{self.tests_run} passed")
         if self.failures:
             print("\nFailures:")
             for test, msg in self.failures:
                 print(f"  - {test}: {msg}")
-        print(f"{'='*70}\n")
+        print(f"{'=' * 70}\n")
 
 
 def verify_portfolio_structure(df: pl.DataFrame) -> bool:

@@ -409,21 +409,20 @@ class StatisticalModelValidator:
     ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare data for model validation"""
         if "features" in data and "targets" in data:
-            x_features = np.array(data["features"])
+            np.array(data["features"])
             y = np.array(data["targets"])
         elif "returns" in data:
             # Create features from returns (simplified)
             returns = np.array(data["returns"])
 
             # Create lagged features
-            x_features = []
             y = []
 
             for i in range(5, len(returns)):  # Use 5 lags
                 X.append(returns[i - 5 : i])
                 y.append(returns[i])
 
-            x_features = np.array(X)
+            np.array(X)
             y = np.array(y)
         else:
             msg = "Data must contain 'features'/'targets' or 'returns'"
@@ -847,7 +846,7 @@ class StatisticalModelValidator:
             # Breusch-Pagan test
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                bp_stat, bp_pvalue, f_stat, f_pvalue = het_breuschpagan(
+                bp_stat, bp_pvalue, _f_stat, _f_pvalue = het_breuschpagan(
                     residuals,
                     features,
                 )

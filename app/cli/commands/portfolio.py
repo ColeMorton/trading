@@ -908,17 +908,11 @@ def synthesize(
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisConfig as ServiceConfig,
-        )
-        from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisService,
-        )
-        from ...contexts.portfolio.services.portfolio_review_service import (
             StrategyConfig as ServiceStrategyConfig,
         )
         from ...contexts.portfolio.services.portfolio_visualization_service import (
             PlotConfig as ServicePlotConfig,
-        )
-        from ...contexts.portfolio.services.portfolio_visualization_service import (
             PortfolioVisualizationService,
         )
 

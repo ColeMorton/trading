@@ -565,7 +565,7 @@ def process_ticker_portfolios(
                 (
                     sma_portfolio,
                     ema_portfolio,
-                    result_config,
+                    _result_config,
                     sma_data,
                     ema_data,
                 ) = legacy_result
@@ -1316,20 +1316,20 @@ def update_strategy_files(
             )
 
             log(
-                f"📋 Portfolio {i+1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
+                f"📋 Portfolio {i + 1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
                 "info",
             )
 
             # Fail fast on invalid strategy parameters
             if fast_period is None or slow_period is None:
                 log(
-                    f"❌ CRITICAL: Portfolio {i+1} ({ticker} {strategy_type}) has None parameters",
+                    f"❌ CRITICAL: Portfolio {i + 1} ({ticker} {strategy_type}) has None parameters",
                     "error",
                 )
                 return False
             if fast_period <= 0 or slow_period <= 0:
                 log(
-                    f"❌ CRITICAL: Portfolio {i+1} ({ticker} {strategy_type}) has invalid parameters (fast={fast_period}, slow={slow_period})",
+                    f"❌ CRITICAL: Portfolio {i + 1} ({ticker} {strategy_type}) has invalid parameters (fast={fast_period}, slow={slow_period})",
                     "error",
                 )
                 return False
@@ -1356,14 +1356,14 @@ def update_strategy_files(
             signal_period = portfolio.get("Signal Period")
 
             log(
-                f"📋 Reordered Portfolio {i+1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
+                f"📋 Reordered Portfolio {i + 1}: {ticker} {strategy_type} - Fast: {fast_period}, Slow: {slow_period}, Signal: {signal_period}",
                 "info",
             )
 
             # Detect corruption after reordering
             if fast_period == 0 or slow_period == 0:
                 log(
-                    f"❌ CRITICAL: Column reordering corrupted Portfolio {i+1} ({ticker} {strategy_type}) - parameters became 0,0,0",
+                    f"❌ CRITICAL: Column reordering corrupted Portfolio {i + 1} ({ticker} {strategy_type}) - parameters became 0,0,0",
                     "error",
                 )
                 return False
@@ -1433,7 +1433,7 @@ def update_strategy_files(
             # Log actual data before deduplication for debugging
             for i, row in enumerate(df.iter_rows(named=True)):
                 if i < 3:  # Log first 3 rows for debugging
-                    log(f"📊 Row {i+1} data: {dict(row)}", "debug")
+                    log(f"📊 Row {i + 1} data: {dict(row)}", "debug")
 
             duplicate_count = len(df) - df.unique(subset=uniqueness_columns).height
             if duplicate_count > 0:
@@ -1456,7 +1456,7 @@ def update_strategy_files(
 
                 # Log remaining data after deduplication
                 for i, row in enumerate(df.iter_rows(named=True)):
-                    log(f"📊 Remaining Row {i+1}: {dict(row)}", "debug")
+                    log(f"📊 Remaining Row {i + 1}: {dict(row)}", "debug")
 
             reordered_portfolios = df.to_dicts()
         except Exception as e:
@@ -1736,11 +1736,11 @@ def export_summary_results(
                 ticker = portfolio.get("Ticker", "Unknown")
                 strategy_type = portfolio.get("Strategy Type", "Unknown")
                 log(
-                    f"DEBUG MAIN PORTFOLIO {i+1} ({ticker} {strategy_type}): Keys available: {list(portfolio.keys())[:15]}...",
+                    f"DEBUG MAIN PORTFOLIO {i + 1} ({ticker} {strategy_type}): Keys available: {list(portfolio.keys())[:15]}...",
                     "info",
                 )
                 log(
-                    f"DEBUG MAIN PORTFOLIO {i+1}: Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}, Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}",
+                    f"DEBUG MAIN PORTFOLIO {i + 1}: Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}, Fast Period={portfolio.get('Fast Period')}, FAST_PERIOD={portfolio.get('FAST_PERIOD')}",
                     "info",
                 )
 

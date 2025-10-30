@@ -161,7 +161,7 @@ def create_rsi_heatmap(
             ),
         )
 
-        title_text = f'{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize().replace("_", " ")}'
+        title_text = f"{ticker} - RSI Parameter Sensitivity: {metric_name.capitalize().replace('_', ' ')}"
         fig.update_layout(
             title={"text": title_text, "x": 0.5, "xanchor": "center"},
             xaxis={

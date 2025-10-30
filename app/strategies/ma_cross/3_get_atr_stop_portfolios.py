@@ -355,7 +355,7 @@ def run_atr_analysis(config: CacheConfig = None) -> bool:
         successful_exports = 0
 
         for i, ticker in enumerate(tickers):
-            log(f"\n--- Processing ticker {i+1}/{len(tickers)}: {ticker} ---", "info")
+            log(f"\n--- Processing ticker {i + 1}/{len(tickers)}: {ticker} ---", "info")
 
             # Execute ATR analysis for this ticker
             ticker_portfolios = execute_atr_analysis_for_ticker(ticker, config, log)

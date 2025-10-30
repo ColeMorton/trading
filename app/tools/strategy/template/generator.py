@@ -242,13 +242,13 @@ __author__ = "Strategy Template Generator"
 
 {config.description}
 
-**Strategy Type**: {config.strategy_type.value.replace('_', ' ').title()}
+**Strategy Type**: {config.strategy_type.value.replace("_", " ").title()}
 **Primary Indicator**: {config.primary_indicator.value.upper()}
-**Secondary Indicators**: {', '.join(ind.value.upper() for ind in config.secondary_indicators)}
+**Secondary Indicators**: {", ".join(ind.value.upper() for ind in config.secondary_indicators)}
 
 ## Overview
 
-This strategy was generated using the Strategy Template Generator framework. It implements a {config.strategy_type.value.replace('_', ' ')} approach using {config.primary_indicator.value.upper()} as the primary technical indicator.
+This strategy was generated using the Strategy Template Generator framework. It implements a {config.strategy_type.value.replace("_", " ")} approach using {config.primary_indicator.value.upper()} as the primary technical indicator.
 
 ### Signal Generation
 

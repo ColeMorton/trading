@@ -817,9 +817,9 @@ class DivergenceExportService:
 
         report_lines.extend(
             [
-                f"- **Immediate Exits:** {immediate_exits} ({immediate_exits/len(analysis_results)*100:.1f}%)",
-                f"- **Strong Sell Signals:** {strong_sells} ({strong_sells/len(analysis_results)*100:.1f}%)",
-                f"- **Hold Positions:** {holds} ({holds/len(analysis_results)*100:.1f}%)",
+                f"- **Immediate Exits:** {immediate_exits} ({immediate_exits / len(analysis_results) * 100:.1f}%)",
+                f"- **Strong Sell Signals:** {strong_sells} ({strong_sells / len(analysis_results) * 100:.1f}%)",
+                f"- **Hold Positions:** {holds} ({holds / len(analysis_results) * 100:.1f}%)",
                 f"- **Average Layer Convergence:** {avg_convergence:.3f}",
                 (
                     f"- **Average Source Agreement:** {avg_source_agreement:.3f}"
@@ -829,7 +829,7 @@ class DivergenceExportService:
                 "",
                 "## Multi-Source Analysis Overview",
                 "",
-                f"**Dual-Source Analysis Coverage:** {dual_source_count}/{len(analysis_results)} strategies ({dual_source_count/len(analysis_results)*100:.1f}%)",
+                f"**Dual-Source Analysis Coverage:** {dual_source_count}/{len(analysis_results)} strategies ({dual_source_count / len(analysis_results) * 100:.1f}%)",
                 "",
             ],
         )
@@ -1417,8 +1417,8 @@ class DivergenceExportService:
             f"- **Total Unrealized P&L**: {total_performance:+.2%} ({'Exceptional' if total_performance > 1.5 else 'Strong' if total_performance > 0.5 else 'Moderate'})",
             f"- **Success Rate**: {success_rate:.1%} ({profitable_positions} of {total_results} positions profitable)",
             f"- **Average Performance**: {avg_performance:+.2%} per position",
-            f"- **Statistical Exhaustion Detected**: {immediate_exits} positions ({immediate_exits/total_results*100:.1f}% of portfolio)",
-            f"- **Near-Exhaustion Positions**: {strong_sells + sells} positions ({(strong_sells + sells)/total_results*100:.1f}% of portfolio)",
+            f"- **Statistical Exhaustion Detected**: {immediate_exits} positions ({immediate_exits / total_results * 100:.1f}% of portfolio)",
+            f"- **Near-Exhaustion Positions**: {strong_sells + sells} positions ({(strong_sells + sells) / total_results * 100:.1f}% of portfolio)",
             "",
             "### Immediate Action Required",
             f"**🚨 CRITICAL ALERTS**: {immediate_exits + strong_sells} positions require immediate portfolio management decisions based on statistical performance exhaustion and risk-adjusted return optimization.",
@@ -1521,12 +1521,12 @@ class DivergenceExportService:
                         "```",
                         f"Current Return: {performance}",
                         (
-                            f"Risk-Adjusted Return: {float(performance.replace('%','').replace('+','')) * 0.81:.1f}% (volatility-adjusted)"
+                            f"Risk-Adjusted Return: {float(performance.replace('%', '').replace('+', '')) * 0.81:.1f}% (volatility-adjusted)"
                             if performance != "N/A"
                             else "Risk-Adjusted Return: N/A"
                         ),
                         (
-                            f"Maximum Favorable Excursion (MFE): {float(performance.replace('%','').replace('+','')) * 1.1:.1f}%"
+                            f"Maximum Favorable Excursion (MFE): {float(performance.replace('%', '').replace('+', '')) * 1.1:.1f}%"
                             if performance != "N/A"
                             else "Maximum Favorable Excursion (MFE): N/A"
                         ),
@@ -1599,7 +1599,7 @@ class DivergenceExportService:
                         "**Stage 1 (Immediate - Next 5 Trading Days):**",
                         f"- Reduce position by {40 + strong_sell_count * 5}% at current levels",
                         (
-                            f"- Target average exit price: {float(performance.replace('%','').replace('+','')) * 0.98:.1f}% return"
+                            f"- Target average exit price: {float(performance.replace('%', '').replace('+', '')) * 0.98:.1f}% return"
                             if performance != "N/A"
                             else "- Target average exit price: Current market levels"
                         ),
@@ -1612,13 +1612,13 @@ class DivergenceExportService:
                         "",
                         "**Alternative Scenarios:**",
                         (
-                            f"- **Bull Case**: Sector momentum continues, potential for {float(performance.replace('%','').replace('+','')) * 1.15:.0f}% returns"
+                            f"- **Bull Case**: Sector momentum continues, potential for {float(performance.replace('%', '').replace('+', '')) * 1.15:.0f}% returns"
                             if performance != "N/A"
                             else "- **Bull Case**: Continued sector momentum possible"
                         ),
                         f"- **Bear Case**: Mean reversion could trigger {10 + strong_sell_count * 2}-{15 + strong_sell_count * 2}% decline",
                         (
-                            f"- **Base Case**: Mean reversion to {float(performance.replace('%','').replace('+','')) * 0.65:.0f}-{float(performance.replace('%','').replace('+','')) * 0.75:.0f}% range within 60 days"
+                            f"- **Base Case**: Mean reversion to {float(performance.replace('%', '').replace('+', '')) * 0.65:.0f}-{float(performance.replace('%', '').replace('+', '')) * 0.75:.0f}% range within 60 days"
                             if performance != "N/A"
                             else "- **Base Case**: Mean reversion expected within 60 days"
                         ),
@@ -1680,7 +1680,7 @@ class DivergenceExportService:
                             "**Recommended Action:**",
                             f"- **Trim Position**: Reduce by {35 + sell_count * 5}-{45 + sell_count * 5}% over next 2 weeks",
                             (
-                                f"- **Target Exit Range**: {float(performance.replace('%','').replace('+','')) * 0.9:.0f}-{float(performance.replace('%','').replace('+','')) * 0.95:.0f}% return levels"
+                                f"- **Target Exit Range**: {float(performance.replace('%', '').replace('+', '')) * 0.9:.0f}-{float(performance.replace('%', '').replace('+', '')) * 0.95:.0f}% return levels"
                                 if performance != "N/A"
                                 else "- **Target Exit Range**: Current to 5% below current levels"
                             ),

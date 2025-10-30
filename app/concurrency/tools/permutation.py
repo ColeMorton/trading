@@ -185,18 +185,18 @@ def find_optimal_permutation(
                     avg_time_per_permutation * remaining_permutations
                 )
                 log(
-                    f"Progress: {progress_pct:.1f}% ({i+1}/{total_permutations}) - "
+                    f"Progress: {progress_pct:.1f}% ({i + 1}/{total_permutations}) - "
                     + f"Est. remaining time: {estimated_remaining_time:.1f} seconds",
                     "info",
                 )
             else:
                 log(
-                    f"Progress: {progress_pct:.1f}% ({i+1}/{total_permutations})",
+                    f"Progress: {progress_pct:.1f}% ({i + 1}/{total_permutations})",
                     "info",
                 )
 
         log(
-            f"Analyzing permutation {i+1}/{total_permutations} with {len(permutation)} strategies",
+            f"Analyzing permutation {i + 1}/{total_permutations} with {len(permutation)} strategies",
             "debug",
         )
 
@@ -212,7 +212,10 @@ def find_optimal_permutation(
             # Extract risk-adjusted efficiency score
             efficiency = stats["efficiency_score"]
 
-            log(f"Permutation {i+1} risk-adjusted efficiency: {efficiency:.4f}", "info")
+            log(
+                f"Permutation {i + 1} risk-adjusted efficiency: {efficiency:.4f}",
+                "info",
+            )
 
             # Update best if this is better
             if efficiency > best_efficiency:
@@ -226,7 +229,7 @@ def find_optimal_permutation(
                 )
 
         except Exception as e:
-            log(f"Error analyzing permutation {i+1}: {e!s}", "error")
+            log(f"Error analyzing permutation {i + 1}: {e!s}", "error")
             continue
 
     # Log final results

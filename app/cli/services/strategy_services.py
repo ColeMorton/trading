@@ -126,9 +126,9 @@ class MAStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -418,9 +418,9 @@ class MACDStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -544,9 +544,9 @@ class ATRStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:
@@ -675,9 +675,9 @@ class SMAAtrStrategyService(BaseStrategyService):
         if config.minimums.trades is not None:
             legacy_config["MINIMUMS"]["TRADES"] = config.minimums.trades
         if config.minimums.expectancy_per_trade is not None:
-            legacy_config["MINIMUMS"][
-                "EXPECTANCY_PER_TRADE"
-            ] = config.minimums.expectancy_per_trade
+            legacy_config["MINIMUMS"]["EXPECTANCY_PER_TRADE"] = (
+                config.minimums.expectancy_per_trade
+            )
         if config.minimums.profit_factor is not None:
             legacy_config["MINIMUMS"]["PROFIT_FACTOR"] = config.minimums.profit_factor
         if config.minimums.sortino_ratio is not None:

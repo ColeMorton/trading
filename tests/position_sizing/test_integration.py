@@ -220,7 +220,7 @@ class TestPositionSizingIntegration:
     def test_validation_and_error_handling(self):
         """Test validation and error handling across components."""
         # Test Kelly validation
-        kelly_valid, kelly_msg = self.kelly_sizer.validate_kelly_inputs(
+        kelly_valid, _kelly_msg = self.kelly_sizer.validate_kelly_inputs(
             self.num_primary,
             self.num_outliers,
             self.kelly_criterion,
@@ -228,14 +228,14 @@ class TestPositionSizingIntegration:
         assert kelly_valid
 
         # Test risk percentage validation
-        risk_valid, risk_msg = self.risk_allocator.validate_risk_percentage(0.118)
+        risk_valid, _risk_msg = self.risk_allocator.validate_risk_percentage(0.118)
         assert risk_valid
 
         # Test allocation constraint validation
         allocations = {"AAPL": 45.0, "MSFT": 35.0, "GOOGL": 20.0}
         (
             alloc_valid,
-            alloc_msg,
+            _alloc_msg,
         ) = self.allocation_optimizer.validate_allocation_constraints(allocations)
         assert alloc_valid
 

@@ -109,7 +109,7 @@ def main() -> bool:
         returns = calculate_returns(prices_df)
 
         log("Optimizing portfolio...", "info")
-        weights, weights_dict = optimize_portfolio(returns)
+        _weights, weights_dict = optimize_portfolio(returns)
 
         # Log portfolio weights
         log("Portfolio Weights:", "info")

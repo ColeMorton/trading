@@ -264,7 +264,7 @@ def convert_csv_to_strategy_config(
                     )
                 strategy_config["STOP_LOSS"] = stop_loss_decimal
                 log(
-                    f"Stop loss set to {stop_loss_decimal:.4f} ({stop_loss_decimal*100:.2f}%) for {ticker}",
+                    f"Stop loss set to {stop_loss_decimal:.4f} ({stop_loss_decimal * 100:.2f}%) for {ticker}",
                     "info",
                 )
             except (ValueError, TypeError):

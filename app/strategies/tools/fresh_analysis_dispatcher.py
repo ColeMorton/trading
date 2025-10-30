@@ -193,7 +193,7 @@ def _dispatch_macd_analysis(
         )
 
         if result:
-            portfolio, result_config, signal_data = result
+            portfolio, _result_config, _signal_data = result
             if portfolio is not None:
                 log(
                     f"Successfully generated VectorBT Portfolio for {ticker} MACD",

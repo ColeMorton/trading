@@ -118,7 +118,7 @@ class ParameterStabilityVisualizer:
             )
         else:
             # Matplotlib-only heatmap
-            fig, ax = plt.subplots(figsize=(12, 8))
+            _fig, ax = plt.subplots(figsize=(12, 8))
             im = ax.imshow(heatmap_data.values, cmap="RdYlGn", aspect="auto")
 
             # Add colorbar
@@ -139,7 +139,7 @@ class ParameterStabilityVisualizer:
                         ax.text(j, i, f"{value:.3f}", ha="center", va="center")
 
         plt.title(
-            f'{ticker} - Parameter {metric.replace("_", " ").title()}\nMonte Carlo Stability Analysis',
+            f"{ticker} - Parameter {metric.replace('_', ' ').title()}\nMonte Carlo Stability Analysis",
         )
         plt.xlabel("Fast Period (Fast MA)")
         plt.ylabel("Slow Period (Slow MA)")
@@ -180,7 +180,7 @@ class ParameterStabilityVisualizer:
         if not results:
             return
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
+        _fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
 
         # Prepare data
         param_labels = []
@@ -538,7 +538,7 @@ class ParameterStabilityVisualizer:
         if not regime_results:
             return
 
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+        _fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
         # Plot 1: Stability vs Regime Consistency scatter
         stability_scores = [r.stability_score for r in regime_results]
@@ -653,7 +653,7 @@ class ParameterStabilityVisualizer:
             for i, result in enumerate(sorted_results[:3]):
                 self.create_performance_distribution_plot(
                     result,
-                    f"{ticker}_top_{i+1}",
+                    f"{ticker}_top_{i + 1}",
                     "Sharpe Ratio",
                 )
 
@@ -695,7 +695,7 @@ def visualize_monte_carlo_results(
         for ticker, data in ticker_results.items():
             if data:
                 # Create stability heatmap from summary data
-                fig, ax = plt.subplots(figsize=(10, 8))
+                _fig, _ax = plt.subplots(figsize=(10, 8))
 
                 # Extract data for heatmap
                 short_windows = [d.get("Fast_Period", 0) for d in data]

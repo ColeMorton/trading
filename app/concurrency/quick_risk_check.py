@@ -63,14 +63,14 @@ def main():
 
     # Sum contributions
     total = sum(v for k, v in result.items() if k.endswith("_risk_contrib"))
-    print(f"Risk contributions sum: {total*100:.2f}%")
+    print(f"Risk contributions sum: {total * 100:.2f}%")
 
     # Individual contributions
     print("\nIndividual contributions:")
     for i in range(n_strategies):
-        key = f"strategy_{i+1}_risk_contrib"
+        key = f"strategy_{i + 1}_risk_contrib"
         if key in result:
-            print(f"  Strategy {i+1}: {result[key]*100:.2f}%")
+            print(f"  Strategy {i + 1}: {result[key] * 100:.2f}%")
 
     # Status
     print("\n" + "=" * 40)
@@ -78,7 +78,7 @@ def main():
         print("✅ FIXED calculation is ACTIVE")
         print("   Risk contributions = 100%")
     else:
-        print(f"❌ Risk contributions = {total*100:.2f}%")
+        print(f"❌ Risk contributions = {total * 100:.2f}%")
 
     # Show relevant logs
     if logs:

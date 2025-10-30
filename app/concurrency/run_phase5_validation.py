@@ -240,7 +240,7 @@ def run_performance_benchmarks():
         data_list.append(df)
 
         config = {
-            "ticker": f"TEST{i+1}",
+            "ticker": f"TEST{i + 1}",
             "timeframe": "D",
             "strategy": "SMA",
             "ma_fast": ma_fast,

@@ -121,7 +121,7 @@ async def demo_quick_analysis():
         print("\n🚀 Quick analysis of 'risk_on.csv' with trade history...")
 
         # This is literally all you need:
-        results, summary = await analyze_portfolio(
+        _results, summary = await analyze_portfolio(
             "risk_on.csv",
             use_trade_history=True,
         )

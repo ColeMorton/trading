@@ -1,0 +1,55 @@
+version: 2
+updates:
+  # Python dependencies via Poetry
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'colemorton'
+    labels:
+      - 'dependencies'
+      - 'python'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    ignore:
+      # Ignore major version updates for stable packages
+      - dependency-name: 'numpy'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'pandas'
+        update-types: ['version-update:semver-major']
+    groups:
+      dev-dependencies:
+        patterns:
+          - 'pytest*'
+          - 'ruff'
+          - 'mypy'
+          - 'bandit'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+    commit-message:
+      prefix: 'chore(ci)'
+
+  # Docker base images
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+      - 'docker'
+    commit-message:
+      prefix: 'chore(docker)'

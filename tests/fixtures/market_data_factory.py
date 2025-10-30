@@ -433,7 +433,7 @@ class MarketDataFactory:
             prices = prices[1:]  # Remove extra element
 
         # Generate OHLC
-        opens = [base_price] + prices[:-1]
+        opens = [base_price, *prices[:-1]]
         closes = prices
 
         # Simple high/low generation

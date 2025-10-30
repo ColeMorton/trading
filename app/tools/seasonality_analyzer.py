@@ -359,7 +359,7 @@ class SeasonalityAnalyzer:
         win_rate = np.sum(returns > 0) / len(returns)
 
         # Statistical test against all returns
-        t_stat, p_value = stats.ttest_ind(returns, all_returns)
+        _t_stat, p_value = stats.ttest_ind(returns, all_returns)
         statistical_significance = 1 - p_value if p_value < self.confidence_level else 0
 
         # Confidence interval
@@ -583,7 +583,7 @@ class SeasonalityAnalyzer:
         # Statistical significance test
         from scipy.stats import ttest_1samp
 
-        t_stat, p_value = ttest_1samp(current_date_returns_series, 0)
+        _t_stat, p_value = ttest_1samp(current_date_returns_series, 0)
         statistical_significance = 1 - p_value if p_value < self.confidence_level else 0
 
         # Confidence interval

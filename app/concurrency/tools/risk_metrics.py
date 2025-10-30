@@ -406,17 +406,17 @@ def calculate_component_var(
 
                 # Component VaR = weight * marginal VaR
                 component_var = normalized_weights[i] * marginal_var
-                component_vars[f"strategy_{i+1}_component_var_{confidence_pct}"] = (
+                component_vars[f"strategy_{i + 1}_component_var_{confidence_pct}"] = (
                     component_var
                 )
 
                 if log:
                     log(
-                        f"Strategy {i+1} component VaR {confidence_pct}%: {component_var:.4f}",
+                        f"Strategy {i + 1} component VaR {confidence_pct}%: {component_var:.4f}",
                         "info",
                     )
             else:
-                component_vars[f"strategy_{i+1}_component_var_{confidence_pct}"] = 0.0
+                component_vars[f"strategy_{i + 1}_component_var_{confidence_pct}"] = 0.0
 
         # Verify that component VaRs sum approximately to portfolio VaR
         total_component_var = sum(component_vars.values())
@@ -558,12 +558,12 @@ def calculate_risk_contributions_legacy(
         log("Calculating strategy returns and volatilities", "info")
         volatilities = []
         strategy_returns = []
-        all_active_returns: list[float] = (
-            []
-        )  # Store all active returns for combined VaR/CVaR
-        weighted_active_returns: list[float] = (
-            []
-        )  # Store returns weighted by allocation
+        all_active_returns: list[
+            float
+        ] = []  # Store all active returns for combined VaR/CVaR
+        weighted_active_returns: list[
+            float
+        ] = []  # Store returns weighted by allocation
         for i, df in enumerate(data_list):
             # Get stop loss value if available
             stop_loss = None
@@ -571,7 +571,7 @@ def calculate_risk_contributions_legacy(
                 stop_loss = strategy_configs[i].get("STOP_LOSS")
                 if stop_loss is not None:
                     log(
-                        f"Using stop loss of {stop_loss*100:.2f}% for strategy {i+1}",
+                        f"Using stop loss of {stop_loss * 100:.2f}% for strategy {i + 1}",
                         "info",
                     )
             # Calculate returns from Close prices
@@ -611,7 +611,7 @@ def calculate_risk_contributions_legacy(
                     trigger_count = int(np.sum(stop_loss_triggers))
                     if trigger_count > 0:
                         log(
-                            f"Stop loss triggered {trigger_count} times for strategy {i+1}",
+                            f"Stop loss triggered {trigger_count} times for strategy {i + 1}",
                             "info",
                         )
 
@@ -642,34 +642,34 @@ def calculate_risk_contributions_legacy(
                 cvar_95 = float(np.mean(sorted_returns[sorted_returns <= var_95]))
                 cvar_99 = float(np.mean(sorted_returns[sorted_returns <= var_99]))
 
-                risk_contributions[f"strategy_{i+1}_var_95"] = var_95
-                risk_contributions[f"strategy_{i+1}_cvar_95"] = cvar_95
-                risk_contributions[f"strategy_{i+1}_var_99"] = var_99
-                risk_contributions[f"strategy_{i+1}_cvar_99"] = cvar_99
+                risk_contributions[f"strategy_{i + 1}_var_95"] = var_95
+                risk_contributions[f"strategy_{i + 1}_cvar_95"] = cvar_95
+                risk_contributions[f"strategy_{i + 1}_var_99"] = var_99
+                risk_contributions[f"strategy_{i + 1}_cvar_99"] = cvar_99
 
                 log(
-                    f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
+                    f"Strategy {i + 1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
                     "info",
                 )
                 log(
-                    f"Strategy {i+1} - VaR 95%: {var_95:.4f}, CVaR 95%: {cvar_95:.4f}",
+                    f"Strategy {i + 1} - VaR 95%: {var_95:.4f}, CVaR 95%: {cvar_95:.4f}",
                     "info",
                 )
                 log(
-                    f"Strategy {i+1} - VaR 99%: {var_99:.4f}, CVaR 99%: {cvar_99:.4f}",
+                    f"Strategy {i + 1} - VaR 99%: {var_99:.4f}, CVaR 99%: {cvar_99:.4f}",
                     "info",
                 )
             else:
-                risk_contributions[f"strategy_{i+1}_var_95"] = 0.0
-                risk_contributions[f"strategy_{i+1}_cvar_95"] = 0.0
-                risk_contributions[f"strategy_{i+1}_var_99"] = 0.0
-                risk_contributions[f"strategy_{i+1}_cvar_99"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_var_95"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_cvar_95"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_var_99"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_cvar_99"] = 0.0
                 log(
-                    f"Strategy {i+1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
+                    f"Strategy {i + 1} - Volatility: {vol:.4f}, Average Return: {avg_return:.4f}",
                     "info",
                 )
                 log(
-                    f"Strategy {i+1} - No active returns for VaR/CVaR calculation",
+                    f"Strategy {i + 1} - No active returns for VaR/CVaR calculation",
                     "info",
                 )
 
@@ -697,10 +697,10 @@ def calculate_risk_contributions_legacy(
                 )
 
                 # Get individual strategy risk metrics
-                var_95 = risk_contributions.get(f"strategy_{i+1}_var_95", 0.0)
-                var_99 = risk_contributions.get(f"strategy_{i+1}_var_99", 0.0)
-                cvar_95 = risk_contributions.get(f"strategy_{i+1}_cvar_95", 0.0)
-                cvar_99 = risk_contributions.get(f"strategy_{i+1}_cvar_99", 0.0)
+                var_95 = risk_contributions.get(f"strategy_{i + 1}_var_95", 0.0)
+                var_99 = risk_contributions.get(f"strategy_{i + 1}_var_99", 0.0)
+                cvar_95 = risk_contributions.get(f"strategy_{i + 1}_cvar_95", 0.0)
+                cvar_99 = risk_contributions.get(f"strategy_{i + 1}_cvar_99", 0.0)
 
                 # Add weighted contribution to combined metrics
                 combined_var_95 += var_95 * allocation_weight
@@ -782,7 +782,7 @@ def calculate_risk_contributions_legacy(
         else:
             weights = np.ones(len(strategy_allocations)) / len(strategy_allocations)
             log(
-                f"No allocations provided, using equal weights ({100/len(strategy_allocations):.2f}% each)",
+                f"No allocations provided, using equal weights ({100 / len(strategy_allocations):.2f}% each)",
                 "info",
             )
 
@@ -828,13 +828,15 @@ def calculate_risk_contributions_legacy(
                 # Handle potential NaN values
                 if np.isnan(risk_contrib):
                     log(
-                        f"Warning: NaN detected in risk contribution for strategy {i+1}, setting to 0",
+                        f"Warning: NaN detected in risk contribution for strategy {i + 1}, setting to 0",
                         "warning",
                     )
                     risk_contrib = 0.0
 
-                risk_contributions[f"strategy_{i+1}_risk_contrib"] = float(risk_contrib)
-                log(f"Strategy {i+1} risk contribution: {risk_contrib:.4f}", "info")
+                risk_contributions[f"strategy_{i + 1}_risk_contrib"] = float(
+                    risk_contrib
+                )
+                log(f"Strategy {i + 1} risk contribution: {risk_contrib:.4f}", "info")
 
                 # Calculate Risk-Adjusted Alpha (excess return over benchmark, adjusted
                 # for volatility)
@@ -851,20 +853,20 @@ def calculate_risk_contributions_legacy(
                 # Handle potential NaN values in alpha
                 if np.isnan(risk_adjusted_alpha):
                     log(
-                        f"Warning: NaN detected in alpha for strategy {i+1}, setting to 0",
+                        f"Warning: NaN detected in alpha for strategy {i + 1}, setting to 0",
                         "warning",
                     )
                     risk_adjusted_alpha = 0.0
 
-                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = float(
+                risk_contributions[f"strategy_{i + 1}_alpha_to_portfolio"] = float(
                     risk_adjusted_alpha,
                 )
                 log(
-                    f"Strategy {i+1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
+                    f"Strategy {i + 1} excess return: {excess_return:.6f}, volatility: {strategy_volatility:.6f}",
                     "info",
                 )
                 log(
-                    f"Strategy {i+1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}",
+                    f"Strategy {i + 1} risk-adjusted alpha to portfolio: {risk_adjusted_alpha:.6f}",
                     "info",
                 )
 
@@ -882,26 +884,26 @@ def calculate_risk_contributions_legacy(
                     # Handle potential NaN values
                     if np.isnan(overlap):
                         log(
-                            f"Warning: NaN detected in risk overlap between strategy {i+1} and {j+1}, setting to 0",
+                            f"Warning: NaN detected in risk overlap between strategy {i + 1} and {j + 1}, setting to 0",
                             "warning",
                         )
                         overlap = 0.0
 
-                    risk_contributions[f"risk_overlap_{i+1}_{j+1}"] = overlap
+                    risk_contributions[f"risk_overlap_{i + 1}_{j + 1}"] = overlap
                     log(
-                        f"Risk overlap between strategy {i+1} and {j+1}: {overlap:.4f}",
+                        f"Risk overlap between strategy {i + 1} and {j + 1}: {overlap:.4f}",
                         "info",
                     )
         else:
             # Set default values when portfolio risk is 0
             log("Portfolio risk is 0, setting default risk contributions", "info")
             for i in range(n_strategies):
-                risk_contributions[f"strategy_{i+1}_risk_contrib"] = 0.0
-                risk_contributions[f"strategy_{i+1}_alpha_to_portfolio"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_risk_contrib"] = 0.0
+                risk_contributions[f"strategy_{i + 1}_alpha_to_portfolio"] = 0.0
 
                 # Also set default pairwise risk overlaps
                 for j in range(i + 1, n_strategies):
-                    risk_contributions[f"risk_overlap_{i+1}_{j+1}"] = 0.0
+                    risk_contributions[f"risk_overlap_{i + 1}_{j + 1}"] = 0.0
 
         risk_contributions["total_portfolio_risk"] = portfolio_risk
         risk_contributions["benchmark_return"] = float(benchmark_return)

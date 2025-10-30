@@ -60,7 +60,7 @@ class StrategySweepRepository:
         Returns:
             Database-compatible value
         """
-        if value is None or value == "" or value == "N/A":
+        if value is None or value in {"", "N/A"}:
             return None
 
         # Convert boolean to string
@@ -207,7 +207,7 @@ class StrategySweepRepository:
 
         # Get column names from first record (excluding None metadata columns)
         sample_record = records[0]
-        columns = [col for col in sample_record]
+        columns = list(sample_record)
 
         # Build column list for SQL with proper quoting for reserved keywords
         column_list = ", ".join(f'"{col}"' for col in columns)
@@ -218,7 +218,7 @@ class StrategySweepRepository:
         # Build the INSERT query
         query = f"""
             INSERT INTO strategy_sweep_results ({column_list})
-            VALUES ({', '.join(f'${i+1}' for i in range(num_columns))})
+            VALUES ({", ".join(f"${i + 1}" for i in range(num_columns))})
         """
 
         # Insert in batches for performance
@@ -260,7 +260,7 @@ class StrategySweepRepository:
                                     )
                                     query = f"""
                                         INSERT INTO strategy_sweep_results ({column_list})
-                                        VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
+                                        VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                     """
 
                             # Convert strategy_type to strategy_type_id
@@ -291,7 +291,7 @@ class StrategySweepRepository:
                                         )
                                         query = f"""
                                             INSERT INTO strategy_sweep_results ({column_list})
-                                            VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
+                                            VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                         """
 
                             # Extract values in the same order as columns
@@ -501,7 +501,7 @@ class StrategySweepRepository:
 
         # Build INSERT query dynamically based on first record
         sample_record = records[0]
-        columns = [col for col in sample_record]
+        columns = list(sample_record)
 
         # Build column list for SQL with proper quoting
         column_list = ", ".join(f'"{col}"' for col in columns)
@@ -512,7 +512,7 @@ class StrategySweepRepository:
         # Build the INSERT query
         insert_query = f"""
             INSERT INTO strategy_sweep_results ({column_list})
-            VALUES ({', '.join(f'${i+1}' for i in range(num_columns))})
+            VALUES ({", ".join(f"${i + 1}" for i in range(num_columns))})
             RETURNING id
         """
 
@@ -531,7 +531,7 @@ class StrategySweepRepository:
                         batch = records[i : i + batch_size]
 
                         # Process each record in the batch
-                        for record_idx, record in enumerate(batch):
+                        for _record_idx, record in enumerate(batch):
                             # Convert ticker to ticker_id
                             if "ticker" in record:
                                 ticker_symbol = record["ticker"]
@@ -553,7 +553,7 @@ class StrategySweepRepository:
                                     )
                                     insert_query = f"""
                                         INSERT INTO strategy_sweep_results ({column_list})
-                                        VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
+                                        VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                         RETURNING id
                                     """
 
@@ -585,7 +585,7 @@ class StrategySweepRepository:
                                         )
                                         insert_query = f"""
                                             INSERT INTO strategy_sweep_results ({column_list})
-                                            VALUES ({', '.join(f'${i+1}' for i in range(len(columns)))})
+                                            VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                             RETURNING id
                                         """
 

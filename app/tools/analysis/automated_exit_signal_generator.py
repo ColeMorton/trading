@@ -209,7 +209,7 @@ class AutomatedExitSignalGenerator:
                     {
                         "type": "IMMEDIATE_EXIT",
                         "urgency": "CRITICAL",
-                        "message": f'IMMEDIATE EXIT: {position_data.get("strategy_name", "Unknown")} - {position_data.get("ticker", "Unknown")}',
+                        "message": f"IMMEDIATE EXIT: {position_data.get('strategy_name', 'Unknown')} - {position_data.get('ticker', 'Unknown')}",
                         "confidence": signal_result.signal_confidence,
                         "dual_layer_score": signal_result.dual_layer_convergence_score,
                         "recommendation": signal_result.exit_recommendation,
@@ -222,7 +222,7 @@ class AutomatedExitSignalGenerator:
                     {
                         "type": "STRONG_SELL",
                         "urgency": "HIGH",
-                        "message": f'STRONG SELL: {position_data.get("strategy_name", "Unknown")} - {position_data.get("ticker", "Unknown")}',
+                        "message": f"STRONG SELL: {position_data.get('strategy_name', 'Unknown')} - {position_data.get('ticker', 'Unknown')}",
                         "confidence": signal_result.signal_confidence,
                         "target_timeframe": signal_result.target_exit_timeframe,
                         "recommendation": signal_result.exit_recommendation,

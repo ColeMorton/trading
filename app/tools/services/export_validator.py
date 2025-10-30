@@ -182,7 +182,7 @@ class ExportValidator:
 
         # Calculate statistical thresholds
         returns = open_positions["Current_Unrealized_PnL"]
-        p95, p90, p80, p70 = np.percentile(returns, [95, 90, 80, 70])
+        p95, p90, p80, _p70 = np.percentile(returns, [95, 90, 80, 70])
 
         for _, pos in open_positions.iterrows():
             ticker = pos["Ticker"]
@@ -228,7 +228,9 @@ class ExportValidator:
                 "statistical_significance": (
                     "HIGH"
                     if confidence >= 0.85
-                    else "MEDIUM" if confidence >= 0.70 else "LOW"
+                    else "MEDIUM"
+                    if confidence >= 0.70
+                    else "LOW"
                 ),
                 "analysis_timestamp": datetime.now().isoformat(),
             }
@@ -481,7 +483,7 @@ class ExportValidator:
         for result in sorted_results:
             ticker = result.get("ticker", "N/A")
             signal = result.get("exit_signal", "HOLD")
-            confidence = f"{result.get('confidence_level', 0)*100:.1f}%"
+            confidence = f"{result.get('confidence_level', 0) * 100:.1f}%"
             performance = (
                 f"{result.get('current_return', 0):+.2%}"
                 if "current_return" in result

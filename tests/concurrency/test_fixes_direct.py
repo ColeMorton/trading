@@ -83,8 +83,8 @@ def test_risk_calc_fix():
     print("\nRisk Contribution Results:")
     total_risk = 0.0
     for i in range(n_strategies):
-        risk_contrib = risk_metrics.get(f"strategy_{i+1}_risk_contrib", 0.0)
-        print(f"Strategy {i+1}: {risk_contrib:.4f}")
+        risk_contrib = risk_metrics.get(f"strategy_{i + 1}_risk_contrib", 0.0)
+        print(f"Strategy {i + 1}: {risk_contrib:.4f}")
         total_risk += risk_contrib
 
     print(f"\nTotal Risk Contribution: {total_risk:.6f}")

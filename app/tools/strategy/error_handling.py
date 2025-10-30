@@ -123,7 +123,7 @@ class ErrorHandlerBase(ABC):
     def __init__(self, strategy_type: str, logger: logging.Logger | None = None):
         self.strategy_type = strategy_type
         self.logger = logger or logging.getLogger(f"strategy.{strategy_type.lower()}")
-        self.error_counts = {severity: 0 for severity in ErrorSeverity}
+        self.error_counts = dict.fromkeys(ErrorSeverity, 0)
 
     @abstractmethod
     def handle_error(
@@ -172,7 +172,7 @@ class ErrorHandlerBase(ABC):
 
     def reset_error_counts(self) -> None:
         """Reset error counters."""
-        self.error_counts = {severity: 0 for severity in ErrorSeverity}
+        self.error_counts = dict.fromkeys(ErrorSeverity, 0)
 
 
 class StandardErrorHandler(ErrorHandlerBase):

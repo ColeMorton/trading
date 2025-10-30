@@ -1738,9 +1738,9 @@ class BacktestingParameterExportService:
 VectorBT Strategy Parameters
 Generated from Statistical Performance Divergence System
 
-Generation Date: {metadata['generation_timestamp']}
-Confidence Level: {metadata['confidence_level']}
-Total Strategies: {metadata['total_strategies']}
+Generation Date: {metadata["generation_timestamp"]}
+Confidence Level: {metadata["confidence_level"]}
+Total Strategies: {metadata["total_strategies"]}
 """
 
 import vectorbt as vbt
@@ -1819,19 +1819,19 @@ class {strategy_name}ExitStrategy(bt.Strategy):
     Statistical exit strategy for {strategy_key}
     Generated from SPDS analysis
 
-    Sample Size: {params['sample_size']}
-    Confidence: {params['confidence_level']}
-    Validity: {params['statistical_validity']}
+    Sample Size: {params["sample_size"]}
+    Confidence: {params["confidence_level"]}
+    Validity: {params["statistical_validity"]}
     """
     params = (
-        ('take_profit_pct', {params['take_profit_pct']}),
-        ('stop_loss_pct', {params['stop_loss_pct']}),
-        ('max_days', {params['max_holding_days']}),
-        ('momentum_exit_threshold', {params.get('momentum_exit_threshold', 0.02)}),
-        ('trend_exit_threshold', {params.get('trend_exit_threshold', 0.015)}),
-        ('trailing_pct', {params['trailing_stop_pct']}),
-        ('min_days', {params['min_holding_days']}),
-        ('statistical_validity', '{params['statistical_validity']}'),
+        ('take_profit_pct', {params["take_profit_pct"]}),
+        ('stop_loss_pct', {params["stop_loss_pct"]}),
+        ('max_days', {params["max_holding_days"]}),
+        ('momentum_exit_threshold', {params.get("momentum_exit_threshold", 0.02)}),
+        ('trend_exit_threshold', {params.get("trend_exit_threshold", 0.015)}),
+        ('trailing_pct', {params["trailing_stop_pct"]}),
+        ('min_days', {params["min_holding_days"]}),
+        ('statistical_validity', '{params["statistical_validity"]}'),
     )
 
     def __init__(self):
@@ -1901,15 +1901,15 @@ class {strategy_name}ExitStrategy(bt.Strategy):
 Backtrader Strategy Templates
 Generated from Statistical Performance Divergence System
 
-Generation Date: {metadata['generation_timestamp']}
-Confidence Level: {metadata['confidence_level']}
-Total Strategies: {metadata['total_strategies']}
+Generation Date: {metadata["generation_timestamp"]}
+Confidence Level: {metadata["confidence_level"]}
+Total Strategies: {metadata["total_strategies"]}
 """
 
 import backtrader as bt
 import datetime
 
-{''.join(strategy_classes)}
+{"".join(strategy_classes)}
 
 # Strategy registry for easy access
 strategy_registry = {{
@@ -1936,9 +1936,9 @@ def create_strategy(strategy_key):
 Zipline Algorithm Template
 Generated from Statistical Performance Divergence System
 
-Generation Date: {metadata['generation_timestamp']}
-Confidence Level: {metadata['confidence_level']}
-Total Strategies: {metadata['total_strategies']}
+Generation Date: {metadata["generation_timestamp"]}
+Confidence Level: {metadata["confidence_level"]}
+Total Strategies: {metadata["total_strategies"]}
 """
 
 import zipline
@@ -2078,18 +2078,18 @@ def reset_position_tracking(context):
 
 ## Generation Summary
 
-- **Generation Date:** {metadata['generation_timestamp']}
+- **Generation Date:** {metadata["generation_timestamp"]}
 - **Total Strategies:** {total_strategies}
-- **Confidence Level:** {metadata['confidence_level']}
-- **SPDS Version:** {metadata['spds_version']}
+- **Confidence Level:** {metadata["confidence_level"]}
+- **SPDS Version:** {metadata["spds_version"]}
 
 ## Parameter Validity Assessment
 
 | Validity Level | Count | Percentage |
 |----------------|-------|------------|
-| HIGH | {high_validity} | {high_validity/total_strategies*100:.1f}% |
-| MEDIUM | {medium_validity} | {medium_validity/total_strategies*100:.1f}% |
-| LOW | {low_validity} | {low_validity/total_strategies*100:.1f}% |
+| HIGH | {high_validity} | {high_validity / total_strategies * 100:.1f}% |
+| MEDIUM | {medium_validity} | {medium_validity / total_strategies * 100:.1f}% |
+| LOW | {low_validity} | {low_validity / total_strategies * 100:.1f}% |
 
 ## Statistical Summary
 

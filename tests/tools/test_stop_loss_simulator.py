@@ -184,7 +184,7 @@ class TestStopLossSimulator(unittest.TestCase):
         np.testing.assert_array_equal(self.returns, adjusted_returns)
 
         # Test with stop loss > 1
-        adjusted_returns, triggers = apply_stop_loss_to_returns(
+        adjusted_returns, _triggers = apply_stop_loss_to_returns(
             self.returns,
             self.signals,
             1.5,

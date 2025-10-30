@@ -327,7 +327,7 @@ class ConsoleLoggingContext:
     def __enter__(self):
         """Enter the logging context."""
         # Set up file logging
-        self.file_log, self.file_log_close, logger, file_handler = setup_logging(
+        self.file_log, self.file_log_close, _logger, _file_handler = setup_logging(
             module_name=self.module_name,
             log_file=self.log_file,
             level=self.level,
@@ -809,7 +809,9 @@ class PerformanceAwareConsoleLogger(ConsoleLogger):
             bottleneck_severity = (
                 "critical"
                 if duration > thresholds["critical"]
-                else "warning" if duration > thresholds["warning"] else "info"
+                else "warning"
+                if duration > thresholds["warning"]
+                else "info"
             )
             self.console.print(
                 f"   [dim]• Bottleneck Level: {bottleneck_severity.upper()}[/dim]",
@@ -1430,7 +1432,9 @@ class LiveResourceDashboard:
                 cpu_color = (
                     "green"
                     if cpu_percent < 50
-                    else "yellow" if cpu_percent < 80 else "red"
+                    else "yellow"
+                    if cpu_percent < 80
+                    else "red"
                 )
                 cpu_meter = (
                     f"[{cpu_color}]{'█' * cpu_filled}[/{cpu_color}]{'░' * cpu_empty}"
@@ -1449,7 +1453,9 @@ class LiveResourceDashboard:
                 mem_color = (
                     "green"
                     if memory.percent < 50
-                    else "yellow" if memory.percent < 80 else "red"
+                    else "yellow"
+                    if memory.percent < 80
+                    else "red"
                 )
                 mem_meter = (
                     f"[{mem_color}]{'█' * mem_filled}[/{mem_color}]{'░' * mem_empty}"

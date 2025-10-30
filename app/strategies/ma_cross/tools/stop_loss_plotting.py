@@ -117,7 +117,7 @@ def create_stop_loss_heatmap(
                 hoverongaps=False,
                 hovertemplate=(
                     "Stop Loss: %{x:.2f}%<br>"
-                    + f'{metric_name.capitalize().replace("_", " ")}: '
+                    + f"{metric_name.capitalize().replace('_', ' ')}: "
                     + ("%{z:" + format_info["format"] + "}")
                     + "<extra></extra>"
                 ),
@@ -125,7 +125,7 @@ def create_stop_loss_heatmap(
         )
 
         # Update layout
-        title_text = f'{ticker} Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace("_", " ")}</sub>'
+        title_text = f"{ticker} Stop Loss Sensitivity Analysis<br><sub>{metric_name.capitalize().replace('_', ' ')}</sub>"
 
         fig.update_layout(
             title={

@@ -91,11 +91,11 @@ def calculate_position_metrics(
                     # Also store in the overall correlations dict for backward
                     # compatibility
                     if j > i:
-                        correlations[f"correlation_{i+1}_{j+1}"] = correlation
+                        correlations[f"correlation_{i + 1}_{j + 1}"] = correlation
                         correlation_sum += abs(correlation)
                         correlation_count += 1
                         log(
-                            f"Correlation between strategy {i+1} and {j+1}: {correlation:.2f}",
+                            f"Correlation between strategy {i + 1} and {j + 1}: {correlation:.2f}",
                             "info",
                         )
 
@@ -151,10 +151,10 @@ def calculate_position_metrics(
 
             strategy_specific_metrics.append(strategy_metrics)
 
-            log(f"Strategy {i+1} specific metrics:", "info")
+            log(f"Strategy {i + 1} specific metrics:", "info")
             log(f"  Average correlation: {strategy_avg_correlation:.4f}", "info")
             log(
-                f"  Active periods: {strategy_active_periods} ({strategy_active_periods/total_periods:.2%})",
+                f"  Active periods: {strategy_active_periods} ({strategy_active_periods / total_periods:.2%})",
                 "info",
             )
             log(

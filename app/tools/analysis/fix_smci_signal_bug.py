@@ -243,9 +243,9 @@ class PercentileRankFixer:
 
         # Test original vs fixed method
         self.logger.info("Testing SMCI percentile rank fix...")
-        self.logger.info(f"SMCI value: {smci_value:.6f} ({smci_value*100:.2f}%)")
+        self.logger.info(f"SMCI value: {smci_value:.6f} ({smci_value * 100:.2f}%)")
         self.logger.info(
-            f"P70 threshold: {mock_percentiles.p70:.6f} ({mock_percentiles.p70*100:.2f}%)",
+            f"P70 threshold: {mock_percentiles.p70:.6f} ({mock_percentiles.p70 * 100:.2f}%)",
         )
 
         # Test the fixed method

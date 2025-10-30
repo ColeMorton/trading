@@ -291,7 +291,7 @@ def calculate_compound_strategy(
                 strategy_name += f"/{strategy.get('signal_period', 9)}"
 
             log(
-                f"  [{i+1}/{len(component_strategies)}] Processing {strategy_name}",
+                f"  [{i + 1}/{len(component_strategies)}] Processing {strategy_name}",
                 "debug",
             )
 

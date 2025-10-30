@@ -259,7 +259,7 @@ class Game:
             if i in rankings:
                 player.rank = rankings[i]
             else:
-                player.rank = f"Neutral {i+1}"
+                player.rank = f"Neutral {i + 1}"
 
     def play_round(self):
         """Play a complete round of the game."""
@@ -315,7 +315,7 @@ class Game:
             elif valid_plays:
                 print("\nValid plays:")
                 for i, play in enumerate(valid_plays):
-                    print(f"{i+1}: {', '.join(str(card) for card in play)}")
+                    print(f"{i + 1}: {', '.join(str(card) for card in play)}")
                 print("0: Pass")
 
                 while True:
@@ -375,11 +375,11 @@ def create_game_with_players(num_players: int, num_ai: int = 0) -> Game:
 
     # Add human players
     for i in range(num_players - num_ai):
-        game.add_player(Player(f"Player {i+1}"))
+        game.add_player(Player(f"Player {i + 1}"))
 
     # Add AI players
     for i in range(num_ai):
-        game.add_player(Player(f"AI {i+1}", is_ai=True))
+        game.add_player(Player(f"AI {i + 1}", is_ai=True))
 
     # Add custom rules
     game.custom_rules = [
@@ -459,10 +459,10 @@ if __name__ == "__main__":
 
     while True:
         try:
-            num_ai = int(input(f"Enter number of AI players (0-{total_players-1}): "))
+            num_ai = int(input(f"Enter number of AI players (0-{total_players - 1}): "))
             if 0 <= num_ai < total_players:
                 break
-            print(f"Please enter a number between 0 and {total_players-1}.")
+            print(f"Please enter a number between 0 and {total_players - 1}.")
         except ValueError:
             print("Please enter a valid number.")
 

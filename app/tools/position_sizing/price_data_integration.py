@@ -159,7 +159,7 @@ class PriceDataIntegration:
             Dictionary containing price change metrics
         """
         try:
-            data = self.get_historical_data(symbol, period=f"{days*2}d")
+            data = self.get_historical_data(symbol, period=f"{days * 2}d")
 
             if len(data) < days:
                 msg = f"Insufficient data for {symbol}"

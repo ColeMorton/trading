@@ -192,7 +192,7 @@ class TestExpectancyFix:
         print(f"Avg Loss: {avg_loss:.4%}")
         print(f"\nLegacy (R-ratio) Expectancy: {legacy:.2%}")
         print(f"Fixed (Standard) Expectancy: {fixed:.4%}")
-        print(f"Variance: {(legacy/fixed - 1)*100:.0f}%")
+        print(f"Variance: {(legacy / fixed - 1) * 100:.0f}%")
 
         # Verify the fix reduces variance to reasonable levels
         assert legacy > 100  # Legacy produces unreasonable value

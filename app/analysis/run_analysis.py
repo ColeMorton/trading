@@ -251,7 +251,7 @@ def run_comprehensive_analysis(args):
                     )
                     print(f"95% Confidence Interval: {mc_results['var_95']:.3f}")
                     print(
-                        f"Probability of Loss: {mc_results['probability_of_loss']*100:.1f}%",
+                        f"Probability of Loss: {mc_results['probability_of_loss'] * 100:.1f}%",
                     )
                 else:
                     log("Monte Carlo analysis failed", "warning")
