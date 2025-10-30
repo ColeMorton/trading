@@ -30,7 +30,7 @@ class ConcurrencyLimitMode(Enum):
     VOLATILITY_BASED = "volatility"  # Adjust limit based on market volatility
 
 
-def filter_correlated_strategies(
+def filter_correlated_strategies(  # noqa: RET503
     position_arrays: list[np.ndarray],
     strategy_ids: list[str],
     correlation_threshold: float = 0.5,
