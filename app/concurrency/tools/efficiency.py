@@ -111,7 +111,7 @@ def calculate_portfolio_efficiency(
         log("Calculating portfolio efficiency", "info")
 
         # Initialize metrics dictionary
-        metrics = {"total_weighted_expectancy": 0.0}
+        metrics: dict[str, Any] = {"total_weighted_expectancy": 0.0}
 
         # Calculate ratios from raw counts
         concurrent_ratio = concurrent_periods / total_periods

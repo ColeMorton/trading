@@ -1,7 +1,12 @@
 # Multi-stage Dockerfile for FastAPI application
 
+# Build arguments - can be overridden during build
+# Default versions match .versions file (single source of truth)
+ARG PYTHON_VERSION=3.11
+ARG POETRY_VERSION=1.8.3
+
 # Development stage
-FROM python:3.11-slim as development
+FROM python:${PYTHON_VERSION}-slim AS development
 
 # Set working directory
 WORKDIR /app
@@ -14,8 +19,11 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install poetry
+# Install Poetry with specific version for reproducibility
+# Version comes from build arg (see .versions file)
+ARG POETRY_VERSION
+ENV POETRY_VERSION=${POETRY_VERSION}
+RUN pip install --no-cache-dir poetry==$POETRY_VERSION
 
 # Copy dependency files
 COPY pyproject.toml poetry.lock README.md ./
@@ -60,16 +68,18 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # Production stage
-FROM python:3.11-slim as production
+FROM python:${PYTHON_VERSION}-slim AS production
 
 # Build arguments
 ARG BUILD_DATE
 ARG VERSION
+ARG POETRY_VERSION
 
 # Labels
 LABEL maintainer="trading-app"
 LABEL version="${VERSION}"
 LABEL build-date="${BUILD_DATE}"
+LABEL poetry-version="${POETRY_VERSION}"
 
 # Set working directory
 WORKDIR /app
@@ -81,7 +91,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry with specific version for reproducibility
-ENV POETRY_VERSION=1.7.1
+# Version comes from build arg (see .versions file)
+ENV POETRY_VERSION=${POETRY_VERSION}
 RUN pip install --no-cache-dir poetry==$POETRY_VERSION
 
 # Copy dependency files

@@ -33,9 +33,10 @@ on:
           - regression
           - smoke
 
+# Version configuration: Uses defaults from .github/actions/setup-python-poetry/action.yml
+# See .versions file for canonical version reference
 env:
   PYTHON_VERSION: '3.11'
-  POETRY_VERSION: '1.8.3'
 
 jobs:
   test:
@@ -62,7 +63,7 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
+          # poetry-version uses default from action (see .versions file)
           dependency-groups: 'all'
           cache-key-suffix: 'ma-cross-${{ matrix.test-suite }}'
 
@@ -123,7 +124,7 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
+          # poetry-version uses default from action (see .versions file)
           dependency-groups: 'all'
           cache-key-suffix: 'ma-cross-perf'
 
@@ -154,7 +155,7 @@ jobs:
         uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
+          # poetry-version uses default from action (see .versions file)
           dependency-groups: 'all'
           cache-key-suffix: 'ma-cross-e2e'
 

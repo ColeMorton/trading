@@ -74,7 +74,7 @@ def filter_correlated_strategies(
 
     if mode == CorrelationFilterMode.THRESHOLD:
         # Group strategies based on correlation threshold
-        groups: dict[int, list[str]] = {}
+        groups: dict[str, list[str]] = {}
         assigned_strategies = set()
 
         # Start with unassigned strategies
@@ -100,7 +100,11 @@ def filter_correlated_strategies(
 
         # Add any remaining strategies to their own group
         if len(assigned_strategies) < len(strategy_ids):
-            remaining = [sid for sid in strategy_ids if sid not in assigned_strategies]
+            remaining = [
+                strategy_id
+                for strategy_id in strategy_ids
+                if strategy_id not in assigned_strategies
+            ]
             groups["uncorrelated_strategies"] = remaining
 
         if log:
@@ -159,14 +163,6 @@ def filter_correlated_strategies(
             CorrelationFilterMode.THRESHOLD,
             log,
         )
-
-    # Invalid mode, return all strategies in a single group
-    if log:
-        log(
-            f"Invalid correlation filter mode: {mode}. No filtering applied.",
-            "warning",
-        )
-    return {"all_strategies": strategy_ids}
 
 
 def _simple_hierarchical_clustering(
@@ -333,8 +329,8 @@ def limit_strategy_concurrency(
     if log:
         total_reduced = sum(
             1
-            for arr in modified_positions.values()
-            if not np.array_equal(arr, position_arrays[strategy_ids.index(sid)])
+            for strategy_id, arr in modified_positions.items()
+            if not np.array_equal(arr, position_arrays[strategy_ids.index(strategy_id)])
         )
         log(
             f"Limited concurrency to {limit} strategies. Modified {total_reduced} strategy positions.",

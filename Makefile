@@ -1,21 +1,22 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-ruff lint-mypy lint-pylint lint-bandit lint-vulture format-ruff lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run pre-commit-update verify-commit verify-commit-quick verify-commit-security git-configure git-unconfigure workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-ruff lint-mypy lint-pylint lint-bandit lint-vulture format-ruff lint-python format-python security-scan find-dead-code analyze-complexity analyze-maintainability analyze-dependencies analyze-architecture analyze-all lint-all pre-commit-install pre-commit-run pre-commit-update verify-commit verify-commit-quick verify-commit-security git-configure git-unconfigure workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
 
 # Default target
 help:
 	@echo "Trading Application - Available Commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  install     - Install dependencies using Poetry"
-	@echo "  dev         - Start development server"
-	@echo "  test        - Run unified test suite (CI configuration)"
-	@echo "  test-quick  - Run quick tests for development"
-	@echo "  test-full   - Run full test suite with coverage"
-	@echo "  clean       - Clean temporary files"
-	@echo "  lint-help   - Show all linting commands"
-	@echo "  lint-all    - Run all linters and formatters"
+	@echo "  install          - Install dependencies using Poetry"
+	@echo "  dev              - Start development server"
+	@echo "  test             - Run unified test suite (CI configuration)"
+	@echo "  test-quick       - Run quick tests for development"
+	@echo "  test-full        - Run full test suite with coverage"
+	@echo "  clean            - Clean temporary files"
+	@echo "  lint-help        - Show all linting commands"
+	@echo "  lint-all         - Run all linters and formatters"
+	@echo "  validate-versions - Check tool version consistency"
 	@echo ""
 	@echo "Workflow Testing:"
 	@echo "  workflow-help    - Show workflow testing commands"
@@ -197,6 +198,10 @@ check-deps:
 	@command -v psql >/dev/null 2>&1 && echo "✅ PostgreSQL client is installed" || echo "⚠️  PostgreSQL client not found - install with 'make install-db'"
 	@command -v redis-cli >/dev/null 2>&1 && echo "✅ Redis client is installed" || echo "⚠️  Redis client not found - install with 'make install-db'"
 	@command -v brew >/dev/null 2>&1 && echo "✅ Homebrew is available" || echo "⚠️  Homebrew recommended for easy installation"
+
+validate-versions:
+	@echo "Validating tool version consistency..."
+	@./scripts/validate-versions.sh
 
 install-db:
 	@echo "Installing PostgreSQL and Redis locally..."
@@ -429,6 +434,13 @@ lint-help:
 	@echo "  find-dead-code - Find unused code with vulture"
 	@echo "  lint-all       - Run all linters and formatters"
 	@echo ""
+	@echo "Code Analysis (Architecture & Complexity):"
+	@echo "  analyze-complexity     - Analyze cyclomatic complexity with radon"
+	@echo "  analyze-maintainability - Analyze maintainability index with radon"
+	@echo "  analyze-dependencies   - Generate dependency graphs with pydeps"
+	@echo "  analyze-architecture   - Check architecture contracts with import-linter"
+	@echo "  analyze-all           - Run complete codebase analysis"
+	@echo ""
 	@echo "Pre-commit & Security:"
 	@echo "  pre-commit-install     - Install pre-commit hooks (commit + push)"
 	@echo "  pre-commit-run         - Run pre-commit hooks manually"
@@ -492,6 +504,49 @@ security-scan: lint-bandit
 find-dead-code: lint-vulture
 	@echo "✅ Dead code detection complete"
 
+# Code Quality Analysis Tools
+analyze-complexity:
+	@echo "Analyzing code complexity with radon..."
+	poetry run radon cc app/ -a -nb --total-average
+	@echo "✅ Complexity analysis complete"
+
+analyze-maintainability:
+	@echo "Analyzing maintainability index with radon..."
+	poetry run radon mi app/ -s
+	@echo "✅ Maintainability analysis complete"
+
+analyze-dependencies:
+	@echo "Generating dependency graphs with pydeps..."
+	@mkdir -p data/analysis/graphs
+	@echo "  → Generating domain dependencies..."
+	@poetry run pydeps app/domain --max-bacon=1 -o data/analysis/graphs/domain-deps.svg 2>/dev/null || echo "⚠️  Domain analysis skipped (no domain module)"
+	@echo "  → Generating API dependencies..."
+	@poetry run pydeps app/api --max-bacon=1 -o data/analysis/graphs/api-deps.svg 2>/dev/null || echo "⚠️  API analysis skipped"
+	@echo "  → Generating CLI dependencies..."
+	@poetry run pydeps app/cli --max-bacon=1 -o data/analysis/graphs/cli-deps.svg 2>/dev/null || echo "⚠️  CLI analysis skipped"
+	@echo "✅ Dependency graphs saved to data/analysis/graphs/"
+
+analyze-architecture:
+	@echo "Checking architecture contracts with import-linter..."
+	@if [ -f .importlinter ]; then \
+		poetry run lint-imports || echo "⚠️  Architecture violations found - see above"; \
+	else \
+		echo "⚠️  .importlinter config not found - skipping architecture analysis"; \
+	fi
+	@echo "✅ Architecture analysis complete"
+
+analyze-all: analyze-complexity analyze-maintainability analyze-dependencies analyze-architecture
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "✅ Complete codebase analysis finished!"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "📊 View reports:"
+	@echo "  - Complexity: data/analysis/complexity-report.txt"
+	@echo "  - Maintainability: data/analysis/maintainability-report.txt"
+	@echo "  - Dead Code: data/analysis/dead-code-report.txt"
+	@echo "  - Graphs: data/analysis/graphs/*.svg"
+	@echo ""
+
 # Combined lint command - runs all checks and fixes
 lint-all:
 	@echo "Running all linters and formatters..."
@@ -511,7 +566,10 @@ lint-all:
 	@echo "Step 5: Dead code detection..."
 	@$(MAKE) find-dead-code || true  # Continue even if dead code found
 	@echo ""
-	@echo "✅ All linting and formatting complete!"
+	@echo "Step 6: Code complexity analysis..."
+	@$(MAKE) analyze-complexity || true  # Continue even if complexity issues found
+	@echo ""
+	@echo "✅ All linting, formatting, and analysis complete!"
 
 # Pre-commit hook commands
 pre-commit-install:

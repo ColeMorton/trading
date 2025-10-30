@@ -1,0 +1,59 @@
+[importlinter]
+root_package = app
+
+# Contract 1: Layered Architecture (Clean Architecture)
+# Note: Currently aspirational - will have violations until refactoring completes
+[importlinter:contract:1]
+name = Layered Architecture Enforcement
+type = layers
+layers =
+    ui
+    cli | api
+    strategies | portfolio_optimization | portfolio_synthesis
+    database | concurrency | infrastructure
+    core | services | exceptions
+# Note: This contract will likely have many violations initially
+# Run `poetry run lint-imports --verbose` to see details
+
+# Contract 2: Domain Independence (No circular dependencies between strategies)
+[importlinter:contract:2]
+name = Strategy Module Independence
+type = independence
+modules =
+    app.atr
+    app.rsi
+    app.rate_of_decay
+    app.strategies.ma_cross
+
+# Contract 3: Database Access Layer (prevent direct SQLAlchemy usage)
+[importlinter:contract:3]
+name = Database Access Layer Isolation
+type = forbidden
+source_modules =
+    app.strategies.*
+    app.portfolio_optimization.*
+    app.cli.commands.*
+forbidden_modules =
+    app.database.models
+# Allow database access only through repository pattern
+
+# Contract 4: No Circular Dependencies in CLI Commands
+[importlinter:contract:4]
+name = CLI Command Independence
+type = independence
+modules =
+    app.cli.commands.tools
+    app.cli.commands.strategy
+    app.cli.commands.portfolio
+    app.cli.commands.concurrency
+    app.cli.commands.trade_history
+    app.cli.commands.spds
+
+# Contract 5: API Layer Isolation (API should not depend on CLI)
+[importlinter:contract:5]
+name = API-CLI Separation
+type = forbidden
+source_modules =
+    app.api.*
+forbidden_modules =
+    app.cli.*

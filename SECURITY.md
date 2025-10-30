@@ -210,6 +210,7 @@ make security-scan
 ❌ **Bad:**
 
 ```python
+# gitleaks:allow
 API_KEY = "sk_live_abc123xyz789"
 DATABASE_URL = "postgresql://user:password@localhost/db"
 ```

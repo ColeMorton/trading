@@ -14,10 +14,24 @@ env:
   NODE_VERSION: '18'
 
 jobs:
+  # Version validation - ensures consistency across Docker and CI/CD
+  validate-versions:
+    name: Validate Tool Versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate version consistency
+        run: |
+          chmod +x scripts/validate-versions.sh
+          ./scripts/validate-versions.sh
+
   # Linting and code quality
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
+    needs: validate-versions
     steps:
       - uses: actions/checkout@v4
 
@@ -36,6 +50,25 @@ jobs:
 
       - name: Security scan with bandit
         run: poetry run bandit -r app/ -ll
+
+      - name: Complexity analysis (radon)
+        run: |
+          echo "🔍 Analyzing code complexity..."
+          poetry run radon cc app/ --min C --total-average --no-assert || echo "⚠️ High complexity functions detected (non-blocking)"
+          poetry run radon mi app/ --min B --show --no-assert || echo "⚠️ Low maintainability files detected (non-blocking)"
+        continue-on-error: true
+
+      - name: Dead code detection (vulture)
+        run: |
+          echo "🔍 Checking for dead code..."
+          poetry run vulture app/ --min-confidence 80 --exclude "*/migrations/*,*/tests/*" || echo "⚠️ Dead code detected (non-blocking)"
+        continue-on-error: true
+
+      - name: Architecture contracts (import-linter)
+        run: |
+          echo "🔍 Validating architecture contracts..."
+          poetry run lint-imports --verbose || echo "⚠️ Architecture violations detected (non-blocking)"
+        continue-on-error: true
 
   # Unit tests
   test-backend:
@@ -315,6 +348,17 @@ jobs:
             echo "❌ **E2E Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
           fi
 
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Code Quality Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Quality metrics are advisory and do not fail the build_" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Baseline (2025-10-30):**" >> $GITHUB_STEP_SUMMARY
+          echo "- High Complexity Functions: 147 (target: < 50)" >> $GITHUB_STEP_SUMMARY
+          echo "- Low Maintainability Files: 22 (target: < 10)" >> $GITHUB_STEP_SUMMARY
+          echo "- Dead Code Instances: 36 (target: 0)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_See lint job output for current metrics_" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
           echo "- Test results and coverage reports available in artifacts" >> $GITHUB_STEP_SUMMARY

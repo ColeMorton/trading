@@ -1,0 +1,17 @@
+# Tool Versions - Single Source of Truth
+# This file is the canonical reference for tool versions across the entire project.
+# All Dockerfiles, CI/CD workflows, and documentation should reference these versions.
+
+# Python
+PYTHON_VERSION=3.11
+
+# Poetry - Package and dependency management
+# Note: Requires 1.8.0+ for package-mode support in pyproject.toml
+POETRY_VERSION=1.8.3
+
+# Node.js (for frontend)
+NODE_VERSION=20
+
+# Docker base images
+POSTGRES_VERSION=15
+REDIS_VERSION=7

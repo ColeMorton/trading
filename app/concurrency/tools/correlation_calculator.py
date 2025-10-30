@@ -282,11 +282,11 @@ class CorrelationCalculator:
 
         # Use normal approximation for large df
         if df > 30:
-            return 0.5 * (1 + np.tanh(t / np.sqrt(2)))
+            return float(0.5 * (1 + np.tanh(t / np.sqrt(2))))
 
         # Simple approximation for small df
         x = t / np.sqrt(df)
-        return 0.5 + 0.5 * np.tanh(x)
+        return float(0.5 + 0.5 * np.tanh(x))
 
     def calculate_covariance_matrix(
         self,
@@ -538,9 +538,9 @@ class CorrelationMatrix:
             correlation_matrix = self._regularize_matrix(correlation_matrix, log)
 
         # Calculate summary statistics
-        avg_correlation = np.mean(correlations) if correlations else 0.0
-        min_correlation = np.min(correlations) if correlations else 0.0
-        max_correlation = np.max(correlations) if correlations else 0.0
+        avg_correlation = float(np.mean(correlations)) if correlations else 0.0
+        min_correlation = float(np.min(correlations)) if correlations else 0.0
+        max_correlation = float(np.max(correlations)) if correlations else 0.0
 
         if log:
             log(
@@ -611,18 +611,18 @@ class CorrelationMatrix:
                         "info",
                     )
 
-                return regularized_matrix
+                return np.asarray(regularized_matrix)
             if log:
                 log(
                     f"Correlation matrix is positive definite (min eigenvalue: {min_eigenval:.2e})",
                     "info",
                 )
-            return correlation_matrix
+            return np.asarray(correlation_matrix)
 
         except Exception as e:
             if log:
                 log(f"Error in matrix regularization: {e!s}", "error")
-            return correlation_matrix
+            return np.asarray(correlation_matrix)
 
 
 def calculate_rolling_correlation(

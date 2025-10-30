@@ -390,6 +390,7 @@ make git-unconfigure       # Remove git configuration
 
 ```python
 # ❌ BAD
+# gitleaks:allow
 API_KEY = "sk_live_abc123"
 PASSWORD = "admin123"
 

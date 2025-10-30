@@ -1,0 +1,35 @@
+# Gitleaks configuration for trading repository
+# Documentation: https://github.com/gitleaks/gitleaks
+
+title = "Gitleaks configuration for trading repository"
+
+[extend]
+# Use default gitleaks rules
+useDefault = true
+
+[allowlist]
+description = "Allowlist for documentation examples and test files"
+
+# Paths to ignore completely
+paths = [
+  '''gitleaks\.toml''',
+  '''.*\.md:.*# gitleaks:allow''',  # Allow inline comments
+]
+
+# Regex patterns for content to ignore
+regexes = [
+  '''sk_live_abc123''',  # Example API key in docs
+  '''sk_live_abc123xyz789''',  # Example API key in docs
+]
+
+# Specific commits to ignore (if needed)
+commits = []
+
+# Stop words that indicate false positives
+stopwords = [
+  'example',
+  'bad',
+  'good',
+  'demo',
+  'test',
+]

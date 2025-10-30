@@ -195,13 +195,6 @@ def calculate_allocations(
             equal_weight = 1.0 / len(strategy_ids)
             allocations = dict.fromkeys(strategy_ids, equal_weight)
 
-    else:
-        # Invalid mode, fallback to equal allocation
-        if log:
-            log(f"Invalid allocation mode: {mode}. Using equal allocation.", "warning")
-        equal_weight = 1.0 / len(strategy_ids)
-        allocations = dict.fromkeys(strategy_ids, equal_weight)
-
     # Ensure allocations sum to 1.0 (handle floating point precision issues)
     total = sum(allocations.values())
     if total > 0:
@@ -252,7 +245,7 @@ def analyze_allocation_impact(
             log("Invalid inputs for allocation impact analysis", "error")
         return {}
 
-    results = {}
+    results: dict[str, dict[str, Any]] = {}
 
     # Test different allocation modes
     for mode in AllocationMode:
@@ -301,18 +294,23 @@ def analyze_allocation_impact(
     # Calculate impact relative to default (signal_count)
     if "signal_count" in results:
         baseline = results["signal_count"]
+        baseline_avg_return = float(baseline["avg_return"])
+        baseline_win_rate = float(baseline["win_rate"])
+        baseline_profit_factor = float(baseline["profit_factor"])
+        baseline_max_drawdown = float(baseline["max_drawdown"])
 
-        for mode, metrics in results.items():
-            if mode != "signal_count":
+        for mode_str, metrics in results.items():
+            if mode_str != "signal_count":
                 impact = {
-                    "avg_return_impact": metrics["avg_return"] - baseline["avg_return"],
-                    "win_rate_impact": metrics["win_rate"] - baseline["win_rate"],
-                    "profit_factor_impact": metrics["profit_factor"]
-                    - baseline["profit_factor"],
-                    "max_drawdown_impact": metrics["max_drawdown"]
-                    - baseline["max_drawdown"],
+                    "avg_return_impact": float(metrics["avg_return"])
+                    - baseline_avg_return,
+                    "win_rate_impact": float(metrics["win_rate"]) - baseline_win_rate,
+                    "profit_factor_impact": float(metrics["profit_factor"])
+                    - baseline_profit_factor,
+                    "max_drawdown_impact": float(metrics["max_drawdown"])
+                    - baseline_max_drawdown,
                 }
-                results[mode]["impact"] = impact
+                results[mode_str]["impact"] = impact
 
     if log:
         log(f"Analyzed allocation impact across {len(results)} modes", "info")

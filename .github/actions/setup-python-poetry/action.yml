@@ -1,12 +1,14 @@
 name: 'Setup Python with Poetry'
 description: 'Composite action to set up Python, Poetry, and dependencies with intelligent caching'
+# IMPORTANT: This is the single source of truth for Poetry version in GitHub Actions
+# Default versions must match .versions file at repository root
 inputs:
   python-version:
     description: 'Python version to use'
     required: false
     default: '3.11'
   poetry-version:
-    description: 'Poetry version to install'
+    description: 'Poetry version to install (default matches .versions file)'
     required: false
     default: '1.8.3'
   install-dependencies:

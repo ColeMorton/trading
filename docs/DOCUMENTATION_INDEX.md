@@ -96,16 +96,19 @@ Comprehensive index of all trading system documentation with categorization, met
 
 ### Core Development Guides
 
-| Document                                                            | Version | Status | Audience   |
-| ------------------------------------------------------------------- | ------- | ------ | ---------- |
-| [Development Guide](development/DEVELOPMENT_GUIDE.md)               | 2.0     | Active | Developers |
-| [Code Quality](development/CODE_QUALITY.md)                         | 2.0     | Active | Developers |
-| [Code Quality Improvement](development/CODE_QUALITY_IMPROVEMENT.md) | 1.0     | Active | Developers |
-| [SSH Guide](development/SSH_GUIDE.md)                               | 1.0     | Active | DevOps     |
-| [AI Assistant Guide](development/AI_ASSISTANT_GUIDE.md)             | 1.0     | Active | Developers |
+| Document                                                                        | Version | Status | Audience   |
+| ------------------------------------------------------------------------------- | ------- | ------ | ---------- |
+| [Development Guide](development/DEVELOPMENT_GUIDE.md)                           | 2.0     | Active | Developers |
+| [Code Quality](development/CODE_QUALITY.md)                                     | 2.0     | Active | Developers |
+| [Code Quality Improvement](development/CODE_QUALITY_IMPROVEMENT.md)             | 1.0     | Active | Developers |
+| [Tool Versions](development/TOOL_VERSIONS.md)                                   | 1.0     | Active | Developers |
+| [Centralized Versioning](development/VERSIONING.md)                             | 1.0     | Active | Developers |
+| [Centralized Versioning Summary](development/CENTRALIZED_VERSIONING_SUMMARY.md) | 1.0     | Active | Developers |
+| [SSH Guide](development/SSH_GUIDE.md)                                           | 1.0     | Active | DevOps     |
+| [AI Assistant Guide](development/AI_ASSISTANT_GUIDE.md)                         | 1.0     | Active | Developers |
 
-**Total Development Docs**: 8 files
-**Focus Areas**: Setup, standards, tools, remote development
+**Total Development Docs**: 11 files
+**Focus Areas**: Setup, standards, tools, versioning, remote development
 
 ---
 

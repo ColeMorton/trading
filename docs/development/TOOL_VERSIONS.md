@@ -1,223 +1,181 @@
-# Tool Version Management
+# Tool Versions Reference
 
-## Single Source of Truth: Poetry
+This document tracks the versions of key tools used across the project to ensure consistency.
 
-**CRITICAL:** All linting and formatting tools MUST run through Poetry.
+## Centralized Version Management
 
-### ❌ WRONG - Never do this:
+**🎯 Single Source of Truth: `.versions` file**
 
-```bash
-black --check .
-isort .
-flake8 app/
-mypy app/
-```
+All tool versions are defined in the `.versions` file at the project root. This centralized approach:
 
-### ✅ CORRECT - Always use Poetry:
+- ✅ Reduces fragility from version mismatches
+- ✅ Makes updates easy (change in one place)
+- ✅ Enables automated validation
+- ✅ Ensures consistency across Docker, CI/CD, and documentation
 
-```bash
-poetry run black --check .
-poetry run isort .
-poetry run flake8 app/
-poetry run mypy app/
-```
+**📖 For complete details, see [VERSIONING.md](./VERSIONING.md)**
 
-### ✅ EVEN BETTER - Use Makefile commands:
+## Poetry Version: 1.8.3
 
-```bash
-make lint-black
-make lint-imports
-make lint-mypy
-make format-python
-```
+**Why 1.8.3?**
 
-## Why Poetry-First?
+- Supports `package-mode` field in `pyproject.toml` (introduced in Poetry 1.8.0)
+- Stable release with bug fixes and improvements
+- Consistent across all environments
 
-1. **Version Consistency**: Poetry lock file ensures identical versions across all environments
-2. **CI Parity**: CI uses same Poetry environment as local development
-3. **No Drift**: Impossible to have version mismatches between local, CI, and pre-commit
-4. **Single Source**: `pyproject.toml` is the only source of truth for tool versions
-5. **Automatic Updates**: `poetry update` updates all tools consistently
+### Poetry Version Locations
 
-## Current Versions (from pyproject.toml)
+All Poetry installations in this project use version **1.8.3**:
 
-- **black**: ^25.0.0 (Code formatting)
-- **isort**: ^6.0.0 (Import sorting)
-- **flake8**: ^7.2.0 (Style guide enforcement)
-- **mypy**: ^1.16.0 (Static type checking)
-- **ruff**: ^0.8.0 (Fast modern linter)
-- **bandit**: ^1.8.0 (Security vulnerability scanning)
+1. **Dockerfile.api (Development Stage)** - Line 18
 
-## Enforcement
+   - Location: `/Dockerfile.api`
+   - Usage: `ENV POETRY_VERSION=1.8.3`
 
-All tooling enforces Poetry usage:
+2. **Dockerfile.api (Production Stage)** - Line 84
 
-- **Makefile**: All commands use `poetry run`
-- **Pre-commit**: Hooks call `poetry run`
-- **CI**: Scripts use `poetry run`
-- **Tests**: test Makefile uses `poetry run`
+   - Location: `/Dockerfile.api`
+   - Usage: `ENV POETRY_VERSION=1.8.3`
 
-## Development Workflow
+3. **GitHub Actions Composite Action** - Line 11
 
-### 1. Initial Setup
+   - Location: `/.github/actions/setup-python-poetry/action.yml`
+   - Usage: Default value for `poetry-version` input
+
+4. **Concurrency Tests Workflow** - Line 5
+
+   - Location: `/.github/workflows/concurrency_tests.yml`
+   - Usage: `POETRY_VERSION: '1.8.3'`
+
+5. **MA Cross Tests Workflow** - Line 38
+   - Location: `/.github/workflows/ma_cross_tests.yml`
+   - Usage: `POETRY_VERSION: '1.8.3'`
+
+### Updating Poetry Version
+
+**Easy 3-Step Process:**
+
+1. **Update `.versions` file** - Change the version number
+2. **Update defaults in two locations:**
+   - `Dockerfile.api` - ARG defaults (lines 5-6)
+   - `.github/actions/setup-python-poetry/action.yml` - Input defaults
+3. **Validate consistency:**
+   ```bash
+   ./scripts/validate-versions.sh
+   ```
+
+**Important:** Individual workflows should NOT hardcode versions. They use defaults from the composite action automatically.
+
+### Installation Instructions
+
+#### Using Poetry Installer (Recommended)
 
 ```bash
 # Install Poetry (if not already installed)
 curl -sSL https://install.python-poetry.org | python3 -
 
-# Install project dependencies
-poetry install
-
-# Verify tool versions
-poetry run black --version
-poetry run isort --version
-poetry run mypy --version
+# Install specific version
+curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
 ```
 
-### 2. Daily Development
+#### Using pip
 
 ```bash
-# Check code quality
-make lint-python
-
-# Fix formatting issues
-make format-python
-
-# Run specific linter
-make lint-black
-make lint-mypy
-
-# Run tests
-make test
+pip install --no-cache-dir poetry==1.8.3
 ```
 
-### 3. Pre-commit Setup
+## Python Version: 3.11
 
-```bash
-# Install pre-commit hooks (uses Poetry internally)
-pre-commit install
+All environments use Python 3.11 for consistency.
 
-# Run all hooks manually
-pre-commit run --all-files
-```
+## Other Tools
 
-## Troubleshooting
+### Development Tools
 
-### Version Mismatch Issues
+- **Ruff**: Latest stable (configured in `pyproject.toml`)
+- **mypy**: Latest stable (configured in `pyproject.toml`)
+- **Bandit**: Latest stable (configured in `pyproject.toml`)
+- **pre-commit**: Latest stable (configured in `.pre-commit-config.yaml`)
 
-**Problem**: CI fails but local passes
+### Testing Tools
 
-```bash
-# Check Poetry versions
-poetry run black --version
-poetry run isort --version
-
-# Update Poetry lock file
-poetry lock --no-update
-poetry install
-```
-
-**Problem**: "Command not found" errors
-
-```bash
-# Ensure Poetry is installed
-poetry --version
-
-# Install dependencies
-poetry install
-
-# Use Poetry to run tools
-poetry run black --check .
-```
-
-### Pre-commit Issues
-
-**Problem**: Pre-commit hooks fail
-
-```bash
-# Update pre-commit hooks
-pre-commit autoupdate
-
-# Run hooks manually to debug
-pre-commit run black --all-files
-preetry run black --check .
-```
-
-## Migration from Direct Tool Usage
-
-If you've been using tools directly:
-
-1. **Remove system installations** (optional):
-
-   ```bash
-   pip uninstall black isort flake8 mypy ruff
-   ```
-
-2. **Use Poetry commands**:
-
-   ```bash
-   # Old way
-   black --check .
-
-   # New way
-   poetry run black --check .
-   # or
-   make lint-black
-   ```
-
-3. **Update scripts**:
-
-   ```bash
-   # Find direct tool calls
-   grep -r "black --check" scripts/
-
-   # Replace with Poetry
-   sed -i 's/black --check/poetry run black --check/g' scripts/*
-   ```
+- **pytest**: Latest stable (configured in `pyproject.toml`)
+- **pytest-asyncio**: Latest stable
+- **pytest-cov**: Latest stable
 
 ## Validation
 
-Run the validation script to ensure Poetry-first compliance:
+### Automated Version Consistency Check
+
+Run the validation script to ensure all versions match:
 
 ```bash
-# Check for direct tool usage
-bash scripts/validate-tool-versions.sh
-
-# Test all linting commands
-make lint-python
-
-# Test pre-commit hooks
-pre-commit run --all-files
+./scripts/validate-versions.sh
 ```
 
-## Benefits Achieved
+This script checks:
 
-✅ **Zero Version Drift**: Local = CI = Pre-commit
-✅ **Single Source**: `pyproject.toml` only
-✅ **Automatic Updates**: `poetry update` updates everywhere
-✅ **Enforcement**: Scripts validate Poetry usage
-✅ **Documentation**: Clear guidance for developers
-✅ **Consistency**: All environments use identical tool versions
+- ✅ `.versions` file exists and is valid
+- ✅ `Dockerfile.api` ARG defaults match `.versions`
+- ✅ GitHub Actions composite action defaults match `.versions`
+- ✅ No hardcoded versions in individual workflows
 
-## Breaking Changes
+**Add to CI Pipeline:** This script runs automatically in CI to catch mismatches.
 
-⚠️ **Developers must**:
+### Manual Verification
 
-1. Have Poetry installed
-2. Run `poetry install` before development
-3. Use `poetry run` or `make` commands (never direct tool calls)
-4. Update `.pre-commit-config.yaml` (auto-update with `pre-commit autoupdate` won't work for local hooks)
+To verify tools are installed correctly:
 
-## Rollback Plan
+```bash
+# Check Poetry version
+poetry --version  # Should show: Poetry (version 1.8.3)
 
-If issues arise:
+# Check Python version
+python --version  # Should show: Python 3.11.x
 
-1. Revert `.pre-commit-config.yaml` to external repos
-2. Revert `tests/Makefile` to python -m calls
-3. Keep main Makefile (already correct)
+# Verify all pre-commit tools
+poetry run pre-commit run --all-files
+```
 
-## Related Documentation
+## CI/CD Integration
 
-- [Development Guide](DEVELOPMENT_GUIDE.md)
-- [Code Quality](CODE_QUALITY.md)
-- [Testing Guide](../testing/TESTING_BEST_PRACTICES.md)
+All GitHub Actions workflows use the composite action `.github/actions/setup-python-poetry` which:
+
+- Sets up Python 3.11
+- Installs Poetry 1.8.3
+- Caches both Poetry installation and dependencies
+- Configures virtualenvs consistently
+
+## Troubleshooting
+
+### Poetry Version Mismatch
+
+If you encounter issues with `package-mode` not being recognized:
+
+```bash
+# Check current Poetry version
+poetry --version
+
+# Should show: Poetry (version 1.8.3)
+
+# If not, reinstall:
+pip install --upgrade poetry==1.8.3
+```
+
+### Lock File Issues
+
+If `poetry.lock` becomes out of sync:
+
+```bash
+# Regenerate lock file
+poetry lock --no-update
+
+# Or with updates
+poetry lock
+```
+
+## References
+
+- [Poetry Documentation](https://python-poetry.org/docs/)
+- [Poetry 1.8.0 Release Notes](https://github.com/python-poetry/poetry/releases/tag/1.8.0) - Introduced `package-mode`
+- [Poetry 1.8.3 Release Notes](https://github.com/python-poetry/poetry/releases/tag/1.8.3) - Current version

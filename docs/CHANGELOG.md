@@ -36,6 +36,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2025-10-30
+
+### Centralized Version Management
+
+#### Added
+
+- **Version Management System**
+  - Created `.versions` file as single source of truth for all tool versions
+  - Added `docs/development/VERSIONING.md` - Complete versioning guide (231 lines)
+  - Added `docs/development/CENTRALIZED_VERSIONING_SUMMARY.md` - Implementation summary (335 lines)
+  - Added `docs/development/README.md` - Development documentation index
+  - Added `scripts/validate-versions.sh` - Automated validation script
+  - Added `make validate-versions` command
+  - Added version validation job to CI/CD pipeline (runs first, fails fast)
+
+#### Changed
+
+- **Docker Configuration**
+
+  - Updated `Dockerfile.api` with ARG-based version management
+  - Upgraded Poetry from 1.7.1 to 1.8.3 in both stages
+  - Fixed Docker linting warnings (`as` → `AS`)
+  - Added build arguments with defaults matching `.versions`
+
+- **GitHub Actions**
+
+  - Removed hardcoded `POETRY_VERSION` from `concurrency_tests.yml` and `ma_cross_tests.yml`
+  - Workflows now use composite action defaults automatically
+  - Enhanced `.github/actions/setup-python-poetry/action.yml` documentation
+  - Version validation runs before all other CI jobs
+
+- **Documentation**
+  - Moved versioning docs from root to `docs/development/`
+  - Updated `docs/DOCUMENTATION_INDEX.md` (+3 new docs)
+  - Development docs count: 8 → 11 files
+  - Updated cross-references throughout
+
+#### Fixed
+
+- **Critical Build Issue**
+  - Poetry 1.7.1 didn't support `package-mode` field in `pyproject.toml`
+  - Updated to Poetry 1.8.3 to support all required features
+  - Eliminated version fragility through centralization
+
+---
+
 ## [2.0.0] - 2025-10-28
 
 ### Major Changes
