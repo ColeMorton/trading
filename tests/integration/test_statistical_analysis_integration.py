@@ -416,9 +416,9 @@ class TestStatisticalAnalysisIntegration:
         )
 
         # Verify improvement (allowing for test data limitations)
-        assert (
-            avg_exit_efficiency > baseline_efficiency
-        ), f"Exit efficiency {avg_exit_efficiency:.1%} should exceed baseline {baseline_efficiency:.1%}"
+        assert avg_exit_efficiency > baseline_efficiency, (
+            f"Exit efficiency {avg_exit_efficiency:.1%} should exceed baseline {baseline_efficiency:.1%}"
+        )
 
     def test_configuration_integration(self, sample_config):
         """Test configuration integration across all components."""

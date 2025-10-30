@@ -178,9 +178,9 @@ class TestDownloadDataThreadSafetyStable:
 
         # Verify no contamination occurred
         contamination_detected = any(contamination_results)
-        assert (
-            not contamination_detected
-        ), "Column contamination detected in concurrent downloads"
+        assert not contamination_detected, (
+            "Column contamination detected in concurrent downloads"
+        )
 
         # Verify both downloads completed
         assert len(results) == 2
@@ -290,9 +290,9 @@ class TestDownloadDataThreadSafetyStable:
                 # Generic comparison - check length and basic structure
                 first_len = len(results[0])
                 for i in range(1, len(results)):
-                    assert (
-                        len(results[i]) == first_len
-                    ), f"Result {i} has different length than first result"
+                    assert len(results[i]) == first_len, (
+                        f"Result {i} has different length than first result"
+                    )
 
     @fast_test_data(periods=50)
     def test_error_handling_with_stable_mocks(self, mock_config, mock_log):
@@ -351,9 +351,9 @@ class TestDownloadDataThreadSafetyStable:
             stable_duration = time.time() - start_time
 
         # Verify stable data performance
-        assert (
-            stable_duration < 2.0
-        ), f"Stable data download took too long: {stable_duration}s"
+        assert stable_duration < 2.0, (
+            f"Stable data download took too long: {stable_duration}s"
+        )
         assert stable_result is not None
 
         # Verify data structure
@@ -419,9 +419,9 @@ class TestConcurrentStrategyExecutionStable:
                 execution_time = time.time() - start_time
 
                 # Verify execution completed in reasonable time
-                assert (
-                    execution_time < 20.0
-                ), f"Execution took too long: {execution_time}s"
+                assert execution_time < 20.0, (
+                    f"Execution took too long: {execution_time}s"
+                )
 
                 # Verify we got some form of results (even if empty due to filtering)
                 assert results is not None
@@ -430,12 +430,12 @@ class TestConcurrentStrategyExecutionStable:
                 execution_time = time.time() - start_time
 
                 # Even if there's an exception, it should not be a timeout
-                assert (
-                    "timeout" not in str(e).lower()
-                ), f"Execution timed out after {execution_time}s"
-                assert (
-                    execution_time < 20.0
-                ), f"Execution took too long even with error: {execution_time}s"
+                assert "timeout" not in str(e).lower(), (
+                    f"Execution timed out after {execution_time}s"
+                )
+                assert execution_time < 20.0, (
+                    f"Execution took too long even with error: {execution_time}s"
+                )
 
 
 if __name__ == "__main__":

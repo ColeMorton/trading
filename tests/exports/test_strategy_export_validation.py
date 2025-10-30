@@ -71,9 +71,9 @@ class TestSMAExportValidation:
                 ]
 
                 for column in required_sma_columns:
-                    assert (
-                        column in sample_sma_data.columns
-                    ), f"Missing required SMA column: {column}"
+                    assert column in sample_sma_data.columns, (
+                        f"Missing required SMA column: {column}"
+                    )
 
                 # Verify strategy type is correct in source data
                 assert all(sample_sma_data["Strategy Type"] == "SMA")
@@ -178,9 +178,9 @@ class TestEMAExportValidation:
                 ]
 
                 for column in required_ema_columns:
-                    assert (
-                        column in exported_data.columns
-                    ), f"Missing required EMA column: {column}"
+                    assert column in exported_data.columns, (
+                        f"Missing required EMA column: {column}"
+                    )
 
                 # Verify strategy type is correct
                 assert all(exported_data["Strategy Type"] == "EMA")
@@ -286,9 +286,9 @@ class TestMACDExportValidation:
                 ]
 
                 for column in required_macd_columns:
-                    assert (
-                        column in exported_data.columns
-                    ), f"Missing required MACD column: {column}"
+                    assert column in exported_data.columns, (
+                        f"Missing required MACD column: {column}"
+                    )
 
                 # Verify strategy type is correct
                 assert all(exported_data["Strategy Type"] == "MACD")

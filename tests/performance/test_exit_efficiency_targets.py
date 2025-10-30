@@ -253,9 +253,9 @@ class TestExitEfficiencyTargets:
         )
 
         # Should be close to baseline target
-        assert (
-            0.50 <= baseline_efficiency <= 0.65
-        ), f"Baseline efficiency {baseline_efficiency:.1%}"
+        assert 0.50 <= baseline_efficiency <= 0.65, (
+            f"Baseline efficiency {baseline_efficiency:.1%}"
+        )
 
     def test_target_exit_efficiency_achievement(
         self,
@@ -270,15 +270,15 @@ class TestExitEfficiencyTargets:
         )
 
         # Should meet or exceed target
-        assert (
-            target_efficiency >= 0.80
-        ), f"Target efficiency {target_efficiency:.1%} should be ≥80%"
+        assert target_efficiency >= 0.80, (
+            f"Target efficiency {target_efficiency:.1%} should be ≥80%"
+        )
 
         # Calculate improvement over baseline
         improvement = (target_efficiency - 0.57) / (0.85 - 0.57)
-        assert (
-            improvement >= 0.8
-        ), f"Should achieve 80%+ of target improvement, got {improvement:.1%}"
+        assert improvement >= 0.8, (
+            f"Should achieve 80%+ of target improvement, got {improvement:.1%}"
+        )
 
     @pytest.mark.asyncio
     async def test_statistical_analysis_exit_efficiency(
@@ -330,9 +330,9 @@ class TestExitEfficiencyTargets:
 
         if exit_efficiencies:
             avg_efficiency = np.mean(exit_efficiencies)
-            assert (
-                avg_efficiency >= 0.75
-            ), f"Statistical analysis efficiency {avg_efficiency:.1%} should be ≥75%"
+            assert avg_efficiency >= 0.75, (
+                f"Statistical analysis efficiency {avg_efficiency:.1%} should be ≥75%"
+            )
 
 
 class TestPortfolioHealthScore:
@@ -393,9 +393,9 @@ class TestPortfolioHealthScore:
         assert target_health >= 85, f"Target health {target_health:.0f}"
 
         improvement = target_health - baseline_health
-        assert (
-            improvement >= 15
-        ), f"Health improvement {improvement:.0f} should be ≥15 points"
+        assert improvement >= 15, (
+            f"Health improvement {improvement:.0f} should be ≥15 points"
+        )
 
 
 class TestSharpeRatioImprovement:
@@ -426,9 +426,9 @@ class TestSharpeRatioImprovement:
         improvement = (improved_sharpe - baseline_sharpe) / baseline_sharpe
 
         # Should exceed 25% improvement target
-        assert (
-            improvement >= 0.20
-        ), f"Sharpe improvement {improvement:.1%} should be ≥20%"
+        assert improvement >= 0.20, (
+            f"Sharpe improvement {improvement:.1%} should be ≥20%"
+        )
 
     def test_risk_adjusted_performance_improvement(self):
         """Test overall risk-adjusted performance improvement."""
@@ -454,9 +454,9 @@ class TestSharpeRatioImprovement:
         sharpe_improvement = (optimized_sharpe - baseline_sharpe) / baseline_sharpe
 
         # Should exceed target improvement
-        assert (
-            sharpe_improvement >= 0.25
-        ), f"Sharpe improvement {sharpe_improvement:.1%} should be ≥25%"
+        assert sharpe_improvement >= 0.25, (
+            f"Sharpe improvement {sharpe_improvement:.1%} should be ≥25%"
+        )
 
 
 class TestSystemIntegrationPerformance:
@@ -488,23 +488,17 @@ class TestSystemIntegrationPerformance:
         )
 
         # Check each target
-        assert validation_results[
-            "exit_efficiency"
-        ][
-            "meets_target"
-        ], f"Exit efficiency target not met: {validation_results['exit_efficiency']['current']:.1%}"
+        assert validation_results["exit_efficiency"]["meets_target"], (
+            f"Exit efficiency target not met: {validation_results['exit_efficiency']['current']:.1%}"
+        )
 
-        assert validation_results[
-            "portfolio_health"
-        ][
-            "meets_target"
-        ], f"Portfolio health target not met: {validation_results['portfolio_health']['current']:.0f}"
+        assert validation_results["portfolio_health"]["meets_target"], (
+            f"Portfolio health target not met: {validation_results['portfolio_health']['current']:.0f}"
+        )
 
-        assert validation_results[
-            "sharpe_improvement"
-        ][
-            "meets_target"
-        ], f"Sharpe improvement target not met: {validation_results['sharpe_improvement']['improvement_pct']:.1%}"
+        assert validation_results["sharpe_improvement"]["meets_target"], (
+            f"Sharpe improvement target not met: {validation_results['sharpe_improvement']['improvement_pct']:.1%}"
+        )
 
     def test_performance_consistency_validation(self):
         """Test performance consistency across different market conditions."""
@@ -560,15 +554,15 @@ class TestSystemIntegrationPerformance:
         ]
 
         # All conditions should show positive Sharpe ratios
-        assert all(
-            sharpe > 0.5 for sharpe in sharpe_ratios
-        ), f"Sharpe ratios should be >0.5 in all conditions: {sharpe_ratios}"
+        assert all(sharpe > 0.5 for sharpe in sharpe_ratios), (
+            f"Sharpe ratios should be >0.5 in all conditions: {sharpe_ratios}"
+        )
 
         # Performance should be consistent (low variance across conditions)
         sharpe_variance = np.var(sharpe_ratios)
-        assert (
-            sharpe_variance < 0.5
-        ), f"Performance variance too high: {sharpe_variance:.2f}"
+        assert sharpe_variance < 0.5, (
+            f"Performance variance too high: {sharpe_variance:.2f}"
+        )
 
 
 if __name__ == "__main__":

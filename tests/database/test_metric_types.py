@@ -334,9 +334,9 @@ class TestMetricTypeSeedData:
         ]
 
         for expected in expected_metrics:
-            assert (
-                expected in names
-            ), f"Expected metric type '{expected}' not found in seed data"
+            assert expected in names, (
+                f"Expected metric type '{expected}' not found in seed data"
+            )
 
     def test_seed_data_count(self):
         """Test that seed data has reasonable number of entries."""
@@ -354,9 +354,9 @@ class TestMetricTypeSeedData:
         metric_types_seed_data = migration_module.metric_types_seed_data
 
         # Should have between 50-100 metric types based on plan
-        assert (
-            50 <= len(metric_types_seed_data) <= 100
-        ), f"Expected 50-100 metric types, got {len(metric_types_seed_data)}"
+        assert 50 <= len(metric_types_seed_data) <= 100, (
+            f"Expected 50-100 metric types, got {len(metric_types_seed_data)}"
+        )
 
 
 if __name__ == "__main__":

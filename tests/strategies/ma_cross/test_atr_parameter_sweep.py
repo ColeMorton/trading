@@ -990,9 +990,9 @@ class TestATRConfigurationHandling:
 
         # All criteria should be met
         for key, min_value in minimums.items():
-            assert (
-                portfolio[key] >= min_value
-            ), f"{key} does not meet minimum: {portfolio[key]} < {min_value}"
+            assert portfolio[key] >= min_value, (
+                f"{key} does not meet minimum: {portfolio[key]} < {min_value}"
+            )
 
         # Test portfolio that doesn't meet minimums
         failing_portfolio = {

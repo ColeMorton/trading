@@ -216,9 +216,9 @@ class TestPhase4Integration:
         avg_analysis_time = statistics.mean(analysis_times)
 
         # Analysis should be reasonably fast with optimizations
-        assert (
-            avg_analysis_time < 5000.0
-        ), f"Analysis too slow: {avg_analysis_time:.1f}ms"
+        assert avg_analysis_time < 5000.0, (
+            f"Analysis too slow: {avg_analysis_time:.1f}ms"
+        )
 
         # Get performance summary
         summary = performance_monitor.get_summary(hours=1)

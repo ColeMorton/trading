@@ -363,6 +363,6 @@ class TestCalculateSignalUnconfirmed:
                 result,
                 str,
             ), f"Result should be string, got {type(result)}"
-            assert (
-                result in valid_returns
-            ), f"Result '{result}' not in valid returns {valid_returns}"
+            assert result in valid_returns, (
+                f"Result '{result}' not in valid returns {valid_returns}"
+            )

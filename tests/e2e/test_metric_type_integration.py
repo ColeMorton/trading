@@ -263,9 +263,9 @@ class TestMetricTypeE2EIntegration:
         ]
 
         # Should have at least one portfolio with metric_type
-        assert (
-            len(portfolios_with_metric_type) > 0
-        ), f"No portfolios with metric_type for {ticker}"
+        assert len(portfolios_with_metric_type) > 0, (
+            f"No portfolios with metric_type for {ticker}"
+        )
 
         # Verify metric_type format
         for portfolio in portfolios_with_metric_type:
@@ -418,16 +418,16 @@ class TestMetricTypeE2EIntegration:
 
             # Performance check: should have results with metric_type
             if len(portfolios) > 0:
-                assert (
-                    len(portfolios_with_metric_type) > 0
-                ), "No metric_type data despite successful analysis"
+                assert len(portfolios_with_metric_type) > 0, (
+                    "No metric_type data despite successful analysis"
+                )
 
         elif response.status_code == 202:
             # Async execution - performance is measured differently
             # Just verify the request was accepted quickly
-            assert (
-                execution_time < 5.0
-            ), f"Async request took too long to accept: {execution_time}s"
+            assert execution_time < 5.0, (
+                f"Async request took too long to accept: {execution_time}s"
+            )
 
 
 if __name__ == "__main__":

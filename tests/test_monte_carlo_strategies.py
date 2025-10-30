@@ -355,9 +355,9 @@ class TestMonteCarloStrategies:
 
         # At least some parameters should be different from original
         different_params = [p for p in used_parameters if p != original_params]
-        assert (
-            len(different_params) > 0
-        ), "Parameter noise injection should modify some parameters"
+        assert len(different_params) > 0, (
+            "Parameter noise injection should modify some parameters"
+        )
 
         # Parameters should be close to original (within noise range)
         for noisy_short, noisy_long in used_parameters:

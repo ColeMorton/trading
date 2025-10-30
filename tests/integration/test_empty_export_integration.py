@@ -248,9 +248,9 @@ class TestEmptyExportIntegration:
 
         for export_dir in export_dirs:
             export_path = Path(temp_dir) / "data" / "raw" / export_dir
-            assert (
-                export_path.exists()
-            ), f"Export directory {export_dir} was not created"
+            assert export_path.exists(), (
+                f"Export directory {export_dir} was not created"
+            )
 
             csv_files = list(export_path.glob("*.csv"))
             assert len(csv_files) > 0, f"No CSV files found in {export_dir}"
@@ -296,9 +296,9 @@ class TestEmptyExportIntegration:
                 # Verify file was created
                 export_path = Path(temp_dir) / "data" / "raw" / export_type
                 csv_files = list(export_path.glob(f"*{strategy}*.csv"))
-                assert (
-                    len(csv_files) > 0
-                ), f"No files created for {strategy} {export_type}"
+                assert len(csv_files) > 0, (
+                    f"No files created for {strategy} {export_type}"
+                )
 
     def test_multiple_tickers_empty_export(self, temp_dir, mock_log):
         """Test empty export with multiple tickers configuration."""
@@ -425,9 +425,9 @@ class TestEmptyExportIntegration:
 
             # Filtered and best exports should have Metric Type
             if export_type in ["portfolios_filtered", "portfolios_best"]:
-                assert (
-                    "Metric Type" in df.columns
-                ), f"Missing Metric Type in {export_type}"
+                assert "Metric Type" in df.columns, (
+                    f"Missing Metric Type in {export_type}"
+                )
 
 
 class TestEmptyExportEdgeCases:
@@ -530,6 +530,6 @@ class TestEmptyExportEdgeCases:
             # Verify file was created
             export_path = Path(temp_dir) / "data" / "raw" / "portfolios"
             csv_files = list(export_path.glob("*.csv"))
-            assert (
-                len(csv_files) >= i + 1
-            ), f"Expected at least {i + 1} files after config {i}"
+            assert len(csv_files) >= i + 1, (
+                f"Expected at least {i + 1} files after config {i}"
+            )

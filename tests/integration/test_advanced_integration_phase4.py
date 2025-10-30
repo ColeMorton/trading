@@ -342,9 +342,9 @@ config:
                 # Step 4: Validate large-scale execution
                 assert ma_result is True
                 assert macd_result is True
-                assert (
-                    total_time < 45.0
-                ), f"Large-scale execution too slow: {total_time}s"
+                assert total_time < 45.0, (
+                    f"Large-scale execution too slow: {total_time}s"
+                )
 
                 # Step 5: Verify configuration conversion for both services
                 assert ma_legacy_config["TICKER"] == large_config.ticker

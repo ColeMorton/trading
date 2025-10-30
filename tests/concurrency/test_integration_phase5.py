@@ -31,9 +31,9 @@ class TestPortfolioBuilder:
     """Build test portfolios with known hand-calculated results."""
 
     @staticmethod
-    def create_simple_test_portfolio() -> (
-        tuple[list[pl.DataFrame], list[StrategyConfig], dict[str, Any]]
-    ):
+    def create_simple_test_portfolio() -> tuple[
+        list[pl.DataFrame], list[StrategyConfig], dict[str, Any]
+    ]:
         """Create a simple portfolio with hand-calculated expected results.
 
         Returns:
@@ -662,24 +662,24 @@ class TestConcurrencyIntegrationPhase5:
         risk_contrib_keys = [k for k in risk_metrics if k.endswith("_risk_contrib")]
         if risk_contrib_keys:
             total_risk = sum(risk_metrics[key] for key in risk_contrib_keys)
-            assert (
-                abs(total_risk - 1.0) < 1e-6
-            ), f"Risk contributions should sum to 1.0, got {total_risk}"
+            assert abs(total_risk - 1.0) < 1e-6, (
+                f"Risk contributions should sum to 1.0, got {total_risk}"
+            )
 
         # Validate that we have the expected number of strategies in expectancies
         strategy_expectancies = stats.get("strategy_expectancies", [])
         assert len(strategy_expectancies) == 2, "Should have 2 strategy expectancies"
 
         # Validate total expectancy is reasonable (positive)
-        assert (
-            stats.get("total_expectancy", 0) > 0
-        ), "Total expectancy should be positive"
+        assert stats.get("total_expectancy", 0) > 0, (
+            "Total expectancy should be positive"
+        )
 
         # Validate efficiency score is reasonable (between 0 and 1)
         efficiency_score = stats.get("efficiency_score", 0)
-        assert (
-            0 <= efficiency_score <= 1
-        ), f"Efficiency score should be between 0 and 1, got {efficiency_score}"
+        assert 0 <= efficiency_score <= 1, (
+            f"Efficiency score should be between 0 and 1, got {efficiency_score}"
+        )
 
         # Validate signal metrics are present and reasonable
         signal_metrics = stats.get("signal_metrics", {})

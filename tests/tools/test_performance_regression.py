@@ -550,9 +550,9 @@ class TestOverallSystemRegression:
         requests_per_second = successful_requests / total_time
 
         # We want at least 80% success rate for concurrent requests
-        assert (
-            success_rate >= 0.8
-        ), f"Concurrent request success rate too low: {success_rate:.2%}"
+        assert success_rate >= 0.8, (
+            f"Concurrent request success rate too low: {success_rate:.2%}"
+        )
 
         # Check throughput regression
         result = performance_baseline.check_regression(
@@ -590,9 +590,9 @@ class TestAdvancedOptimizationRegression:
         avg_snapshot_time = statistics.mean(snapshot_times)
 
         # Resource monitoring should be very fast
-        assert (
-            avg_snapshot_time < 100
-        ), f"Resource monitoring too slow: {avg_snapshot_time:.2f}ms"
+        assert avg_snapshot_time < 100, (
+            f"Resource monitoring too slow: {avg_snapshot_time:.2f}ms"
+        )
 
     def test_performance_monitoring_overhead(self, performance_baseline):
         """Test performance monitoring overhead doesn't regress."""
@@ -622,9 +622,9 @@ class TestAdvancedOptimizationRegression:
         overhead_per_operation = overhead_ms / 10
 
         # Monitoring overhead should be minimal
-        assert (
-            overhead_per_operation < 5.0
-        ), f"Performance monitoring overhead too high: {overhead_per_operation:.2f}ms per operation"
+        assert overhead_per_operation < 5.0, (
+            f"Performance monitoring overhead too high: {overhead_per_operation:.2f}ms per operation"
+        )
 
 
 @pytest.mark.integration

@@ -107,14 +107,14 @@ class TestPhase5ComprehensiveValidation:
     def test_canonical_schema_constants_integrity(self):
         """Validate that canonical schema constants are properly defined."""
         # Verify column count
-        assert (
-            CANONICAL_COLUMN_COUNT == 59
-        ), f"Expected 59 columns, got {CANONICAL_COLUMN_COUNT}"
+        assert CANONICAL_COLUMN_COUNT == 59, (
+            f"Expected 59 columns, got {CANONICAL_COLUMN_COUNT}"
+        )
 
         # Verify column names list length
-        assert (
-            len(CANONICAL_COLUMN_NAMES) == 59
-        ), f"Expected 59 column names, got {len(CANONICAL_COLUMN_NAMES)}"
+        assert len(CANONICAL_COLUMN_NAMES) == 59, (
+            f"Expected 59 column names, got {len(CANONICAL_COLUMN_NAMES)}"
+        )
 
         # Verify critical columns are present
         critical_columns = [
@@ -132,9 +132,9 @@ class TestPhase5ComprehensiveValidation:
         ]
 
         for col in critical_columns:
-            assert (
-                col in CANONICAL_COLUMN_NAMES
-            ), f"Critical column '{col}' missing from canonical schema"
+            assert col in CANONICAL_COLUMN_NAMES, (
+                f"Critical column '{col}' missing from canonical schema"
+            )
 
     def test_core_export_infrastructure_compliance(
         self,
@@ -170,12 +170,12 @@ class TestPhase5ComprehensiveValidation:
             reader = csv.DictReader(f)
             headers = reader.fieldnames
 
-            assert (
-                len(headers) == CANONICAL_COLUMN_COUNT
-            ), f"Expected {CANONICAL_COLUMN_COUNT} columns, got {len(headers)}"
-            assert (
-                headers == CANONICAL_COLUMN_NAMES
-            ), "Column names don't match canonical schema"
+            assert len(headers) == CANONICAL_COLUMN_COUNT, (
+                f"Expected {CANONICAL_COLUMN_COUNT} columns, got {len(headers)}"
+            )
+            assert headers == CANONICAL_COLUMN_NAMES, (
+                "Column names don't match canonical schema"
+            )
 
     def test_api_export_compliance(self, sample_canonical_data, mock_log, tmp_path):
         """Test that API exports maintain canonical schema compliance."""
@@ -288,9 +288,9 @@ class TestPhase5ComprehensiveValidation:
                     )
 
                     # Verify enriched data maintains canonical structure
-                    assert (
-                        len(enriched_data) > 0
-                    ), f"Enrichment function in {module_name} returned empty data"
+                    assert len(enriched_data) > 0, (
+                        f"Enrichment function in {module_name} returned empty data"
+                    )
 
                     # Check that required canonical columns are present
                     required_columns = [
@@ -300,9 +300,9 @@ class TestPhase5ComprehensiveValidation:
                         "Signal Period",
                     ]
                     for col in required_columns:
-                        assert (
-                            col in enriched_data[0]
-                        ), f"Missing canonical column '{col}' in {module_name}"
+                        assert col in enriched_data[0], (
+                            f"Missing canonical column '{col}' in {module_name}"
+                        )
 
             except ImportError as e:
                 # Module might have dependencies not available in test environment
@@ -324,9 +324,9 @@ class TestPhase5ComprehensiveValidation:
         result = validate_dataframe_schema(compliant_data, strict=False)
 
         assert result["is_valid"] is True, "Compliant data should pass validation"
-        assert (
-            len(result.get("violations", [])) == 0
-        ), "Compliant data should have no violations"
+        assert len(result.get("violations", [])) == 0, (
+            "Compliant data should have no violations"
+        )
 
         # Test with non-compliant data
         non_compliant_data = pd.DataFrame(
@@ -335,9 +335,9 @@ class TestPhase5ComprehensiveValidation:
         result = validate_dataframe_schema(non_compliant_data, strict=False)
 
         assert result["is_valid"] is False, "Non-compliant data should fail validation"
-        assert (
-            len(result.get("violations", [])) > 0
-        ), "Non-compliant data should have violations"
+        assert len(result.get("violations", [])) > 0, (
+            "Non-compliant data should have violations"
+        )
 
     def test_schema_transformation_functionality(self, mock_log):
         """Test schema transformation and normalization functions."""
@@ -351,9 +351,9 @@ class TestPhase5ComprehensiveValidation:
         normalized_data = normalize_portfolio_data(minimal_data, log=mock_log)
 
         assert len(normalized_data) > 0, "Normalization should return data"
-        assert (
-            len(normalized_data[0]) == CANONICAL_COLUMN_COUNT
-        ), "Normalized data should have all canonical columns"
+        assert len(normalized_data[0]) == CANONICAL_COLUMN_COUNT, (
+            "Normalized data should have all canonical columns"
+        )
 
         # Verify critical columns are preserved
         assert normalized_data[0]["Ticker"] == "BTC-USD"
@@ -393,9 +393,9 @@ class TestPhase5ComprehensiveValidation:
         # Check in the returned DataFrame
         if hasattr(df, "columns"):  # Polars DataFrame
             for metric in critical_risk_metrics:
-                assert (
-                    metric in df.columns
-                ), f"Risk metric '{metric}' missing from DataFrame"
+                assert metric in df.columns, (
+                    f"Risk metric '{metric}' missing from DataFrame"
+                )
 
         # Check in the exported CSV file
         export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
@@ -405,9 +405,9 @@ class TestPhase5ComprehensiveValidation:
                 headers = reader.fieldnames
 
                 for metric in critical_risk_metrics:
-                    assert (
-                        metric in headers
-                    ), f"Risk metric '{metric}' missing from exported CSV"
+                    assert metric in headers, (
+                        f"Risk metric '{metric}' missing from exported CSV"
+                    )
 
     def test_cross_strategy_aggregation_compatibility(self, mock_log):
         """Test that data from different strategies can be aggregated consistently."""
@@ -447,12 +447,12 @@ class TestPhase5ComprehensiveValidation:
         assert len(aggregated_data) == 4, "Should have data for all 4 strategies"
 
         for row in aggregated_data:
-            assert (
-                len(row) == CANONICAL_COLUMN_COUNT
-            ), "Each row should have all canonical columns"
-            assert all(
-                col in row for col in CANONICAL_COLUMN_NAMES
-            ), "All canonical columns should be present"
+            assert len(row) == CANONICAL_COLUMN_COUNT, (
+                "Each row should have all canonical columns"
+            )
+            assert all(col in row for col in CANONICAL_COLUMN_NAMES), (
+                "All canonical columns should be present"
+            )
 
     def test_backward_compatibility_preservation(self, mock_log):
         """Test that existing functionality remains intact."""
@@ -469,12 +469,12 @@ class TestPhase5ComprehensiveValidation:
         result = ensure_allocation_sum_100_percent(portfolio_data, log=mock_log)
 
         assert len(result) == 2, "Should return same number of portfolios"
-        assert (
-            result[0]["Allocation [%]"] == 60.0
-        ), "Existing allocation should be preserved"
-        assert (
-            result[1]["Allocation [%]"] == 40.0
-        ), "Missing allocation should be filled"
+        assert result[0]["Allocation [%]"] == 60.0, (
+            "Existing allocation should be preserved"
+        )
+        assert result[1]["Allocation [%]"] == 40.0, (
+            "Missing allocation should be filled"
+        )
 
     def test_data_pipeline_integrity(self, sample_canonical_data, mock_log, tmp_path):
         """Test complete data pipeline from input to export."""
@@ -543,14 +543,14 @@ class TestPhase5ComprehensiveValidation:
         assert success, "Large dataset export should succeed"
 
         execution_time = end_time - start_time
-        assert (
-            execution_time < 10.0
-        ), f"Export took {execution_time:.2f}s, should be under 10s for 100 rows"
+        assert execution_time < 10.0, (
+            f"Export took {execution_time:.2f}s, should be under 10s for 100 rows"
+        )
 
         # Verify output quality wasn't compromised for performance
         export_files = list(Path(tmp_path).glob("data/raw/strategies/best/*.csv"))
         with open(export_files[0]) as f:
             lines = f.readlines()
-            assert (
-                len(lines) == 101
-            ), "Should have header + 100 data rows"  # Header + data rows
+            assert len(lines) == 101, (
+                "Should have header + 100 data rows"
+            )  # Header + data rows

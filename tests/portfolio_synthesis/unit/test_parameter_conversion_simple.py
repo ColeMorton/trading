@@ -278,6 +278,6 @@ class TestParameterConversionSimple:
                 enhanced_config = mock_get_config.call_args[0][0]
 
                 for key, expected_value in test_case["expected"].items():
-                    assert (
-                        enhanced_config[key] == expected_value
-                    ), f"Expected {key}={expected_value}, got {enhanced_config[key]}"
+                    assert enhanced_config[key] == expected_value, (
+                        f"Expected {key}={expected_value}, got {enhanced_config[key]}"
+                    )

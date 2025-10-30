@@ -570,9 +570,9 @@ class TestStrategyServiceIntegration:
         common_fields = ["TICKER", "USE_YEARS", "YEARS", "MULTI_TICKER", "USE_CURRENT"]
         for field in common_fields:
             if field in ma_legacy and field in macd_legacy:
-                assert (
-                    ma_legacy[field] == macd_legacy[field]
-                ), f"Field {field} inconsistent between services"
+                assert ma_legacy[field] == macd_legacy[field], (
+                    f"Field {field} inconsistent between services"
+                )
 
         # Test minimums are consistent
         assert ma_legacy["MINIMUMS"]["WIN_RATE"] == macd_legacy["MINIMUMS"]["WIN_RATE"]

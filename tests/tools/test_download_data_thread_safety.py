@@ -120,9 +120,9 @@ class TestDownloadDataThreadSafety:
                             contamination_detected = True
 
             # Verify contamination occurred (this was the original bug)
-            assert (
-                contamination_detected or len(errors) > 0
-            ), "Expected column contamination to occur without proper locking"
+            assert contamination_detected or len(errors) > 0, (
+                "Expected column contamination to occur without proper locking"
+            )
 
         finally:
             # Restore the original lock
@@ -227,9 +227,9 @@ class TestDownloadDataThreadSafety:
                 future.result()
 
         # With the lock, only one yfinance call should happen at a time
-        assert (
-            max_concurrent == 1
-        ), f"Expected max 1 concurrent call, but got {max_concurrent}"
+        assert max_concurrent == 1, (
+            f"Expected max 1 concurrent call, but got {max_concurrent}"
+        )
 
     @patch("yfinance.download")
     def test_error_handling_with_concurrent_downloads(
@@ -328,9 +328,9 @@ class TestDownloadDataThreadSafety:
         for ticker, df in results.items():
             expected_close = expected_prices[ticker]
             actual_close = df["Close"][0]
-            assert (
-                actual_close == expected_close
-            ), f"{ticker}: Expected close price {expected_close}, got {actual_close}"
+            assert actual_close == expected_close, (
+                f"{ticker}: Expected close price {expected_close}, got {actual_close}"
+            )
 
     def test_performance_impact_of_thread_lock(self, mock_config, mock_log):
         """Test that the thread lock doesn't significantly impact performance for single downloads."""
@@ -345,9 +345,9 @@ class TestDownloadDataThreadSafety:
 
             assert isinstance(result, pl.DataFrame)
             # Single download should be fast (no significant overhead from lock)
-            assert (
-                single_duration < 0.1
-            ), f"Single download took too long: {single_duration}s"
+            assert single_duration < 0.1, (
+                f"Single download took too long: {single_duration}s"
+            )
 
 
 class TestConcurrentStrategyExecution:
@@ -405,9 +405,9 @@ class TestConcurrentStrategyExecution:
             prev_ticker, prev_time = download_calls[i - 1]
             curr_ticker, curr_time = download_calls[i]
             # Downloads should not overlap (allowing small margin for timing)
-            assert (
-                curr_time >= prev_time
-            ), f"Downloads overlapped: {prev_ticker} and {curr_ticker}"
+            assert curr_time >= prev_time, (
+                f"Downloads overlapped: {prev_ticker} and {curr_ticker}"
+            )
 
     def create_mock_yfinance_data(self, ticker):
         """Helper method to create mock data."""

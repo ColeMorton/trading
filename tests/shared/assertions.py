@@ -30,29 +30,29 @@ def assert_portfolio_performance(
 
     required_fields = ["total_return", "max_drawdown", "sharpe_ratio", "win_rate"]
     for field in required_fields:
-        assert (
-            field in portfolio_result
-        ), f"Portfolio result missing required field: {field}"
+        assert field in portfolio_result, (
+            f"Portfolio result missing required field: {field}"
+        )
 
     if min_return is not None:
-        assert (
-            portfolio_result["total_return"] >= min_return
-        ), f"Return {portfolio_result['total_return']:.2%} below minimum {min_return:.2%}"
+        assert portfolio_result["total_return"] >= min_return, (
+            f"Return {portfolio_result['total_return']:.2%} below minimum {min_return:.2%}"
+        )
 
     if max_drawdown is not None:
-        assert (
-            portfolio_result["max_drawdown"] <= max_drawdown
-        ), f"Drawdown {portfolio_result['max_drawdown']:.2%} exceeds maximum {max_drawdown:.2%}"
+        assert portfolio_result["max_drawdown"] <= max_drawdown, (
+            f"Drawdown {portfolio_result['max_drawdown']:.2%} exceeds maximum {max_drawdown:.2%}"
+        )
 
     if min_sharpe is not None:
-        assert (
-            portfolio_result["sharpe_ratio"] >= min_sharpe
-        ), f"Sharpe ratio {portfolio_result['sharpe_ratio']:.2f} below minimum {min_sharpe:.2f}"
+        assert portfolio_result["sharpe_ratio"] >= min_sharpe, (
+            f"Sharpe ratio {portfolio_result['sharpe_ratio']:.2f} below minimum {min_sharpe:.2f}"
+        )
 
     if min_win_rate is not None:
-        assert (
-            portfolio_result["win_rate"] >= min_win_rate
-        ), f"Win rate {portfolio_result['win_rate']:.2%} below minimum {min_win_rate:.2%}"
+        assert portfolio_result["win_rate"] >= min_win_rate, (
+            f"Win rate {portfolio_result['win_rate']:.2%} below minimum {min_win_rate:.2%}"
+        )
 
 
 def assert_market_data_valid(
@@ -73,9 +73,9 @@ def assert_market_data_valid(
         data = data["data"]
 
     assert isinstance(data, pl.DataFrame), "Market data must be a Polars DataFrame"
-    assert (
-        len(data) >= min_rows
-    ), f"Market data has {len(data)} rows, minimum {min_rows} required"
+    assert len(data) >= min_rows, (
+        f"Market data has {len(data)} rows, minimum {min_rows} required"
+    )
 
     if required_columns is None:
         required_columns = ["Date", "Open", "High", "Low", "Close", "Volume"]
@@ -162,9 +162,9 @@ def assert_risk_metrics_valid(
 
         # Sharpe ratio should be reasonable (typically -3 to +5)
         sharpe = risk_metrics["sharpe_ratio"]
-        assert (
-            -5 <= sharpe <= 10
-        ), f"Sharpe ratio {sharpe} outside reasonable range [-5, 10]"
+        assert -5 <= sharpe <= 10, (
+            f"Sharpe ratio {sharpe} outside reasonable range [-5, 10]"
+        )
 
         # Check VaR if present
         if "var_95" in risk_metrics:
@@ -203,15 +203,15 @@ def assert_backtest_results_valid(
     ]
 
     for field in required_fields:
-        assert (
-            field in backtest_results
-        ), f"Backtest results missing required field: {field}"
+        assert field in backtest_results, (
+            f"Backtest results missing required field: {field}"
+        )
 
     # Check trade count
     num_trades = backtest_results["num_trades"]
-    assert (
-        num_trades >= min_trades
-    ), f"Backtest has {num_trades} trades, minimum {min_trades} required"
+    assert num_trades >= min_trades, (
+        f"Backtest has {num_trades} trades, minimum {min_trades} required"
+    )
 
     # Check win rate bounds
     win_rate = backtest_results["win_rate"]
@@ -275,9 +275,9 @@ def assert_api_response_valid(
     """
     # Check status code if response has status_code attribute
     if hasattr(response, "status_code"):
-        assert (
-            response.status_code == expected_status
-        ), f"Expected status {expected_status}, got {response.status_code}"
+        assert response.status_code == expected_status, (
+            f"Expected status {expected_status}, got {response.status_code}"
+        )
 
     # Parse JSON if response has json() method
     if hasattr(response, "json"):
@@ -310,9 +310,9 @@ def assert_performance_within_tolerance(
     min_time = expected_time * (1 - tolerance)
     max_time = expected_time * (1 + tolerance)
 
-    assert (
-        min_time <= actual_time <= max_time
-    ), f"Execution time {actual_time:.2f}s outside tolerance [{min_time:.2f}s, {max_time:.2f}s]"
+    assert min_time <= actual_time <= max_time, (
+        f"Execution time {actual_time:.2f}s outside tolerance [{min_time:.2f}s, {max_time:.2f}s]"
+    )
 
 
 def assert_dataframe_schema(df: pl.DataFrame, expected_schema: dict[str, pl.DataType]):
@@ -330,9 +330,9 @@ def assert_dataframe_schema(df: pl.DataFrame, expected_schema: dict[str, pl.Data
         assert col_name in df.columns, f"Missing expected column: {col_name}"
 
         actual_type = df[col_name].dtype
-        assert (
-            actual_type == expected_type
-        ), f"Column {col_name} expected type {expected_type}, got {actual_type}"
+        assert actual_type == expected_type, (
+            f"Column {col_name} expected type {expected_type}, got {actual_type}"
+        )
 
     # Check for unexpected columns
     unexpected_cols = set(df.columns) - set(expected_schema.keys())
@@ -359,9 +359,9 @@ def assert_no_data_leakage(
     train_max_date = train_data[date_column].max()
     test_min_date = test_data[date_column].min()
 
-    assert (
-        train_max_date < test_min_date
-    ), f"Data leakage detected: train max date {train_max_date} >= test min date {test_min_date}"
+    assert train_max_date < test_min_date, (
+        f"Data leakage detected: train max date {train_max_date} >= test min date {test_min_date}"
+    )
 
 
 class PerformanceAssertion:
@@ -385,9 +385,9 @@ class PerformanceAssertion:
         self.end_time = time.time()
         duration = self.end_time - self.start_time
 
-        assert (
-            duration <= self.max_duration
-        ), f"{self.operation_name} took {duration:.2f}s, expected <= {self.max_duration:.2f}s"
+        assert duration <= self.max_duration, (
+            f"{self.operation_name} took {duration:.2f}s, expected <= {self.max_duration:.2f}s"
+        )
 
 
 class MemoryAssertion:
@@ -412,6 +412,6 @@ class MemoryAssertion:
         current_memory = self.process.memory_info().rss / 1024 / 1024
         memory_increase = current_memory - self.initial_memory
 
-        assert (
-            memory_increase <= self.max_memory_mb
-        ), f"{self.operation_name} used {memory_increase:.2f}MB, expected <= {self.max_memory_mb:.2f}MB"
+        assert memory_increase <= self.max_memory_mb, (
+            f"{self.operation_name} used {memory_increase:.2f}MB, expected <= {self.max_memory_mb:.2f}MB"
+        )

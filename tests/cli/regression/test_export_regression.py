@@ -100,9 +100,9 @@ class TestExportDirectoryRegression:
         direct_csv_files = [
             f for f in wrong_path.glob("*.csv") if f.parent.name == "raw"
         ]  # Direct children of raw/
-        assert (
-            len(direct_csv_files) == 0
-        ), "No CSV files should be directly in data/raw/"
+        assert len(direct_csv_files) == 0, (
+            "No CSV files should be directly in data/raw/"
+        )
 
     def test_portfolios_filtered_exports_to_correct_directory(
         self,
@@ -254,9 +254,9 @@ class TestMetricTypeColumnRegression:
         assert success is True
 
         # CRITICAL: Verify Metric Type column is present
-        assert (
-            "Metric Type" in df.columns
-        ), "Metric Type column should be present in portfolios_filtered"
+        assert "Metric Type" in df.columns, (
+            "Metric Type column should be present in portfolios_filtered"
+        )
 
         # Verify it's the first column (filtered schema requirement)
         assert df.columns[0] == "Metric Type", "Metric Type should be the first column"
@@ -320,9 +320,9 @@ class TestMetricTypeColumnRegression:
         metric_types = df["Metric Type"].unique().to_list()
 
         # Should have at least 3 different metric types
-        assert (
-            len(metric_types) >= 3
-        ), f"Expected at least 3 metric types, got: {metric_types}"
+        assert len(metric_types) >= 3, (
+            f"Expected at least 3 metric types, got: {metric_types}"
+        )
 
         # Verify specific metric types are preserved
         assert "Most Total Return [%]" in metric_types
@@ -367,15 +367,15 @@ class TestMetricTypeColumnRegression:
         assert success is True
 
         # If dual normalization was occurring, the Metric Type column would be stripped
-        assert (
-            "Metric Type" in df.columns
-        ), "Metric Type column should survive normalization pipeline"
+        assert "Metric Type" in df.columns, (
+            "Metric Type column should survive normalization pipeline"
+        )
 
         # Verify the column has actual values, not just empty/null
         metric_type_values = df["Metric Type"].drop_nulls()
-        assert (
-            len(metric_type_values) > 0
-        ), "Metric Type column should have non-null values"
+        assert len(metric_type_values) > 0, (
+            "Metric Type column should have non-null values"
+        )
 
 
 class TestFilenameGenerationRegression:
@@ -681,9 +681,9 @@ class TestSortingConsistencyRegression:
         # Verify the order is specifically: MSFT (9.0), GOOGL (7.8), AAPL (6.5)
         tickers = df["Ticker"].to_list()
         expected_order = ["MSFT", "GOOGL", "AAPL"]  # Sorted by descending Score
-        assert (
-            tickers == expected_order
-        ), f"Expected ticker order {expected_order}, got {tickers}"
+        assert tickers == expected_order, (
+            f"Expected ticker order {expected_order}, got {tickers}"
+        )
 
     def test_sorting_configuration_applied_to_ma_strategies(
         self,
@@ -884,9 +884,9 @@ class TestCBREAggregationRegression:
         has_diverse_metrics = len(set(cbre_metric_types)) > 1
 
         # At least one of these should be true (aggregation worked or individual metrics preserved)
-        assert (
-            has_compound_metrics or has_diverse_metrics
-        ), f"CBRE metric types not properly handled: {cbre_metric_types}"
+        assert has_compound_metrics or has_diverse_metrics, (
+            f"CBRE metric types not properly handled: {cbre_metric_types}"
+        )
 
     def test_cbre_aggregation_numerical_consistency(
         self,

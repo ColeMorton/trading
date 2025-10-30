@@ -177,9 +177,9 @@ class TestStrategySweepCSVExportSeparation:
         for export_dir in self.export_dirs:
             for ticker in self.tickers:
                 macd_file = self.base_path / export_dir / f"{ticker}_D_MACD.csv"
-                assert (
-                    not macd_file.exists()
-                ), f"Unexpected MACD file created: {macd_file}"
+                assert not macd_file.exists(), (
+                    f"Unexpected MACD file created: {macd_file}"
+                )
 
     def test_macd_strategy_works_correctly_when_isolated(self):
         """
@@ -220,9 +220,9 @@ class TestStrategySweepCSVExportSeparation:
                     strategy_file = (
                         self.base_path / export_dir / f"{ticker}_D_{strategy}.csv"
                     )
-                    assert (
-                        not strategy_file.exists()
-                    ), f"Unexpected {strategy} file created: {strategy_file}"
+                    assert not strategy_file.exists(), (
+                        f"Unexpected {strategy} file created: {strategy_file}"
+                    )
 
     def test_file_naming_convention_correctness(self):
         """
@@ -261,13 +261,13 @@ class TestStrategySweepCSVExportSeparation:
             # Verify filename components
             name_parts = file_path.stem.split("_")
             assert len(name_parts) == 3, f"Invalid filename format: {file_path.name}"
-            assert (
-                name_parts[0] == "BTC-USD"
-            ), f"Wrong ticker in filename: {name_parts[0]}"
+            assert name_parts[0] == "BTC-USD", (
+                f"Wrong ticker in filename: {name_parts[0]}"
+            )
             assert name_parts[1] == "D", f"Wrong timeframe in filename: {name_parts[1]}"
-            assert (
-                name_parts[2] == "SMA"
-            ), f"Wrong strategy in filename: {name_parts[2]}"
+            assert name_parts[2] == "SMA", (
+                f"Wrong strategy in filename: {name_parts[2]}"
+            )
 
     def test_export_directory_structure_correctness(self):
         """
@@ -285,9 +285,9 @@ class TestStrategySweepCSVExportSeparation:
             ["strategy", "run", "--ticker", "SPY", "--strategy", "EMA", "--verbose"],
         )
 
-        assert (
-            result.exit_code == 0
-        ), f"Directory structure test failed: {result.output}"
+        assert result.exit_code == 0, (
+            f"Directory structure test failed: {result.output}"
+        )
 
         # Verify each export stage creates files in correct directories
         expected_dirs = {
@@ -299,9 +299,9 @@ class TestStrategySweepCSVExportSeparation:
         for export_dir, description in expected_dirs.items():
             file_path = self.base_path / export_dir / "SPY_D_EMA.csv"
             assert file_path.exists(), f"{description} file missing: {file_path}"
-            assert (
-                file_path.parent.name == export_dir
-            ), f"File in wrong directory: {file_path}"
+            assert file_path.parent.name == export_dir, (
+                f"File in wrong directory: {file_path}"
+            )
 
     def _verify_file_content_purity(
         self,
@@ -323,9 +323,9 @@ class TestStrategySweepCSVExportSeparation:
         # Basic validations
         assert not df.empty, f"Empty file: {file_path}"
         assert "Ticker" in df.columns, f"Missing Ticker column: {file_path}"
-        assert (
-            "Strategy Type" in df.columns
-        ), f"Missing Strategy Type column: {file_path}"
+        assert "Strategy Type" in df.columns, (
+            f"Missing Strategy Type column: {file_path}"
+        )
 
         # CORE REQUIREMENT: Purity validations (no mixing allowed)
         unique_tickers = df["Ticker"].unique()
@@ -333,18 +333,18 @@ class TestStrategySweepCSVExportSeparation:
             f"❌ MIXED TICKERS VIOLATION: Found {len(unique_tickers)} tickers {list(unique_tickers)} "
             f"in {file_path}. Expected only: {expected_ticker}"
         )
-        assert (
-            unique_tickers[0] == expected_ticker
-        ), f"❌ WRONG TICKER: Expected {expected_ticker}, got {unique_tickers[0]} in {file_path}"
+        assert unique_tickers[0] == expected_ticker, (
+            f"❌ WRONG TICKER: Expected {expected_ticker}, got {unique_tickers[0]} in {file_path}"
+        )
 
         unique_strategies = df["Strategy Type"].unique()
         assert len(unique_strategies) == 1, (
             f"❌ MIXED STRATEGIES VIOLATION: Found {len(unique_strategies)} strategies {list(unique_strategies)} "
             f"in {file_path}. Expected only: {expected_strategy}"
         )
-        assert (
-            unique_strategies[0] == expected_strategy
-        ), f"❌ WRONG STRATEGY: Expected {expected_strategy}, got {unique_strategies[0]} in {file_path}"
+        assert unique_strategies[0] == expected_strategy, (
+            f"❌ WRONG STRATEGY: Expected {expected_strategy}, got {unique_strategies[0]} in {file_path}"
+        )
 
         # Additional quality checks
         assert len(df) > 0, f"File contains no data rows: {file_path}"
@@ -352,9 +352,9 @@ class TestStrategySweepCSVExportSeparation:
         # Verify essential columns exist
         essential_columns = ["Total Return [%]", "Win Rate [%]", "Total Trades"]
         missing_columns = [col for col in essential_columns if col not in df.columns]
-        assert (
-            not missing_columns
-        ), f"Missing essential columns in {file_path}: {missing_columns}"
+        assert not missing_columns, (
+            f"Missing essential columns in {file_path}: {missing_columns}"
+        )
 
 
 class TestDispatcherIntegrationValidation:
@@ -484,15 +484,15 @@ class TestStrategyDispatcherBugDocumentation:
             )
 
         # Verify each strategy type has appropriate service
-        assert (
-            "SMA" in individual_services["SMA"]
-        ), "SMA should be supported by its service"
-        assert (
-            "EMA" in individual_services["EMA"]
-        ), "EMA should be supported by its service"
-        assert (
-            "MACD" in individual_services["MACD"]
-        ), "MACD should be supported by its service"
+        assert "SMA" in individual_services["SMA"], (
+            "SMA should be supported by its service"
+        )
+        assert "EMA" in individual_services["EMA"], (
+            "EMA should be supported by its service"
+        )
+        assert "MACD" in individual_services["MACD"], (
+            "MACD should be supported by its service"
+        )
 
         print("✅ DISPATCHER FIX VERIFIED:")
         print(f"  - Mixed strategy compatibility: {is_compatible}")
@@ -543,12 +543,12 @@ class TestStrategyDispatcherBugDocumentation:
         )
 
         # Verify execution path detection logic
-        assert (
-            len(single_config.strategy_types) == 1
-        ), "Single config should have 1 strategy"
-        assert (
-            len(mixed_config.strategy_types) == 3
-        ), "Mixed config should have 3 strategies"
+        assert len(single_config.strategy_types) == 1, (
+            "Single config should have 1 strategy"
+        )
+        assert len(mixed_config.strategy_types) == 3, (
+            "Mixed config should have 3 strategies"
+        )
 
         # Test that both configurations are considered valid
         single_compatible = dispatcher.validate_strategy_compatibility(

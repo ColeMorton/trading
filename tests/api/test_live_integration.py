@@ -24,9 +24,9 @@ class TestLiveAPI:
     def test_api_is_running(self):
         """Verify API is accessible."""
         response = requests.get(f"{BASE_URL}/health/")
-        assert (
-            response.status_code == 200
-        ), "API is not running on http://localhost:8000"
+        assert response.status_code == 200, (
+            "API is not running on http://localhost:8000"
+        )
         data = response.json()
         assert data["status"] in ["healthy", "degraded"]
         print(f"✓ API is running: {data['status']}")

@@ -702,9 +702,9 @@ class TestStrategyConfigModelDefaults:
         expected_strategies = {StrategyType.SMA, StrategyType.EMA, StrategyType.MACD}
         actual_strategies = set(config.strategy_types)
 
-        assert (
-            actual_strategies == expected_strategies
-        ), f"Default strategy types {actual_strategies} don't match expected {expected_strategies}"
+        assert actual_strategies == expected_strategies, (
+            f"Default strategy types {actual_strategies} don't match expected {expected_strategies}"
+        )
 
     def test_strategy_config_empty_strategy_types_validation(self):
         """Test validation behavior with empty strategy types list."""

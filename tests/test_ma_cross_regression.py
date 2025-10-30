@@ -424,9 +424,9 @@ class TestDataValidationRegression(TestMACrossRegression):
             if field in portfolio_data:
                 actual_value = portfolio_data[field]
                 if isinstance(actual_value, int | float):
-                    assert (
-                        min_val <= actual_value <= max_val
-                    ), f"Field '{field}' value {actual_value} out of range [{min_val}, {max_val}]"
+                    assert min_val <= actual_value <= max_val, (
+                        f"Field '{field}' value {actual_value} out of range [{min_val}, {max_val}]"
+                    )
 
     def test_config_validation_regression(self, baseline_config, mock_log):
         """Test that config validation catches known issues."""

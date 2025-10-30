@@ -113,9 +113,9 @@ class TestBatchSizeFixRegression:
         )
 
         # CRITICAL: Should return exactly batch_size tickers that need processing
-        assert (
-            len(result) == batch_size
-        ), f"Expected {batch_size} tickers, got {len(result)}"
+        assert len(result) == batch_size, (
+            f"Expected {batch_size} tickers, got {len(result)}"
+        )
 
         # Should exclude AAPL (skipped by resume check)
         assert "AAPL" not in result

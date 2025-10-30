@@ -137,9 +137,9 @@ class TestMACDMultiTicker:
                 found_portfolio = True
                 break
 
-        assert (
-            found_portfolio
-        ), f"Portfolio CSV not found for pattern: {portfolio_pattern}"
+        assert found_portfolio, (
+            f"Portfolio CSV not found for pattern: {portfolio_pattern}"
+        )
 
     def test_single_ticker_use_current_false(self):
         """Test single ticker with USE_CURRENT=False."""
@@ -174,9 +174,9 @@ class TestMACDMultiTicker:
                 found_portfolio = True
                 break
 
-        assert (
-            found_portfolio
-        ), f"Portfolio CSV not found for pattern: {portfolio_pattern}"
+        assert found_portfolio, (
+            f"Portfolio CSV not found for pattern: {portfolio_pattern}"
+        )
 
     def test_multi_ticker_use_current_true(self):
         """Test multiple tickers with USE_CURRENT=True."""

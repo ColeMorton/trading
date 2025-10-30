@@ -373,9 +373,9 @@ class TestExportedCSVSchemaValidation:
                     col_idx = columns.index(col)
                     next_col_idx = columns.index(next_col)
                     # Next column should appear after current column
-                    assert (
-                        next_col_idx > col_idx
-                    ), f"Column order violated in {export_type}: {col} -> {next_col}"
+                    assert next_col_idx > col_idx, (
+                        f"Column order violated in {export_type}: {col} -> {next_col}"
+                    )
 
     def test_csv_data_type_preservation(
         self,

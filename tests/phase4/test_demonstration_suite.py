@@ -189,9 +189,9 @@ class TestPerformanceDemonstration:
 
         # Validate performance
         assert len(processed) > 0
-        assert (
-            processing_time < 2.0
-        ), f"Data processing too slow: {processing_time:.2f}s"
+        assert processing_time < 2.0, (
+            f"Data processing too slow: {processing_time:.2f}s"
+        )
 
 
 @pytest.mark.error_handling
@@ -414,9 +414,9 @@ class TestAdvancedTestingPatterns:
 
             # Validate stress performance
             assert len(result) == 1000
-            assert (
-                processing_time < 10.0
-            ), f"Stress test too slow: {processing_time:.2f}s"
+            assert processing_time < 10.0, (
+                f"Stress test too slow: {processing_time:.2f}s"
+            )
 
 
 if __name__ == "__main__":

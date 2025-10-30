@@ -215,9 +215,9 @@ async def test_complete_webhook_flow():
         job_response = client.submit_sweep(receiver.webhook_url)
 
         assert "job_id" in job_response, "Job ID not in response"
-        assert (
-            job_response["status"] == "pending"
-        ), f"Expected pending status, got {job_response['status']}"
+        assert job_response["status"] == "pending", (
+            f"Expected pending status, got {job_response['status']}"
+        )
 
         job_id = job_response["job_id"]
         logger.info(f"✅ Job submitted successfully: {job_id}")

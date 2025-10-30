@@ -373,9 +373,9 @@ class TestSelectionAlgorithmSeedData:
         ]
 
         for expected_code in expected:
-            assert (
-                expected_code in codes
-            ), f"Expected algorithm '{expected_code}' not found"
+            assert expected_code in codes, (
+                f"Expected algorithm '{expected_code}' not found"
+            )
 
 
 class TestParameterConsistencyAlgorithm:

@@ -321,17 +321,17 @@ class ATRTestAssertions:
             assert field in portfolio, f"Missing required field: {field}"
 
         # ATR-specific validations
-        assert (
-            portfolio["Strategy Type"] == "ATR"
-        ), f"Expected ATR, got {portfolio['Strategy Type']}"
-        assert (
-            portfolio["Signal Period"] == 0
-        ), f"ATR Signal Period should be 0, got {portfolio['Signal Period']}"
+        assert portfolio["Strategy Type"] == "ATR", (
+            f"Expected ATR, got {portfolio['Strategy Type']}"
+        )
+        assert portfolio["Signal Period"] == 0, (
+            f"ATR Signal Period should be 0, got {portfolio['Signal Period']}"
+        )
 
         if ticker:
-            assert (
-                portfolio["Ticker"] == ticker
-            ), f"Expected ticker {ticker}, got {portfolio['Ticker']}"
+            assert portfolio["Ticker"] == ticker, (
+                f"Expected ticker {ticker}, got {portfolio['Ticker']}"
+            )
 
         # Numeric validations
         assert isinstance(
@@ -353,12 +353,12 @@ class ATRTestAssertions:
         assert isinstance(portfolio["Score"], int | float), "Score should be numeric"
 
         # Range validations
-        assert (
-            0 <= portfolio["Win Rate [%]"] <= 100
-        ), f"Invalid Win Rate: {portfolio['Win Rate [%]']}"
-        assert (
-            portfolio["Total Trades"] >= 0
-        ), f"Negative Total Trades: {portfolio['Total Trades']}"
+        assert 0 <= portfolio["Win Rate [%]"] <= 100, (
+            f"Invalid Win Rate: {portfolio['Win Rate [%]']}"
+        )
+        assert portfolio["Total Trades"] >= 0, (
+            f"Negative Total Trades: {portfolio['Total Trades']}"
+        )
 
     @staticmethod
     def assert_valid_signals_dataframe(signals_df: pd.DataFrame):
@@ -383,30 +383,30 @@ class ATRTestAssertions:
         # Trailing stop values should be positive
         stop_values = signals_df["ATR_Trailing_Stop"].dropna()
         if len(stop_values) > 0:
-            assert (
-                stop_values > 0
-            ).all(), "ATR Trailing Stop values should be positive"
+            assert (stop_values > 0).all(), (
+                "ATR Trailing Stop values should be positive"
+            )
 
     @staticmethod
     def assert_no_regression_bugs(portfolio: dict[str, Any], ticker: str):
         """Assert that common regression bugs are not present."""
         # Bug 1: Ticker corruption (shows as "UNKNOWN")
-        assert (
-            portfolio["Ticker"] != "UNKNOWN"
-        ), "REGRESSION: Ticker corruption detected"
-        assert (
-            portfolio["Ticker"] == ticker
-        ), f"REGRESSION: Ticker mismatch {portfolio['Ticker']} != {ticker}"
+        assert portfolio["Ticker"] != "UNKNOWN", (
+            "REGRESSION: Ticker corruption detected"
+        )
+        assert portfolio["Ticker"] == ticker, (
+            f"REGRESSION: Ticker mismatch {portfolio['Ticker']} != {ticker}"
+        )
 
         # Bug 2: Strategy type corruption (shows as "SMA")
-        assert (
-            portfolio["Strategy Type"] == "ATR"
-        ), f"REGRESSION: Wrong strategy type {portfolio['Strategy Type']}"
+        assert portfolio["Strategy Type"] == "ATR", (
+            f"REGRESSION: Wrong strategy type {portfolio['Strategy Type']}"
+        )
 
         # Bug 3: Hardcoded period values (20, 50)
-        assert (
-            portfolio["Fast Period"] != 20 or portfolio["Slow Period"] != 50
-        ), "REGRESSION: Hardcoded period values detected"
+        assert portfolio["Fast Period"] != 20 or portfolio["Slow Period"] != 50, (
+            "REGRESSION: Hardcoded period values detected"
+        )
 
         # Bug 4: Score always zero
         if portfolio["Total Trades"] > 0:
@@ -432,13 +432,13 @@ class ATRTestAssertions:
         time_per_row = execution_time / dataset_size
         memory_per_row = memory_usage / dataset_size
 
-        assert (
-            time_per_row <= max_time_per_row
-        ), f"Performance regression: {time_per_row:.6f}s/row > {max_time_per_row}s/row"
+        assert time_per_row <= max_time_per_row, (
+            f"Performance regression: {time_per_row:.6f}s/row > {max_time_per_row}s/row"
+        )
 
-        assert (
-            memory_per_row <= max_memory_per_row
-        ), f"Memory regression: {memory_per_row:.3f}MB/row > {max_memory_per_row}MB/row"
+        assert memory_per_row <= max_memory_per_row, (
+            f"Memory regression: {memory_per_row:.3f}MB/row > {max_memory_per_row}MB/row"
+        )
 
 
 class ATRTestMocks:

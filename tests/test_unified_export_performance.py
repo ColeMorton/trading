@@ -293,9 +293,9 @@ class TestUnifiedExportPerformance:
             logger.info(f"  Improvement: {improvement:.1f}%")
 
             # Unified system should be faster
-            assert (
-                unified_time <= legacy_time
-            ), f"Unified system should be faster (unified: {unified_time:.4f}s, legacy: {legacy_time:.4f}s)"
+            assert unified_time <= legacy_time, (
+                f"Unified system should be faster (unified: {unified_time:.4f}s, legacy: {legacy_time:.4f}s)"
+            )
 
         except ImportError:
             # Legacy function not available - skip comparison

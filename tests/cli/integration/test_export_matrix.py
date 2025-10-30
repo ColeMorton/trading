@@ -982,6 +982,6 @@ class TestExportSchemaConsistency:
 
             # All export types should have the same data type for common columns
             unique_dtypes = set(dtypes.values())
-            assert (
-                len(unique_dtypes) == 1
-            ), f"Column {col} has inconsistent data types: {dtypes}"
+            assert len(unique_dtypes) == 1, (
+                f"Column {col} has inconsistent data types: {dtypes}"
+            )

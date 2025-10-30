@@ -230,9 +230,9 @@ class TestMACrossPortfolioComprehensive:
             # Check that we have files for all tickers and strategies
             for expected_file in expected_files:
                 matching_files = [f for f in actual_files if expected_file in f]
-                assert (
-                    len(matching_files) > 0
-                ), f"Expected portfolio file {expected_file} not found"
+                assert len(matching_files) > 0, (
+                    f"Expected portfolio file {expected_file} not found"
+                )
 
     def test_best_portfolio_aggregation(
         self,
@@ -253,9 +253,9 @@ class TestMACrossPortfolioComprehensive:
             best_dir = temp_dirs["base"] / "csv" / "portfolios_best"
             best_files = list(best_dir.glob("*.csv"))
 
-            assert (
-                len(best_files) > 0
-            ), "At least one best portfolio file should be created"
+            assert len(best_files) > 0, (
+                "At least one best portfolio file should be created"
+            )
 
             # Verify best portfolio has expected structure
             best_file = best_files[0]
@@ -270,15 +270,15 @@ class TestMACrossPortfolioComprehensive:
                 "Allocation [%]",
             ]
             for col in required_cols:
-                assert (
-                    col in df.columns
-                ), f"Required column {col} missing from best portfolio"
+                assert col in df.columns, (
+                    f"Required column {col} missing from best portfolio"
+                )
 
             # Verify we have results from multiple tickers
             unique_tickers = df["Ticker"].unique().to_list()
-            assert (
-                len(unique_tickers) > 1
-            ), "Best portfolio should include multiple tickers"
+            assert len(unique_tickers) > 1, (
+                "Best portfolio should include multiple tickers"
+            )
 
     @pytest.mark.performance
     def test_execution_performance(
@@ -301,9 +301,9 @@ class TestMACrossPortfolioComprehensive:
             execution_time = time.time() - start_time
 
             assert success, "Performance test should complete successfully"
-            assert (
-                execution_time < 120
-            ), f"Execution should complete within 120s, took {execution_time:.2f}s"
+            assert execution_time < 120, (
+                f"Execution should complete within 120s, took {execution_time:.2f}s"
+            )
 
     def test_configuration_validation(self, temp_dirs, mock_log):
         """Test that invalid configurations are properly handled."""
@@ -358,9 +358,9 @@ class TestMACrossPortfolioComprehensive:
             for file_path in portfolio_files[:3]:  # Check first few files
                 df = pl.read_csv(file_path)
                 # With WINDOWS=21, we expect 190 combinations (21*20/2)
-                assert (
-                    len(df) > 50
-                ), f"Portfolio file {file_path.name} should have substantial results"
+                assert len(df) > 50, (
+                    f"Portfolio file {file_path.name} should have substantial results"
+                )
 
     def test_no_minimums_behavior(
         self,
@@ -384,16 +384,16 @@ class TestMACrossPortfolioComprehensive:
             filtered_dir = temp_dirs["base"] / "csv" / "portfolios_filtered"
             filtered_files = list(filtered_dir.rglob("*.csv"))
 
-            assert (
-                len(filtered_files) > 0
-            ), "Filtered portfolio files should be generated"
+            assert len(filtered_files) > 0, (
+                "Filtered portfolio files should be generated"
+            )
 
             # Check that filtered files contain substantial results (not heavily filtered)
             for file_path in filtered_files[:3]:  # Check first few files
                 df = pl.read_csv(file_path)
-                assert (
-                    len(df) > 10
-                ), f"Filtered file {file_path.name} should contain results without strict filtering"
+                assert len(df) > 10, (
+                    f"Filtered file {file_path.name} should contain results without strict filtering"
+                )
 
     @pytest.mark.error_handling
     def test_error_handling_network_failure(

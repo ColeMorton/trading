@@ -990,21 +990,21 @@ RISK_METRICS = [
 ]
 
 # Verify our constants match the schemas (updated for universal exit parameters)
-assert (
-    BASE_COLUMN_COUNT == 60
-), f"Base column count mismatch: expected 60, got {BASE_COLUMN_COUNT}"
+assert BASE_COLUMN_COUNT == 60, (
+    f"Base column count mismatch: expected 60, got {BASE_COLUMN_COUNT}"
+)
 
-assert (
-    EXTENDED_COLUMN_COUNT == 64
-), f"Extended column count mismatch: expected 64, got {EXTENDED_COLUMN_COUNT}"
+assert EXTENDED_COLUMN_COUNT == 64, (
+    f"Extended column count mismatch: expected 64, got {EXTENDED_COLUMN_COUNT}"
+)
 
-assert (
-    FILTERED_COLUMN_COUNT == 65
-), f"Filtered column count mismatch: expected 65, got {FILTERED_COLUMN_COUNT}"
+assert FILTERED_COLUMN_COUNT == 65, (
+    f"Filtered column count mismatch: expected 65, got {FILTERED_COLUMN_COUNT}"
+)
 
-assert all(
-    risk_metric in CANONICAL_COLUMN_NAMES for risk_metric in RISK_METRICS
-), "Risk metrics must be subset of canonical columns"
+assert all(risk_metric in CANONICAL_COLUMN_NAMES for risk_metric in RISK_METRICS), (
+    "Risk metrics must be subset of canonical columns"
+)
 
 
 class PortfolioSchemaValidationError(Exception):

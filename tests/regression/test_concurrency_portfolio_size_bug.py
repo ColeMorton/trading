@@ -260,9 +260,9 @@ class TestPortfolioSizeBugRegression:
                 with open(temp_file) as f:
                     data = json.load(f)
                     expected_size = sizes_to_test[i]
-                    assert (
-                        len(data) == expected_size
-                    ), f"File should contain {expected_size} strategies, got {len(data)}"
+                    assert len(data) == expected_size, (
+                        f"File should contain {expected_size} strategies, got {len(data)}"
+                    )
 
             # Cleanup
             for temp_file in temp_files_to_cleanup:
@@ -480,9 +480,9 @@ class TestStratifiedPortfolioSelection:
 
         # Minority type (EMA) should have at least 30% = 1.5 → 2 strategies minimum
         # Note: With only 2 EMA available, we can get at most 2
-        assert (
-            type_counts.get("EMA", 0) >= 1
-        ), "Minority type should have at least 1 strategy"
+        assert type_counts.get("EMA", 0) >= 1, (
+            "Minority type should have at least 1 strategy"
+        )
         # At 30% of 5 = 1.5, rounded to max(1, int(1.5)) = 1
         # So we expect at least 1 EMA
         assert len(selected) == 5
@@ -656,9 +656,9 @@ class TestStratifiedPortfolioSelection:
             type_counts[s["strategy_type"]] = type_counts.get(s["strategy_type"], 0) + 1
 
         # CRITICAL: Should have representation from all 3 types
-        assert (
-            len(type_counts) == 3
-        ), f"Should have 3 types, got {len(type_counts)}: {type_counts}"
+        assert len(type_counts) == 3, (
+            f"Should have 3 types, got {len(type_counts)}: {type_counts}"
+        )
 
         # MACD should NOT dominate (old bug: 5/5 would be MACD)
         assert type_counts["MACD"] < 5, f"MACD should not dominate: {type_counts}"
@@ -867,9 +867,9 @@ class TestStratifiedPortfolioSelection:
 
         # CRITICAL ASSERTIONS for MSTR fix
         assert len(type_counts_5) == 3, "Should have all 3 strategy types"
-        assert (
-            type_counts_5["MACD"] <= 3
-        ), f"MACD should not dominate (≤60%), got {type_counts_5}"
+        assert type_counts_5["MACD"] <= 3, (
+            f"MACD should not dominate (≤60%), got {type_counts_5}"
+        )
         assert type_counts_5["SMA"] >= 1, "SMA should be represented"
         assert type_counts_5["EMA"] >= 1, "EMA should be represented"
 
