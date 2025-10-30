@@ -67,14 +67,20 @@ repos:
   #       files: ^app/
   #       exclude: ^(tests/|scripts/|experimental/)
 
-  # bandit - Security linting (re-enabled after security fixes)
+  # bandit - Security linting (CRITICAL - DO NOT BYPASS)
+  # This hook prevents security vulnerabilities from being committed
+  # Never use --no-verify to bypass security checks
   - repo: https://github.com/pycqa/bandit
     rev: 1.8.6
     hooks:
       - id: bandit
-        args: ['-ll', '--exclude', 'app/trading_bot/trendspider/']
+        name: 🔒 Security Scan (Bandit)
+        args:
+          ['-ll', '--exclude', 'app/trading_bot/trendspider/', '-f', 'screen']
         files: ^app/
         exclude: ^(tests/|scripts/|experimental/)
+        stages: [commit, push] # Run on both commit and push
+        fail_fast: true # Stop immediately on security issues
 
   # vulture - Dead code detection (temporarily disabled)
   # - repo: https://github.com/jendrikseipp/vulture
@@ -122,4 +128,9 @@ repos:
 
 # Configuration for specific stages
 default_stages: [pre-commit]
+# fail_fast disabled globally to see all issues, but security hooks override this
 fail_fast: false
+# Security reminder
+# ⚠️  NEVER use 'git commit --no-verify' to bypass these checks
+# ⚠️  Security vulnerabilities MUST be fixed before committing
+# ⚠️  CI will reject commits that fail security scans

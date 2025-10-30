@@ -1,5 +1,12 @@
 # Trading Strategy Analysis Platform
 
+[![CI/CD Pipeline](https://github.com/ColeMorton/trading/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/ColeMorton/trading/actions/workflows/ci-cd.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Pre-commit](https://github.com/ColeMorton/trading/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/ColeMorton/trading/actions/workflows/pre-commit.yml)
+[![Security Scanning](https://github.com/ColeMorton/trading/actions/workflows/security.yml/badge.svg)](https://github.com/ColeMorton/trading/actions/workflows/security.yml)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
+
 A comprehensive platform for trading strategy analysis, backtesting, and portfolio optimization with both CLI and REST API interfaces.
 
 ## Features
@@ -106,6 +113,13 @@ curl -X POST http://localhost:8000/api/v1/strategy/run \
 ```
 
 ## Key Technologies
+
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Poetry](https://img.shields.io/badge/Poetry-60A5FA?logo=poetry&logoColor=white)](https://python-poetry.org/)
 
 - **Python 3.11+** - Core language
 - **Poetry** - Dependency management
