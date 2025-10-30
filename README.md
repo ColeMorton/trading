@@ -77,8 +77,7 @@ trading/
 make help              # Show all commands
 make install           # Install dependencies
 make test              # Run test suite
-make format-python     # Format code
-make quality-analyze   # Check code quality
+make lint-all          # Run all linters and formatters
 make docker-up         # Start Docker services
 make dev-local         # Start API locally
 ```
@@ -108,7 +107,7 @@ curl -X POST http://localhost:8000/api/v1/strategy/run \
 
 ## Key Technologies
 
-- **Python 3.10+** - Core language
+- **Python 3.11+** - Core language
 - **Poetry** - Dependency management
 - **FastAPI** - REST API framework
 - **ARQ** - Async job queue
@@ -134,18 +133,17 @@ make pre-commit-install
 # Run tests
 make test
 
-# Format code
-make format-python
+# Format and lint code
+make lint-all
 ```
 
 ## Code Quality
 
 This project maintains high code quality standards:
 
-- **Black** - Code formatting
-- **isort** - Import sorting
-- **Ruff** - Fast, modern linting
+- **Ruff** - Fast, modern linting and formatting (replaces Black, isort, Flake8)
 - **mypy** - Static type checking
+- **Bandit** - Security scanning
 - **Pre-commit hooks** - Automated checks
 
 See [Code Quality Guide](docs/development/CODE_QUALITY.md) for details.
@@ -170,7 +168,7 @@ make test-full
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run `make format-python` and `make test`
+4. Run `make lint-all` and `make test`
 5. Submit a pull request
 
 See [Development Guide](docs/development/DEVELOPMENT_GUIDE.md) for detailed contribution guidelines.
