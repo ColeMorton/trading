@@ -29,6 +29,7 @@ Complete navigation guide for the trading strategy analysis platform.
 
 - [Quick Start](docs/getting-started/QUICK_START.md) - 5-minute setup (CLI or API)
 - [Docker Setup](docs/getting-started/DOCKER_SETUP.md) - Docker Compose guide
+- [Setup Summary](docs/getting-started/setup_summary.txt) - Installation notes
 
 ### API Documentation
 
@@ -47,6 +48,9 @@ Complete navigation guide for the trading strategy analysis platform.
 - [Code Quality Improvement](docs/development/CODE_QUALITY_IMPROVEMENT.md) - Gradual improvement
 - [SSH Guide](docs/development/SSH_GUIDE.md) - Remote development
 - [AI Assistant Guide](docs/development/AI_ASSISTANT_GUIDE.md) - Using Claude/AI
+- [Workflow Testing](docs/development/WORKFLOW_TESTING.md) - CI/CD workflows
+- [Next Steps](docs/development/next_steps.md) - Upcoming improvements
+- [Workflows Guide](docs/development/workflows.md) - GitHub Actions reference
 
 ### Database
 
@@ -86,12 +90,14 @@ Complete navigation guide for the trading strategy analysis platform.
 - [Concurrency Reference](docs/reference/concurrency/README.md) - Concurrency analysis
 - [Strategies Reference](docs/reference/strategies/README.md) - Strategy implementations
 - [Data Organization](docs/reference/DATA_ORGANIZATION.md) - Data directory structure
+- [Data Refresh](docs/reference/data_refresh.md) - Data refresh procedures
 - [TradingView Integration](docs/reference/TRADINGVIEW_INTEGRATION.md) - TradingView setup
 
 ### Performance
 
 - [Performance Optimization](docs/PERFORMANCE_OPTIMIZATION_GUIDE.md) - System optimization
 - [Memory Optimization](docs/memory_optimization_examples.md) - Memory techniques
+- [Optimization Summary](docs/performance/optimization_summary.md) - Historical optimizations
 
 ### Troubleshooting
 
@@ -141,7 +147,7 @@ Complete navigation guide for the trading strategy analysis platform.
 - ✅ 42+ tests with comprehensive coverage
 - ✅ 2,000+ lines of documentation
 
-See [CHANGELOG.md](./CHANGELOG.md) for complete history.
+See [CHANGELOG.md](docs/CHANGELOG.md) for complete history.
 
 ---
 
