@@ -391,7 +391,7 @@ def pinescript(
             # Usage instructions
             if not dry_run:
                 usage_panel = Panel(
-                    "[bold]Next Steps:[/bold]\n"
+                    "[bold]Next Steps:[/bold]\n"  # nosec B608
                     "1. Open TradingView Pine Editor\n"
                     f"2. Copy contents of: [cyan]{output_path}[/cyan]\n"
                     "3. Paste into Pine Editor and click 'Add to Chart'\n"

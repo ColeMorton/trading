@@ -13,6 +13,7 @@ and USE_CURRENT flag functionality:
 Focus: Multi-ticker behavior and current signal detection logic
 """
 
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -42,6 +43,9 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
             "DECLINING_STOCK": self._create_decline_pattern(),  # Downtrend pattern
         }
 
+        # Create temporary directory for test outputs
+        self.temp_dir = tempfile.mkdtemp(prefix="atr_multi_test_")
+
         self.multi_ticker_config = {
             "TICKER": [
                 "TECH_GROWTH",
@@ -55,7 +59,7 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
             "ATR_MULTIPLIER_MAX": 3.0,  # 3 multipliers: 2.0, 2.5, 3.0
             "ATR_MULTIPLIER_STEP": 0.5,
             "USE_CURRENT": False,
-            "BASE_DIR": "/tmp/atr_multi_test",
+            "BASE_DIR": self.temp_dir,
             "DIRECTION": "Long",
             "MINIMUMS": {
                 "WIN_RATE": 0.30,  # Lenient for testing
@@ -71,6 +75,13 @@ class TestMultiTickerATRAnalysis(unittest.TestCase):
         self.test_log = lambda msg, level="info": self.log_messages.append(
             f"{level}: {msg}",
         )
+
+    def tearDown(self):
+        """Clean up temporary directory after tests."""
+        import shutil
+
+        if hasattr(self, "temp_dir"):
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def _create_growth_pattern(self):
         """Create high-growth, high-volatility pattern (e.g., tech stock)."""

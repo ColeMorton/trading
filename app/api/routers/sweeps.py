@@ -284,6 +284,7 @@ async def get_sweep_results(
         )
 
     # Get total count
+    # Note: String concatenation is safe here as it's adding a static clause, not user input
     count_query = text(
         """
         SELECT COUNT(*)
@@ -291,7 +292,7 @@ async def get_sweep_results(
         JOIN tickers t ON sr.ticker_id = t.id
         WHERE sr.sweep_run_id::text LIKE :sweep_run_id || '%'
         """
-        + (" AND t.ticker = :ticker" if ticker else ""),
+        + (" AND t.ticker = :ticker" if ticker else ""),  # nosec B608
     )
 
     count_result = await db.execute(

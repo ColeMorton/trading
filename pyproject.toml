@@ -55,6 +55,10 @@ types-requests = "^2.32.0.20250602"
 pytest-mock = "^3.14.1"
 pytest-timeout = "^2.4.0"
 pytest-xdist = "^3.7.0"
+pydeps = "^3.0.1"
+radon = "^6.0.1"
+import-linter = "^2.5.2"
+vulture = "^2.14"
 
 [build-system]
 requires = ["poetry-core"]

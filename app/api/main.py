@@ -272,11 +272,13 @@ async def root():
 
 
 if __name__ == "__main__":
+    import os
+
     import uvicorn
 
     uvicorn.run(
         "app.api.main:app",
-        host="0.0.0.0",
+        host=os.getenv("API_HOST", "0.0.0.0"),  # nosec B104
         port=8000,
         reload=settings.DEBUG,
         log_level=settings.LOG_LEVEL.lower(),

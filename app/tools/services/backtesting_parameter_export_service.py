@@ -1931,7 +1931,7 @@ def create_strategy(strategy_key):
         metadata: dict[str, Any],
     ) -> str:
         """Generate Zipline algorithm template"""
-
+        # nosec B608 - This generates Python code templates, not SQL
         return f'''"""
 Zipline Algorithm Template
 Generated from Statistical Performance Divergence System
@@ -2046,7 +2046,7 @@ def reset_position_tracking(context):
     context.entry_date = None
     context.highest_price = None
     context.days_held = 0
-'''
+'''  # nosec B608 - This generates Python code templates, not SQL
 
     async def _generate_parameter_validation_report(
         self,

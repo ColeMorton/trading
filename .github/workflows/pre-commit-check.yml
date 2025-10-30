@@ -1,0 +1,99 @@
+name: Pre-Commit Security Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# This workflow runs the same pre-commit hooks that developers run locally
+# It ensures that even if someone bypasses local hooks, CI will catch the issues
+
+jobs:
+  pre-commit:
+    name: 🔒 Pre-Commit Hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: pre-commit-${{ runner.os }}-python-3.11-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-python-3.11-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --only dev
+
+      - name: Install pre-commit
+        run: poetry run pre-commit install --install-hooks
+
+      - name: Run pre-commit hooks on all files
+        run: poetry run pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: '' # Don't skip any hooks
+
+      - name: 🔒 Run Bandit Security Scan (Explicit)
+        # Run Bandit explicitly to ensure it's not skipped
+        # This is a critical security check that must always run
+        run: poetry run bandit -r app/ -ll --exclude app/trading_bot/trendspider/ -f json -o bandit-results.json || poetry run bandit -r app/ -ll --exclude app/trading_bot/trendspider/
+        continue-on-error: false # Always fail on security issues
+
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-security-results
+          path: bandit-results.json
+          retention-days: 90
+
+      - name: Generate security report
+        if: failure()
+        run: |
+          echo "## 🔒 Security Check Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Pre-commit security hooks found issues that must be fixed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Common Fixes" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Security Issues (Bandit)**: Fix the vulnerability or add \`# nosec\` with justification" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Formatting Issues (Ruff)**: Run \`poetry run ruff format .\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Linting Issues (Ruff)**: Run \`poetry run ruff check --fix .\`" >> $GITHUB_STEP_SUMMARY
+          echo "4. **Type Issues (MyPy)**: Add type annotations or fix type errors" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### How to Fix Locally" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Run all pre-commit hooks" >> $GITHUB_STEP_SUMMARY
+          echo "poetry run pre-commit run --all-files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Or run our verification script" >> $GITHUB_STEP_SUMMARY
+          echo "./scripts/verify-commit.sh" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Success summary
+        if: success()
+        run: |
+          echo "## ✅ All Pre-Commit Checks Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All code quality and security checks have passed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code formatting (Ruff)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code linting (Ruff)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Type checking (MyPy)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security scanning (Bandit)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend linting (ESLint)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend formatting (Prettier)" >> $GITHUB_STEP_SUMMARY

@@ -1,7 +1,7 @@
 # Trading Application Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-ruff lint-mypy lint-pylint lint-bandit lint-vulture format-ruff lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs setup-db migrate backup restore frontend-install frontend-dev frontend-build frontend-codegen frontend-test test-fullstack dev-fullstack lint-help lint-ruff lint-mypy lint-pylint lint-bandit lint-vulture format-ruff lint-python format-python security-scan find-dead-code lint-all pre-commit-install pre-commit-run pre-commit-update verify-commit verify-commit-quick verify-commit-security git-configure git-unconfigure workflow-help workflow-install workflow-list workflow-test workflow-ci workflow-full
 
 # Default target
 help:
@@ -429,9 +429,14 @@ lint-help:
 	@echo "  find-dead-code - Find unused code with vulture"
 	@echo "  lint-all       - Run all linters and formatters"
 	@echo ""
-	@echo "Pre-commit Hooks:"
-	@echo "  pre-commit-install - Install pre-commit hooks"
-	@echo "  pre-commit-run     - Run pre-commit hooks manually"
+	@echo "Pre-commit & Security:"
+	@echo "  pre-commit-install     - Install pre-commit hooks (commit + push)"
+	@echo "  pre-commit-run         - Run pre-commit hooks manually"
+	@echo "  pre-commit-update      - Update hooks to latest versions"
+	@echo "  verify-commit          - Comprehensive commit verification"
+	@echo "  verify-commit-quick    - Quick verification (critical checks only)"
+	@echo "  verify-commit-security - Security checks only"
+	@echo "  git-configure          - Configure git (commit template, hooks)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make lint-python       # Check all code quality issues"
@@ -512,12 +517,54 @@ lint-all:
 pre-commit-install:
 	@echo "Installing pre-commit hooks..."
 	poetry run pre-commit install
-	@echo "✅ Pre-commit hooks installed"
+	poetry run pre-commit install --hook-type pre-push
+	@echo "✅ Pre-commit hooks installed for commit and push"
+	@echo ""
+	@echo "📋 Next steps:"
+	@echo "  1. Configure git commit template: make git-configure"
+	@echo "  2. Read security policy: cat SECURITY.md"
+	@echo "  3. Test hooks: make pre-commit-run"
 
 pre-commit-run:
 	@echo "Running pre-commit hooks on all files..."
 	poetry run pre-commit run --all-files
 	@echo "✅ Pre-commit hooks complete"
+
+pre-commit-update:
+	@echo "Updating pre-commit hooks to latest versions..."
+	poetry run pre-commit autoupdate
+	@echo "✅ Pre-commit hooks updated"
+
+# Verification commands
+verify-commit:
+	@echo "Running comprehensive commit verification..."
+	@./scripts/verify-commit.sh
+
+verify-commit-quick:
+	@echo "Running quick verification checks..."
+	@./scripts/verify-commit.sh --quick
+
+verify-commit-security:
+	@echo "Running security-only checks..."
+	@./scripts/verify-commit.sh --security-only
+
+# Git configuration
+git-configure:
+	@echo "Configuring git settings for this repository..."
+	git config commit.template .gitmessage
+	git config core.hooksPath .git/hooks
+	@echo "✅ Git configured successfully"
+	@echo ""
+	@echo "Configured settings:"
+	@echo "  - Commit template: .gitmessage"
+	@echo "  - Hooks path: .git/hooks"
+	@echo ""
+	@echo "Try 'git commit' to see the new commit template!"
+
+git-unconfigure:
+	@echo "Removing git configuration..."
+	git config --unset commit.template || true
+	@echo "✅ Git configuration removed"
 
 # Code quality improvement (gradual fix)
 quality-analyze:

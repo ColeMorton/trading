@@ -1,0 +1,1976 @@
+app/utils.py
+    F 18:0 calculate_metrics - C (15)
+    F 164:0 get_filename - C (11)
+app/ui/console_display.py
+    M 134:4 ConsoleDisplay.data_summary_table - B (8)
+app/ui/progress_tracking.py
+    M 91:4 ProgressTracker.parameter_progress_context - B (7)
+app/database/backup_simple.py
+    F 270:4 main - B (8)
+    M 134:4 SimpleBackupManager._backup_redis - B (8)
+app/database/backup.py
+    F 460:4 main - C (12)
+    M 320:4 BackupManager._restore_redis - B (10)
+    M 122:4 BackupManager._backup_redis - B (8)
+    M 218:4 BackupManager.restore_backup - B (8)
+app/database/models.py
+    M 476:4 SweepBestSelection.to_dict - B (7)
+app/database/strategy_sweep_repository.py
+    M 466:4 StrategySweepRepository.save_sweep_results_with_metrics - D (26)
+    M 174:4 StrategySweepRepository.save_sweep_results - D (24)
+    M 770:4 StrategySweepRepository.compute_and_save_best_selections - B (10)
+    C 19:0 StrategySweepRepository - B (7)
+    M 53:4 StrategySweepRepository._convert_value - B (6)
+    M 392:4 StrategySweepRepository._parse_metric_type_string - B (6)
+app/tools/config_validation.py
+    F 23:0 validate_equity_data_config - B (9)
+    F 185:0 log_configuration_validation - B (7)
+app/tools/equity_data_extractor.py
+    M 389:4 EquityDataExtractor._calculate_mfe_mae_metrics - C (16)
+    F 528:0 validate_equity_data - B (10)
+    M 246:4 EquityDataExtractor._extract_timestamp_index - B (7)
+    C 95:0 EquityDataExtractor - B (6)
+    M 187:4 EquityDataExtractor._extract_base_equity_curve - B (6)
+    M 279:4 EquityDataExtractor._apply_metric_selection - B (6)
+app/tools/console_logging.py
+    M 955:4 PerformanceAwareConsoleLogger._display_optimization_recommendations - D (27)
+    M 604:4 PerformanceAwareConsoleLogger._detect_bottlenecks - D (23)
+    M 772:4 PerformanceAwareConsoleLogger._display_phase_performance - C (13)
+    M 895:4 PerformanceAwareConsoleLogger._display_bottleneck_analysis - C (13)
+    M 505:4 PerformanceAwareConsoleLogger.start_phase - C (12)
+    M 1402:4 LiveResourceDashboard._update_dashboard - C (12)
+    M 828:4 PerformanceAwareConsoleLogger._display_execution_summary - B (10)
+    M 173:4 ConsoleLogger.data_summary_table - B (8)
+    C 414:0 PerformanceAwareConsoleLogger - B (8)
+    M 1192:4 PerformanceAwareConsoleLogger.parameter_progress_context - B (8)
+    M 1317:4 PerformanceAwareConsoleLogger.heading - B (8)
+    M 720:4 PerformanceAwareConsoleLogger._track_bottleneck_patterns - B (7)
+    M 488:4 PerformanceAwareConsoleLogger.start_execution_monitoring - B (6)
+    M 561:4 PerformanceAwareConsoleLogger.end_phase - B (6)
+    M 755:4 PerformanceAwareConsoleLogger.complete_execution_monitoring - B (6)
+    M 1280:4 PerformanceAwareConsoleLogger.info - B (6)
+    C 1346:0 LiveResourceDashboard - B (6)
+app/tools/test_statistical_analysis.py
+    F 100:0 main - B (7)
+app/tools/structured_logging.py
+    M 346:4 StructuredLogger.log_method_call - B (7)
+    M 57:4 StructuredLogger.__init__ - B (6)
+    M 251:4 StructuredLogger.error - B (6)
+    M 276:4 StructuredLogger.critical - B (6)
+    M 301:4 StructuredLogger.log - B (6)
+app/tools/enhanced_risk_assessment.py
+    M 198:4 MarketBetaCalculator.calculate_beta - B (9)
+    M 318:4 VolatilityRegimeDetector.detect_regime - B (7)
+app/tools/trade_history_utils.py
+    F 486:0 main - F (81)
+    F 41:0 validate_position_data - C (18)
+    F 93:0 normalize_position_data - C (12)
+    F 152:0 get_portfolio_summary - C (12)
+    F 290:0 bulk_update_trade_quality - B (8)
+    F 223:0 compare_portfolios - B (7)
+    F 460:0 get_position_by_uuid - B (6)
+app/tools/calculate_ma_signals.py
+    F 4:0 calculate_ma_signals - B (8)
+app/tools/portfolio_transformation.py
+    F 62:0 reorder_columns - B (6)
+app/tools/position_calculator.py
+    M 401:4 PositionCalculator.comprehensive_position_refresh - D (24)
+    M 226:4 PositionCalculator.validate_calculation_consistency - C (15)
+    M 156:4 PositionCalculator.assess_trade_quality - C (13)
+    C 25:0 PositionCalculator - B (9)
+    M 357:4 PositionCalculator.apply_standard_rounding - B (7)
+    M 204:4 PositionCalculator.calculate_mfe_mae_ratio - B (6)
+app/tools/spds_config.py
+    F 314:0 validate_config - B (10)
+    M 130:4 SPDSConfigManager._apply_environment_overrides - B (8)
+    M 101:4 SPDSConfigManager.create_config_with_overrides - B (6)
+app/tools/business_config_loader.py
+    M 191:4 BusinessConfigLoader._process_composition - B (8)
+    M 57:4 BusinessConfigLoader.load_config - B (6)
+    M 151:4 BusinessConfigLoader._load_parent_config - B (6)
+app/tools/ma_period_analytics.py
+    M 224:4 MAPeriodAnalytics._calculate_rolling_metrics - C (11)
+    M 444:4 MAPeriodAnalytics._find_best_worst_periods - C (11)
+    M 307:4 MAPeriodAnalytics._analyze_seasonality_patterns - B (7)
+    M 508:4 MAPeriodAnalytics._analyze_calendar_patterns - B (6)
+app/tools/equity_export.py
+    F 350:0 validate_equity_export_requirements - C (15)
+    F 243:0 export_equity_data_batch - C (12)
+    F 434:0 cleanup_old_equity_files - B (7)
+app/tools/spds_cli_updated.py
+    M 119:4 SPDSCLIUpdated.run - C (12)
+    M 506:4 SPDSCLIUpdated._handle_interactive - B (9)
+    M 155:4 SPDSCLIUpdated._handle_analyze - B (8)
+    M 386:4 SPDSCLIUpdated._handle_list_portfolios - B (7)
+app/tools/uuid_utils.py
+    F 160:0 parse_strategy_uuid - E (33)
+    F 17:0 generate_strategy_uuid - C (17)
+    F 458:0 _get_strategy_type - C (11)
+app/tools/specialized_analyzers.py
+    M 2109:4 PositionAnalyzer._find_position_data - C (17)
+    M 266:4 AssetDistributionAnalyzer._create_distribution_result - C (15)
+    M 1997:4 PositionAnalyzer._generate_position_exit_signal - C (15)
+    M 1541:4 StrategyAnalyzer._analyze_equity_file - C (13)
+    M 1243:4 StrategyAnalyzer._analyze_equity_curve_file - C (12)
+    M 2179:4 PositionAnalyzer._analyze_position_data - C (12)
+    M 135:4 AssetDistributionAnalyzer._find_existing_strategy_files - B (10)
+    M 1437:4 StrategyAnalyzer._find_strategy_file - B (10)
+    M 1872:4 PositionAnalyzer._assess_position_efficiency - B (10)
+    F 2287:0 create_analyzer - B (8)
+    M 1366:4 StrategyAnalyzer._generate_layered_exit_signal - B (8)
+    M 629:4 MultiStrategyAnalyzer._analyze_single_strategy - B (7)
+    M 819:4 MultiPositionAnalyzer._analyze_single_position - B (7)
+    M 1013:4 MultiPortfolioAnalyzer._analyze_single_portfolio - B (7)
+    C 1658:0 PositionAnalyzer - B (7)
+    C 26:0 AssetDistributionAnalyzer - B (6)
+    M 66:4 AssetDistributionAnalyzer._analyze_from_market_data - B (6)
+    M 168:4 AssetDistributionAnalyzer._analyze_from_strategy_files - B (6)
+    M 417:4 MultiTickerAnalyzer.analyze - B (6)
+    M 461:4 MultiTickerAnalyzer._analyze_single_ticker - B (6)
+    M 579:4 MultiStrategyAnalyzer.analyze - B (6)
+    M 769:4 MultiPositionAnalyzer.analyze - B (6)
+    M 963:4 MultiPortfolioAnalyzer.analyze - B (6)
+    C 1097:0 StrategyAnalyzer - B (6)
+app/tools/position_equity_generator.py
+    M 225:4 DirectEquityCalculator.calculate_equity_timeline - B (9)
+    M 910:4 DirectEquityCalculator._combine_equity_curves - B (9)
+    M 692:4 DirectEquityCalculator._create_order_sequence - B (8)
+    M 861:4 DirectEquityCalculator._create_ticker_order_sequence - B (8)
+    M 809:4 DirectEquityCalculator._create_ticker_portfolio - B (7)
+    M 70:4 PositionDataLoader.load_position_file - B (6)
+    M 156:4 PositionDataLoader._parse_timestamp_robust - B (6)
+    C 200:0 DirectEquityCalculator - B (6)
+    M 423:4 DirectEquityCalculator._calculate_open_positions_current_value - B (6)
+    M 650:4 DirectEquityCalculator._load_combined_prices - B (6)
+app/tools/sweep_analytics.py
+    M 341:4 SweepAnalyticsEngine._calculate_statistics - C (11)
+    M 253:4 SweepAnalyticsEngine._validate_and_sanitize_metrics - B (8)
+    M 522:4 SweepAnalyticsEngine.get_optimization_recommendations - B (8)
+    M 575:4 SweepAnalyticsEngine.get_outlier_analysis - B (8)
+    M 156:4 SweepAnalyticsEngine.load_sweep_data - B (6)
+    M 497:4 SweepAnalyticsEngine.get_risk_categories - B (6)
+app/tools/horizon_calculation.py
+    M 85:4 HorizonCalculator.calculate_horizon_metrics - C (18)
+    M 280:4 HorizonCalculator.find_best_horizon - B (7)
+app/tools/heatmap_utils.py
+    F 19:0 process_heatmap_data - C (11)
+app/tools/config_management.py
+    M 299:4 ConfigManager._validate_config - C (18)
+    M 75:4 ConfigManager.register_config_schema - C (13)
+    F 657:0 apply_config_defaults - B (7)
+    F 715:0 merge_configs - B (6)
+app/tools/backtest_strategy.py
+    F 11:0 backtest_strategy - C (14)
+app/tools/volume_liquidity_analyzer.py
+    M 156:4 VolumeLiquidityAnalyzer._calculate_liquidity_score - C (14)
+    M 235:4 VolumeLiquidityAnalyzer.score_volume_liquidity - C (11)
+    M 92:4 VolumeLiquidityAnalyzer.calculate_volume_metrics - B (8)
+    C 32:0 VolumeLiquidityAnalyzer - B (7)
+app/tools/ma_display.py
+    M 832:4 SweepAnalyticsDisplayer._display_performance_leaderboard - C (14)
+    M 919:4 SweepAnalyticsDisplayer._display_risk_analysis - C (14)
+    M 504:4 MADisplayFormatter._display_seasonality_patterns_table - C (11)
+    C 748:0 SweepAnalyticsDisplayer - B (9)
+    M 776:4 SweepAnalyticsDisplayer._display_executive_summary - B (8)
+    M 995:4 SweepAnalyticsDisplayer._display_optimization_recommendations - B (8)
+    M 441:4 MADisplayFormatter._display_rolling_performance_table - B (7)
+    M 591:4 MADisplayFormatter._display_period_comparison_summary - B (7)
+    M 662:4 MADisplayFormatter._display_calendar_patterns_table - B (7)
+    M 1050:4 SweepAnalyticsDisplayer._display_statistical_distribution - B (6)
+app/tools/seasonality_expectancy_analyzer.py
+    M 88:4 SeasonalityExpectancyAnalyzer._analyze_ticker_file - C (18)
+    M 26:4 SeasonalityExpectancyAnalyzer.analyze_july_august_expectancy - B (7)
+    M 249:4 SeasonalityExpectancyAnalyzer._calculate_confidence - B (7)
+    C 14:0 SeasonalityExpectancyAnalyzer - B (6)
+app/tools/spds_export.py
+    M 493:4 SPDSExporter._create_summary_data - C (11)
+    M 188:4 SPDSExporter._export_markdown - B (10)
+    M 359:4 SPDSExporter._export_excel - B (8)
+    M 132:4 SPDSExporter._export_csv - B (6)
+app/tools/error_context.py
+    F 20:0 error_context - B (7)
+app/tools/expectancy.py
+    F 14:0 calculate_expectancy - B (9)
+    F 47:0 calculate_expectancy_from_returns - B (9)
+    F 117:0 calculate_expectancy_with_stop_loss - B (9)
+    F 198:0 calculate_expectancy_metrics - B (9)
+app/tools/parameter_parser.py
+    M 454:4 SPDSParameterParser.validate_parameter - E (40)
+    M 91:4 SPDSParameterParser.detect_parameter_type - B (9)
+    M 139:4 SPDSParameterParser.parse_parameter - B (9)
+    C 60:0 SPDSParameterParser - B (8)
+    M 383:4 SPDSParameterParser.get_data_source_suggestions - B (8)
+    M 312:4 SPDSParameterParser._parse_multi_position_uuid - B (7)
+    M 269:4 SPDSParameterParser._parse_multi_strategy - B (6)
+    M 359:4 SPDSParameterParser._parse_multi_portfolio_file - B (6)
+app/tools/get_data.py
+    F 13:0 valid_data - C (11)
+    F 82:0 get_data - C (11)
+app/tools/signal_conversion.py
+    F 14:0 convert_signals_to_positions - B (7)
+app/tools/seasonality_analyzer.py
+    M 443:4 SeasonalityAnalyzer._calculate_days_to_pattern - B (10)
+    M 348:4 SeasonalityAnalyzer._create_pattern - B (8)
+    M 536:4 SeasonalityAnalyzer._create_current_date_pattern - B (8)
+    M 203:4 SeasonalityAnalyzer.analyze_day_of_month_patterns - B (7)
+    C 12:0 SeasonalityAnalyzer - B (6)
+    M 78:4 SeasonalityAnalyzer.analyze_monthly_patterns - B (6)
+    M 128:4 SeasonalityAnalyzer.analyze_weekly_patterns - B (6)
+    M 165:4 SeasonalityAnalyzer.analyze_quarterly_patterns - B (6)
+app/tools/error_handling.py
+    M 72:4 ErrorHandler.validate_dataframe - C (14)
+    M 223:4 ErrorHandler.validate_numeric_array - C (12)
+    M 163:4 ErrorHandler.validate_config - C (11)
+    C 57:0 ErrorHandler - B (8)
+app/tools/market_data_analyzer.py
+    M 362:4 MarketDataAnalyzer._calculate_trend_metrics - C (14)
+    M 504:4 MarketDataAnalyzer.generate_recommendation - C (12)
+    M 963:4 MarketDataAnalyzer._score_mean_reversion - C (11)
+    M 440:4 MarketDataAnalyzer._calculate_risk_adjusted_metrics - B (7)
+    M 1016:4 MarketDataAnalyzer.analyze - B (7)
+    M 98:4 MarketDataAnalyzer.calculate_returns - B (6)
+    M 293:4 MarketDataAnalyzer._calculate_momentum_metrics - B (6)
+app/tools/download_data.py
+    F 16:0 download_data - D (25)
+app/tools/stop_loss_simulator.py
+    F 17:0 apply_stop_loss_to_returns - D (21)
+    F 153:0 calculate_stop_loss_adjusted_metrics - C (18)
+    F 364:0 find_optimal_stop_loss - B (7)
+app/tools/portfolio_analyzer.py
+    M 376:4 PortfolioStatisticalAnalyzer._analyze_strategy - E (31)
+    M 208:4 PortfolioStatisticalAnalyzer.get_summary_report - C (15)
+    M 279:4 PortfolioStatisticalAnalyzer._extract_strategies_from_portfolio - C (13)
+    C 21:0 PortfolioStatisticalAnalyzer - C (11)
+    M 175:4 PortfolioStatisticalAnalyzer.get_exit_signals - B (8)
+    M 587:4 PortfolioStatisticalAnalyzer._fuzzy_match_trade_history - B (8)
+app/tools/cache_utils.py
+    F 122:0 load_cached_analysis - C (11)
+    F 78:0 get_cache_filepath - B (7)
+app/tools/portfolio_results.py
+    F 1069:0 display_portfolio_summary - F (49)
+    F 803:0 calculate_breadth_metrics - F (43)
+    F 623:0 filter_signal_entries - D (28)
+    F 214:0 _display_portfolio_table_core - D (25)
+    F 78:0 filter_open_trades - C (17)
+    F 485:0 display_ticker_summary_table - C (17)
+app/tools/ma_analytics.py
+    M 49:4 MAAnalytics._get_data_summary - B (10)
+app/tools/position_equity_validator.py
+    M 476:4 PositionEquityValidator._print_console_report - C (15)
+    M 396:4 PositionEquityValidator._generate_recommendations - C (13)
+app/tools/performance_profiler.py
+    M 218:4 PerformanceProfiler.get_performance_summary - C (16)
+    F 389:0 run_performance_benchmark - C (12)
+    C 53:0 PerformanceProfiler - B (7)
+    F 326:0 create_large_test_portfolio - B (6)
+    M 134:4 PerformanceProfiler.benchmark_equity_export - B (6)
+app/tools/spds_health_check.py
+    F 137:0 check_data_quality - B (10)
+    F 76:0 check_export_functionality - B (7)
+    F 206:0 display_health_results - B (6)
+    F 240:0 fix_common_issues - B (6)
+app/tools/data_processing.py
+    M 289:4 DataProcessor._optimize_pandas_dataframe - C (18)
+    M 347:4 DataProcessor._optimize_polars_dataframe - C (18)
+    M 116:4 DataProcessor.batch_process - B (8)
+    M 422:4 DataProcessor.efficient_join - B (7)
+app/tools/stats_converter.py
+    F 310:0 convert_stats - F (61)
+    F 28:0 calculate_win_rate_normalized - C (11)
+    F 228:0 calculate_total_trades_normalized - B (8)
+    F 789:0 _ensure_canonical_schema_compliance - B (7)
+    F 116:0 calculate_profit_factor_normalized - B (6)
+app/tools/file_utils.py
+    F 9:0 is_file_from_today - C (15)
+    F 93:0 get_current_window_combinations - C (11)
+app/tools/export_csv.py
+    F 329:0 export_csv - F (42)
+    F 82:0 _get_filename_components - D (25)
+    F 884:0 _convert_duration_columns_for_csv - C (18)
+    F 616:0 _ensure_canonical_column_order - C (16)
+    F 547:0 _validate_and_ensure_schema_compliance - B (10)
+    F 248:0 _combine_with_custom_filename - B (8)
+app/tools/equity_memory_optimizer.py
+    F 349:0 analyze_memory_requirements - B (8)
+    M 151:4 StreamingEquityExporter.stream_export_equity_data - B (8)
+    M 243:4 StreamingEquityExporter._process_portfolio_chunk - B (6)
+app/tools/signal_filtering.py
+    M 144:4 RSIFilter.apply - B (7)
+    M 307:4 VolatilityFilter.apply - B (7)
+app/tools/use_synthetic.py
+    F 10:0 use_synthetic - C (15)
+app/tools/sector_comparison.py
+    M 229:4 SectorComparisonEngine.load_sector_data - C (12)
+    M 331:4 SectorComparisonEngine.rank_sectors - C (11)
+    M 58:4 SectorComparisonEngine.get_available_dates - B (6)
+    M 124:4 SectorComparisonEngine.load_benchmark_data - B (6)
+app/tools/performance_tracker.py
+    M 398:4 StrategyPerformanceTracker._generate_optimization_insights - C (13)
+    M 357:4 StrategyPerformanceTracker.end_strategy_execution - B (9)
+    M 521:4 StrategyPerformanceTracker.get_performance_summary - B (9)
+    C 285:0 StrategyPerformanceTracker - B (6)
+app/tools/stop_loss_config.py
+    F 67:0 _extract_stop_loss_config - B (8)
+app/tools/synthetic_ticker.py
+    F 49:0 process_synthetic_config - D (25)
+app/tools/calculate_atr.py
+    F 71:0 calculate_atr_signals - B (7)
+app/tools/market_hours.py
+    F 304:0 validate_market_hours_data - B (10)
+app/tools/config_service.py
+    M 42:4 ConfigService._apply_defaults - B (7)
+app/tools/get_config.py
+    F 1:0 get_config - B (7)
+app/tools/normalization.py
+    M 37:4 Normalizer.min_max_scale - C (15)
+    M 122:4 Normalizer.z_score_normalize - C (14)
+    M 200:4 Normalizer.robust_scale - C (14)
+    C 22:0 Normalizer - C (11)
+    M 348:4 Normalizer.normalize_dataframe - B (10)
+    M 286:4 Normalizer.normalize_metrics - B (8)
+app/tools/transaction_cost_analyzer.py
+    M 263:4 TransactionCostAnalyzer.adjust_signal_for_costs - C (11)
+    M 201:4 TransactionCostAnalyzer._calculate_turnover_penalty - B (10)
+    M 132:4 TransactionCostAnalyzer._estimate_spread - B (7)
+    M 154:4 TransactionCostAnalyzer._estimate_market_impact - B (7)
+    C 29:0 TransactionCostAnalyzer - B (6)
+    M 361:4 TransactionCostAnalyzer.get_cost_analysis_summary - B (6)
+app/tools/trade_history_exporter.py
+    F 421:0 _extract_strategy_parameters - C (16)
+    F 134:0 _enrich_trade_data - C (14)
+    F 365:0 generate_trade_filename - C (14)
+    F 479:0 create_comprehensive_trade_history - C (11)
+    F 274:0 _enrich_position_data - B (7)
+    F 758:0 analyze_trade_performance - B (7)
+    F 341:0 _categorize_trade_performance - B (6)
+    F 654:0 export_trade_history - B (6)
+app/tools/demo_simplified_interface.py
+    F 30:0 demo_simplified_interface - C (16)
+app/tools/strategy_utils.py
+    F 129:0 validate_strategy_config - C (13)
+    F 78:0 determine_strategy_type - B (8)
+    F 204:0 get_strategy_id - B (8)
+    F 41:0 filter_portfolios_by_signal - B (7)
+app/tools/signal_config.py
+    M 385:4 SignalConfigManager._validate_filter_config - C (13)
+    M 493:4 SignalConfigManager._validate_horizon_config - B (10)
+    M 333:4 SignalConfigManager._validate_metrics_config - B (8)
+    M 440:4 SignalConfigManager._validate_quality_config - B (8)
+    M 209:4 SignalConfigManager.load_config_from_file - B (7)
+app/tools/portfolio_baseline_calculator.py
+    M 190:4 PortfolioBaselineCalculator.calculate_portfolio_pnl_baseline - B (6)
+app/tools/portfolio.py
+    F 94:0 load_csv_portfolio - C (11)
+    F 173:0 load_json_portfolio - B (8)
+    F 270:0 portfolio_context - B (7)
+app/tools/spds_analysis_engine.py
+    M 184:4 SPDSAnalysisEngine._detect_data_sources - B (8)
+    M 236:4 SPDSAnalysisEngine._analyze_portfolio - B (7)
+    M 570:4 SPDSAnalysisEngine._generate_exit_signal - B (7)
+    M 656:4 SPDSAnalysisEngine._calculate_risk_level - B (7)
+    M 102:4 SPDSAnalysisEngine.analyze - B (6)
+    M 443:4 SPDSAnalysisEngine._calculate_divergence_metrics - B (6)
+    M 673:4 SPDSAnalysisEngine._calculate_confidence_level - B (6)
+    M 709:4 SPDSAnalysisEngine._find_position_by_uuid - B (6)
+app/tools/progress_tracking.py
+    M 48:4 ProgressTracker.update - B (9)
+app/tools/portfolio_composition_loader.py
+    M 215:4 PortfolioCompositionLoader._find_execution_strategy - B (7)
+    M 104:4 PortfolioCompositionLoader._validate_composition - B (6)
+    M 135:4 PortfolioCompositionLoader.get_asset_execution_strategy - B (6)
+app/tools/metrics_calculation.py
+    M 564:4 MetricsCalculator.calculate_portfolio_metrics - C (15)
+    M 39:4 MetricsCalculator.calculate_return_metrics - C (14)
+    M 265:4 MetricsCalculator.calculate_horizon_metrics - C (14)
+    M 179:4 MetricsCalculator.calculate_frequency_metrics - B (9)
+    M 443:4 MetricsCalculator.calculate_signal_quality_metrics - B (9)
+    C 20:0 MetricsCalculator - B (8)
+    M 362:4 MetricsCalculator.find_best_horizon - B (6)
+app/tools/performance_attribution.py
+    M 298:4 PerformanceAttributor._calculate_performance_summary - C (15)
+    M 410:4 PerformanceAttributor.get_factor_performance_report - B (9)
+    M 246:4 PerformanceAttributor._calculate_factor_efficiency - B (8)
+    M 271:4 PerformanceAttributor._calculate_signal_accuracy - B (7)
+    C 43:0 PerformanceAttributor - B (6)
+    M 354:4 PerformanceAttributor._store_attribution - B (6)
+app/tools/statistical_analysis_cli.py
+    M 752:4 StatisticalAnalysisCLI._convert_to_analysis_results - F (50)
+    M 1146:4 StatisticalAnalysisCLI._validate_analysis_data_quality - C (19)
+    M 1049:4 StatisticalAnalysisCLI._calculate_statistical_p_value - C (16)
+    M 178:4 StatisticalAnalysisCLI.run - C (11)
+    C 52:0 StatisticalAnalysisCLI - B (10)
+    M 301:4 StatisticalAnalysisCLI._output_json_results - B (10)
+    M 1281:4 StatisticalAnalysisCLI._generate_markdown_content - B (9)
+    M 214:4 StatisticalAnalysisCLI._handle_portfolio_analysis - B (8)
+    M 552:4 StatisticalAnalysisCLI._handle_interactive_mode - B (8)
+    M 655:4 StatisticalAnalysisCLI._export_all_formats - B (8)
+    M 506:4 StatisticalAnalysisCLI._handle_list_portfolios - B (7)
+    M 350:4 StatisticalAnalysisCLI._output_summary_results - B (6)
+app/tools/analysis/fix_smci_signal_bug.py
+    M 39:4 PercentileRankFixer._estimate_percentile_rank_fixed - E (40)
+    C 33:0 PercentileRankFixer - C (13)
+app/tools/analysis/divergence_detector.py
+    M 583:4 DivergenceDetector._detect_outlier - B (6)
+app/tools/analysis/significance_testing_engine.py
+    M 74:4 SignificanceTestingEngine.test_mean_difference - C (13)
+    M 270:4 SignificanceTestingEngine.test_multiple_groups - B (10)
+    M 539:4 SignificanceTestingEngine._test_assumptions_for_ttest - B (9)
+    M 194:4 SignificanceTestingEngine.test_correlation_significance - B (7)
+    C 37:0 SignificanceTestingEngine - B (6)
+    M 576:4 SignificanceTestingEngine._test_assumptions_for_anova - B (6)
+    M 651:4 SignificanceTestingEngine._calculate_group_effect_size - B (6)
+    M 745:4 SignificanceTestingEngine._validate_p_value - B (6)
+app/tools/analysis/correlation_analyzer.py
+    M 758:4 CorrelationAnalyzer._detect_strategy_tickers - C (13)
+    M 532:4 CorrelationAnalyzer._calculate_correlation_matrix - C (12)
+    M 791:4 CorrelationAnalyzer._analyze_sector_correlations - B (9)
+    M 639:4 CorrelationAnalyzer._calculate_rolling_correlations - B (8)
+    M 334:4 CorrelationAnalyzer._load_strategy_performance_data - B (7)
+    M 455:4 CorrelationAnalyzer._load_equity_returns - B (7)
+    C 22:0 CorrelationAnalyzer - B (6)
+    M 362:4 CorrelationAnalyzer._load_ticker_performance_data - B (6)
+    M 395:4 CorrelationAnalyzer._load_timeframe_performance_data - B (6)
+    M 428:4 CorrelationAnalyzer._load_trade_history_returns - B (6)
+    M 508:4 CorrelationAnalyzer._load_equity_returns_for_ticker - B (6)
+app/tools/analysis/automated_exit_signal_generator.py
+    M 503:4 AutomatedExitSignalGenerator.optimize_thresholds - C (11)
+    M 135:4 AutomatedExitSignalGenerator.generate_portfolio_signals - B (7)
+    M 186:4 AutomatedExitSignalGenerator.generate_real_time_alerts - B (6)
+    M 367:4 AutomatedExitSignalGenerator._generate_recommendation_and_timeframe - B (6)
+    M 463:4 AutomatedExitSignalGenerator.get_signal_statistics - B (6)
+app/tools/analysis/trade_quality_pattern_recognizer.py
+    M 582:4 TradeQualityPatternRecognizer._calculate_pattern_match_confidence - C (11)
+    M 310:4 TradeQualityPatternRecognizer.learn_quality_patterns - B (9)
+    M 228:4 TradeQualityPatternRecognizer.analyze_portfolio_quality - B (7)
+    M 434:4 TradeQualityPatternRecognizer._calculate_quality_metrics - B (7)
+    M 470:4 TradeQualityPatternRecognizer._classify_trade_quality - B (7)
+    M 551:4 TradeQualityPatternRecognizer._find_quality_patterns - B (6)
+    M 680:4 TradeQualityPatternRecognizer._identify_portfolio_quality_patterns - B (6)
+    M 733:4 TradeQualityPatternRecognizer._learn_quality_specific_patterns - B (6)
+app/tools/analysis/real_time_position_analyzer.py
+    M 406:4 RealTimePositionAnalyzer._analyze_historical_context - C (17)
+    M 502:4 RealTimePositionAnalyzer._analyze_position_patterns - B (10)
+    M 164:4 RealTimePositionAnalyzer.analyze_portfolio_positions - B (8)
+    M 213:4 RealTimePositionAnalyzer.get_position_alerts - B (8)
+    C 25:0 RealTimePositionAnalyzer - B (7)
+    M 349:4 RealTimePositionAnalyzer._load_position_data - B (7)
+    M 451:4 RealTimePositionAnalyzer._perform_risk_assessment - B (7)
+    M 69:4 RealTimePositionAnalyzer.analyze_position_real_time - B (6)
+    M 550:4 RealTimePositionAnalyzer._load_historical_trades - B (6)
+app/tools/analysis/calculation_fixes.py
+    M 41:4 CalculationValidator.validate_portfolio_data - C (11)
+    C 350:0 MAECalculationFixes - B (10)
+    M 356:4 MAECalculationFixes.validate_mae_calculation - B (9)
+    M 136:4 PortfolioAggregationFixes.calculate_portfolio_return_correct - B (8)
+    M 641:4 SPDSCalculationCorrector.correct_portfolio_analysis - B (8)
+    C 32:0 CalculationValidator - B (7)
+    C 130:0 PortfolioAggregationFixes - B (7)
+    C 421:0 SharpeRatioFixes - B (7)
+    C 248:0 PercentileCalculationFixes - B (6)
+    M 469:4 SharpeRatioFixes.validate_sharpe_ratio - B (6)
+    C 627:0 SPDSCalculationCorrector - B (6)
+app/tools/analysis/apply_spds_fixes.py
+    M 182:4 SPDSFixApplicator.generate_corrected_report - B (10)
+    M 71:4 SPDSFixApplicator.analyze_current_errors - B (7)
+app/tools/analysis/advanced_threshold_optimizer.py
+    M 548:4 AdvancedThresholdOptimizer._calculate_precision - B (9)
+    M 576:4 AdvancedThresholdOptimizer._calculate_recall - B (9)
+    M 664:4 AdvancedThresholdOptimizer._genetic_optimization - B (9)
+    M 71:4 AdvancedThresholdOptimizer.optimize_thresholds - B (8)
+    M 317:4 AdvancedThresholdOptimizer.multi_objective_optimization - B (7)
+    M 478:4 AdvancedThresholdOptimizer._simulate_performance - B (7)
+    M 518:4 AdvancedThresholdOptimizer._calculate_exit_efficiency - B (7)
+    M 604:4 AdvancedThresholdOptimizer._grid_search_optimization - B (7)
+    M 886:4 AdvancedThresholdOptimizer._assess_threshold_robustness - B (6)
+app/tools/analysis/bootstrap_validator.py
+    M 285:4 BootstrapValidator._calculate_statistic - C (12)
+app/tools/analysis/pattern_recognition_system.py
+    M 237:4 PatternRecognitionSystem.detect_regime_changes - B (10)
+    M 156:4 PatternRecognitionSystem.match_patterns - B (8)
+    M 393:4 PatternRecognitionSystem._discover_shape_patterns - B (8)
+    M 570:4 PatternRecognitionSystem._cluster_subsequences - B (8)
+    M 313:4 PatternRecognitionSystem.analyze_pattern_performance - B (7)
+    M 65:4 PatternRecognitionSystem.discover_patterns - B (6)
+app/tools/analysis/test_smci_signal_bug.py
+    F 33:0 test_smci_signal_generation - B (7)
+app/tools/analysis/convergence_analyzer.py
+    M 533:4 ConvergenceAnalyzer._calculate_metric_convergence - C (17)
+    M 607:4 ConvergenceAnalyzer._calculate_strategy_metric_convergence - C (16)
+    M 780:4 ConvergenceAnalyzer._identify_divergence_periods - C (11)
+    M 721:4 ConvergenceAnalyzer._analyze_convergence_stability - B (8)
+    M 60:4 ConvergenceAnalyzer.analyze_multi_timeframe_convergence - B (7)
+    M 680:4 ConvergenceAnalyzer._calculate_statistical_measure_convergence - B (7)
+    M 848:4 ConvergenceAnalyzer._cross_validate_convergence - B (7)
+    C 22:0 ConvergenceAnalyzer - B (6)
+    M 177:4 ConvergenceAnalyzer.analyze_cross_strategy_convergence - B (6)
+    M 379:4 ConvergenceAnalyzer._load_multi_timeframe_data - B (6)
+    M 417:4 ConvergenceAnalyzer._load_multi_strategy_data - B (6)
+    M 490:4 ConvergenceAnalyzer._load_equity_data - B (6)
+    M 935:4 ConvergenceAnalyzer._analyze_divergence_trend - B (6)
+app/tools/analysis/debug_smci_percentiles.py
+    F 26:0 debug_percentile_calculation - B (10)
+app/tools/analysis/trade_history_analyzer.py
+    M 424:4 TradeHistoryAnalyzer._standardize_trade_columns - E (38)
+    M 176:4 TradeHistoryAnalyzer._load_trade_history - C (17)
+    M 626:4 TradeHistoryAnalyzer._validate_data_integrity - C (15)
+    M 689:4 TradeHistoryAnalyzer._analyze_trade_returns - B (7)
+    M 772:4 TradeHistoryAnalyzer._calculate_exit_efficiency - B (7)
+    C 29:0 TradeHistoryAnalyzer - B (6)
+app/tools/analysis/statistical_model_validator.py
+    M 672:4 StatisticalModelValidator._generate_recommendations - B (10)
+    M 728:4 StatisticalModelValidator._classify_model_quality - B (10)
+    M 981:4 StatisticalModelValidator._evaluate_threshold_performance - B (9)
+    M 575:4 StatisticalModelValidator._assess_performance_stability - B (7)
+    M 433:4 StatisticalModelValidator._perform_cross_validation - B (6)
+    M 1009:4 StatisticalModelValidator._test_threshold_stability - B (6)
+app/tools/config/statistical_analysis_config.py
+    M 218:4 SPDSConfig._validate_thresholds - C (18)
+    F 423:0 load_spds_config - C (11)
+    M 167:4 SPDSConfig._validate_portfolio - B (8)
+app/tools/position_sizing/kelly_criterion.py
+    M 280:4 KellyCriterionSizer.validate_kelly_inputs - C (11)
+app/tools/processing/batch_processor.py
+    M 239:4 ParameterSweepProcessor.process_parameter_combinations - C (14)
+    M 449:4 MemoryEfficientParameterSweep.run_parameter_sweep - C (12)
+    M 58:4 TickerBatchProcessor.process_tickers - B (10)
+    M 358:4 ParameterSweepProcessor._process_chunk - B (10)
+    C 216:0 ParameterSweepProcessor - B (8)
+    C 410:0 MemoryEfficientParameterSweep - B (7)
+    C 37:0 TickerBatchProcessor - B (6)
+    M 555:4 MemoryEfficientParameterSweep._save_chunk_results - B (6)
+app/tools/processing/data_converter.py
+    M 201:4 DataConverter.to_polars - C (13)
+    M 151:4 DataConverter.to_pandas - B (9)
+    M 281:4 DataConverter._pandas_to_polars_optimized - B (9)
+    C 86:0 DataConverter - B (7)
+    M 315:4 DataConverter.convert_chunked - B (6)
+    M 411:4 BatchConverter.convert_batch - B (6)
+app/tools/processing/cache_manager.py
+    M 177:4 IntelligentCacheManager.get - B (9)
+    M 151:4 IntelligentCacheManager._cleanup_lru - B (6)
+    M 345:4 IntelligentCacheManager.get_stats - B (6)
+app/tools/processing/streaming_processor.py
+    M 134:4 StreamingProcessor._read_csv_streaming - B (6)
+    M 207:4 StreamingProcessor._stream_csv_polars - B (6)
+    M 384:4 CSVChunkProcessor.filter_large_file - B (6)
+app/tools/processing/auto_tuner.py
+    M 174:4 ResourceMonitor.get_resource_trend - B (10)
+    M 570:4 AutoTuner._apply_single_recommendation - B (10)
+    M 425:4 AutoTuner._memory_recommendations - B (8)
+    M 210:4 ResourceMonitor.get_performance_trend - B (7)
+    M 237:4 ResourceMonitor._calculate_trend - B (7)
+    M 376:4 AutoTuner._cpu_recommendations - B (7)
+    M 495:4 AutoTuner._performance_recommendations - B (7)
+    C 66:0 ResourceMonitor - B (6)
+    M 115:4 ResourceMonitor.capture_performance_snapshot - B (6)
+app/tools/processing/performance_monitor.py
+    M 375:4 MetricsCollector.get_operation_summary - C (15)
+    M 566:4 PerformanceMonitor.export_metrics - B (8)
+    M 339:4 MetricsCollector.get_metrics_summary - B (7)
+    M 177:4 MetricsCollector._create_operation_metrics - B (6)
+    M 266:4 MetricsCollector._cleanup_old_metrics - B (6)
+app/tools/processing/mmap_accessor.py
+    M 342:4 MMapAccessor.get_prices - C (15)
+    M 233:4 MMapCSVReader.read_rows - B (7)
+    C 330:0 MMapAccessor - B (6)
+    M 443:4 MMapAccessor.search_in_files - B (6)
+app/tools/processing/parallel_executor.py
+    M 220:4 AdaptiveThreadPoolExecutor.batch_process - B (9)
+    M 111:4 AdaptiveThreadPoolExecutor._should_resize - B (7)
+app/tools/processing/precompute_engine.py
+    M 229:4 UsageAnalyzer._find_recent_request - B (6)
+    M 661:4 PrecomputeEngine.get_precompute_status - B (6)
+app/tools/processing/memory_optimizer.py
+    M 51:4 ObjectPool.acquire - B (6)
+app/tools/processing/cache_warmer.py
+    M 379:4 CacheWarmer.trigger_immediate_warming - B (7)
+    M 315:4 CacheWarmer._execute_warming_jobs - B (6)
+app/tools/processing/performance_dashboard.py
+    M 175:4 LogAnalyzer.get_system_health_score - C (19)
+    M 119:4 LogAnalyzer.get_operation_analysis - C (14)
+    M 333:4 LogAnalyzer._get_health_recommendations - B (10)
+    C 20:0 LogAnalyzer - B (8)
+    M 29:4 LogAnalyzer.load_logs - B (8)
+    M 84:4 LogAnalyzer.get_metric_summary - B (8)
+    M 283:4 LogAnalyzer._calculate_trend - B (7)
+    M 627:4 DashboardGenerator._generate_metrics_html - B (7)
+app/tools/formatters/numeric_formatters.py
+    F 12:0 format_percentage - B (10)
+    F 39:0 format_currency - B (9)
+    F 65:0 format_score - B (9)
+    F 99:0 format_win_rate - B (7)
+    F 124:0 format_ratio - B (7)
+app/tools/formatters/text_formatters.py
+    F 43:0 parse_duration_to_hours - C (11)
+    F 10:0 format_duration - B (8)
+app/tools/utils/data_migration_utils.py
+    M 225:4 DataMigrationManager._fix_uuid_formats - B (9)
+    M 50:4 DataMigrationManager.migrate_all_portfolios - B (7)
+    M 182:4 DataMigrationManager._apply_comprehensive_migration - B (6)
+app/tools/utils/mfe_mae_calculator.py
+    M 223:4 MFEMAECalculator.validate_mfe_mae - C (18)
+    M 298:4 MFEMAECalculator.standardize_column_names - B (7)
+    C 14:0 MFEMAECalculator - B (6)
+    M 177:4 MFEMAECalculator.calculate_from_returns_only - B (6)
+app/tools/models/unified_strategy_models.py
+    M 584:4 UnifiedStrategyData.from_dict - C (17)
+    M 630:4 UnifiedStrategyData.get_data_quality_score - B (9)
+    M 112:4 PerformanceMetrics.validate_constraints - B (8)
+    M 252:4 BacktestingParameters._validate_parameters - B (8)
+    M 179:4 StatisticalMetrics._validate_metrics - B (6)
+    C 236:0 BacktestingParameters - B (6)
+    M 358:4 UnifiedStrategyData.validate - B (6)
+    M 404:4 UnifiedStrategyData._apply_auto_fixes - B (6)
+app/tools/models/spds_models.py
+    F 441:0 validate_analysis_result - B (10)
+    M 79:4 AnalysisResult.__post_init__ - B (8)
+    M 376:4 BatchAnalysisResult._calculate_summary - B (8)
+    M 225:4 SPDSConfig.__post_init__ - B (7)
+    C 361:0 BatchAnalysisResult - B (6)
+app/tools/models/statistical_analysis_models.py
+    M 728:4 StatisticalAnalysisResult.performance_metrics - B (8)
+app/tools/dashboard/performance_analytics_dashboard.py
+    M 539:4 PerformanceAnalyticsDashboard._calculate_performance_metrics - C (19)
+    M 376:4 PerformanceAnalyticsDashboard.get_portfolio_health_analysis - C (17)
+    M 215:4 PerformanceAnalyticsDashboard.get_performance_attribution - C (16)
+    M 300:4 PerformanceAnalyticsDashboard.get_statistical_signal_analysis - C (15)
+    M 653:4 PerformanceAnalyticsDashboard._calculate_efficiency_trend - B (9)
+    C 68:0 PerformanceAnalyticsDashboard - B (7)
+    M 147:4 PerformanceAnalyticsDashboard.get_exit_efficiency_analysis - B (6)
+    M 778:4 PerformanceAnalyticsDashboard._generate_health_recommendations - B (6)
+    M 850:4 PerformanceAnalyticsDashboard._load_completed_trades - B (6)
+app/tools/dashboard/real_time_trading_dashboard.py
+    M 438:4 RealTimeTradingDashboard._update_dashboard_stats - C (14)
+    M 271:4 RealTimeTradingDashboard._load_current_positions - B (7)
+    M 653:4 RealTimeTradingDashboard._display_alerts_and_stats - B (7)
+app/tools/accounts/manual_balance_service.py
+    M 77:4 ManualAccountBalanceService.update_account_balance - B (6)
+app/tools/accounts/position_value_tracker.py
+    M 81:4 PositionValueTracker.add_position_entry - B (7)
+    M 248:4 PositionValueTracker.calculate_position_summary - B (7)
+    M 148:4 PositionValueTracker.update_position_entry - B (6)
+app/tools/accounts/dual_portfolio_manager.py
+    M 363:4 DualPortfolioManager.calculate_portfolio_summary - C (15)
+    M 105:4 DualPortfolioManager.add_portfolio_holding - C (12)
+    M 201:4 DualPortfolioManager.update_portfolio_holding - C (11)
+    C 61:0 DualPortfolioManager - B (6)
+    M 520:4 DualPortfolioManager.import_portfolio_from_dict - B (6)
+app/tools/accounts/drawdown_calculator.py
+    M 82:4 DrawdownCalculator.add_drawdown_entry - B (9)
+    M 277:4 DrawdownCalculator.calculate_drawdown_summary - B (9)
+    M 161:4 DrawdownCalculator.update_drawdown_entry - B (7)
+    M 418:4 DrawdownCalculator.import_drawdowns_from_dict - B (6)
+app/tools/ml/pattern_recognition_ml.py
+    M 425:4 PatternRecognitionML._generate_recommendation - B (6)
+    M 475:4 PatternRecognitionML._classify_anomaly_type - B (6)
+app/tools/ml/adaptive_learning_engine.py
+    M 246:4 AdaptiveLearningEngine.get_adaptive_recommendations - B (9)
+    M 429:4 AdaptiveLearningEngine._evaluate_threshold_performance - B (6)
+app/tools/orchestration/ticker_processor.py
+    M 37:4 TickerProcessor.execute_strategy - B (6)
+    M 161:4 TickerProcessor._extract_synthetic_components - B (6)
+app/tools/orchestration/portfolio_orchestrator.py
+    M 902:4 PortfolioOrchestrator._export_grouped_portfolios - D (28)
+    M 153:4 PortfolioOrchestrator.run - D (26)
+    M 1082:4 PortfolioOrchestrator._load_existing_portfolios - C (15)
+    M 661:4 PortfolioOrchestrator._export_metrics_without_aggregation - C (12)
+    M 73:4 PortfolioOrchestrator._validate_export_files - B (10)
+    C 45:0 PortfolioOrchestrator - B (8)
+app/tools/portfolio/position_sizing_schema_extension.py
+    C 459:0 PositionSizingSchemaValidator - D (24)
+    M 463:4 PositionSizingSchemaValidator.validate_row - D (23)
+app/tools/portfolio/metrics.py
+    F 33:0 get_metric_rows - B (10)
+app/tools/portfolio/stop_loss.py
+    F 223:0 apply_stop_loss_rules - D (28)
+    F 141:0 calculate_stop_loss_levels - C (15)
+    F 42:0 validate_stop_loss - B (10)
+    F 328:0 get_stop_loss_summary - B (9)
+    F 95:0 normalize_stop_loss - B (8)
+app/tools/portfolio/dynamic_position_sizer.py
+    M 452:4 DynamicPositionSizer._assess_position_risk_level - C (11)
+    M 374:4 DynamicPositionSizer._generate_sizing_rationale - B (9)
+    M 508:4 DynamicPositionSizer._calculate_portfolio_metrics - B (7)
+    M 538:4 DynamicPositionSizer._apply_portfolio_constraints - B (7)
+    C 48:0 DynamicPositionSizer - B (6)
+    M 326:4 DynamicPositionSizer._combine_sizing_methods - B (6)
+app/tools/portfolio/paths.py
+    F 11:0 resolve_portfolio_file_path - D (23)
+app/tools/portfolio/schema_detection.py
+    F 195:0 _transform_to_canonical_schema - C (14)
+    F 60:0 detect_schema_version_from_file - C (13)
+    F 385:0 ensure_allocation_sum_100_percent - C (12)
+    F 135:0 normalize_portfolio_data - C (11)
+    F 114:0 detect_schema_version_from_headers - B (7)
+app/tools/portfolio/cross_strategy_optimizer.py
+    M 463:4 CrossStrategyOptimizer._generate_recommendations - C (12)
+    M 151:4 CrossStrategyOptimizer.analyze_strategy_correlations - B (8)
+    M 423:4 CrossStrategyOptimizer._analyze_correlation_benefits - B (8)
+app/tools/portfolio/metrics_calculators.py
+    F 12:0 update_breadth_metrics - B (9)
+    F 75:0 calculate_summary_stats - B (6)
+app/tools/portfolio/base_extended_schemas.py
+    M 581:4 SchemaTransformer.detect_schema_type - C (11)
+    M 931:4 SchemaTransformer.detect_schema_type_from_columns - B (10)
+    M 688:4 SchemaTransformer.transform_to_extended - B (9)
+    M 848:4 SchemaTransformer.validate_schema - B (7)
+    C 578:0 SchemaTransformer - B (6)
+    M 782:4 SchemaTransformer.normalize_to_schema - B (6)
+app/tools/portfolio/format.py
+    F 106:0 convert_csv_to_strategy_config - F (96)
+app/tools/portfolio/data_loaders.py
+    F 19:0 load_strategies_from_raw_csv - B (7)
+app/tools/portfolio/filtering_service.py
+    M 145:4 MinimumsFilter.apply - C (12)
+    C 89:0 MinimumsFilter - B (9)
+    M 283:4 PortfolioFilterService.filter_portfolios_list - B (8)
+    M 248:4 PortfolioFilterService.filter_portfolios_dataframe - B (7)
+    C 61:0 InvalidMetricsFilter - B (6)
+app/tools/portfolio/loader.py
+    F 254:0 load_portfolio_from_yaml - C (16)
+    F 60:0 load_portfolio_from_csv - C (15)
+app/tools/portfolio/position_sizing_integration.py
+    M 66:4 PositionSizingPortfolioIntegration.create_position_sizing_row - C (11)
+    M 316:4 PositionSizingPortfolioIntegration.import_manual_data_from_excel - B (8)
+app/tools/portfolio/collection.py
+    F 121:0 deduplicate_and_aggregate_portfolios - F (103)
+    F 1042:0 collect_filtered_portfolios_for_export - D (26)
+    F 56:0 sort_portfolios - C (12)
+    F 723:0 test_bkng_metric_aggregation - C (12)
+    F 994:0 combine_strategy_portfolios - C (12)
+    F 18:0 detect_column_names - B (7)
+    F 840:0 export_best_portfolios - B (7)
+app/tools/portfolio/allocation.py
+    F 220:0 ensure_allocation_sum_100_percent - E (31)
+    F 142:0 distribute_missing_allocations - C (15)
+    F 43:0 validate_allocations - B (10)
+    F 96:0 normalize_allocations - B (8)
+    F 349:0 calculate_position_sizes - B (8)
+    F 401:0 get_allocation_summary - B (7)
+app/tools/portfolio/status_filters.py
+    F 10:0 determine_portfolio_status - B (6)
+app/tools/portfolio/aggregation_logic.py
+    F 10:0 aggregate_by_ticker - B (7)
+    F 85:0 aggregate_by_strategy - B (7)
+app/tools/portfolio/selection.py
+    F 140:0 _get_best_single_strategy_portfolio - F (41)
+    F 23:0 get_best_portfolios_per_strategy_type - C (12)
+app/tools/portfolio/config_preview.py
+    F 73:0 show_portfolio_synthesis_config_preview - C (14)
+app/tools/portfolio/processing.py
+    F 21:0 process_single_ticker - C (15)
+    F 150:0 normalize_portfolio_data - B (7)
+app/tools/portfolio/strategy_utils.py
+    F 19:0 determine_strategy_type - B (10)
+    F 104:0 get_strategy_type_for_export - B (8)
+app/tools/portfolio/filters.py
+    F 13:0 filter_invalid_metrics - D (21)
+    F 147:0 check_invalid_metrics - D (21)
+app/tools/portfolio/schema_validation.py
+    F 404:0 generate_schema_compliance_report - C (17)
+    M 156:4 SchemaValidator._validate_column_names_and_order - C (11)
+    M 294:4 SchemaValidator._is_type_compatible - B (8)
+    M 270:4 SchemaValidator._validate_risk_metrics - B (7)
+    C 30:0 SchemaValidator - B (6)
+    M 129:4 SchemaValidator._validate_column_count - B (6)
+app/tools/portfolio/validation.py
+    F 44:0 validate_strategy_config - F (43)
+app/tools/validators/data_quality_validator.py
+    M 272:4 DataQualityValidator.fix_common_issues - C (14)
+    M 142:4 DataQualityValidator._validate_mathematical_consistency - B (9)
+    C 22:0 DataQualityValidator - B (7)
+    M 74:4 DataQualityValidator._validate_uuid_formats - B (7)
+    M 244:4 DataQualityValidator._validate_data_types - B (7)
+    M 115:4 DataQualityValidator._validate_schema_completeness - B (6)
+    M 192:4 DataQualityValidator._validate_precision_standards - B (6)
+app/tools/export/formats.py
+    M 423:4 CSVExporter._validate_metrics - C (16)
+    M 372:4 CSVExporter._generate_filename - C (13)
+    M 626:4 JSONExporter._generate_filename - C (13)
+    M 136:4 CSVExporter._ensure_canonical_schema_compliance - B (10)
+    C 25:0 CSVExporter - B (9)
+    M 42:4 CSVExporter.export - B (8)
+    M 202:4 CSVExporter._apply_canonical_column_order - B (8)
+    C 497:0 JSONExporter - B (7)
+    M 106:4 CSVExporter._prepare_dataframe - B (6)
+    M 500:4 JSONExporter.export - B (6)
+app/tools/export/unified_export.py
+    M 548:4 UnifiedExportProcessor._validate_and_transform_schema - B (9)
+    M 214:4 PerformanceMonitor.get_performance_summary - B (8)
+    M 315:4 UnifiedExportProcessor.export_single - B (8)
+    M 445:4 UnifiedExportProcessor.export_batch - B (7)
+app/tools/services/backtesting_parameter_export_service.py
+    M 440:4 BacktestingParameterExportService._generate_strategy_parameters - E (33)
+    M 1059:4 BacktestingParameterExportService._calculate_optimal_exit_levels - D (26)
+    M 902:4 BacktestingParameterExportService._calculate_optimal_trailing_stop - D (21)
+    M 2051:4 BacktestingParameterExportService._generate_parameter_validation_report - B (9)
+    M 1417:4 BacktestingParameterExportService._calculate_momentum_exit_threshold - B (8)
+    M 715:4 BacktestingParameterExportService._estimate_durations_from_metrics - B (7)
+    M 789:4 BacktestingParameterExportService._calculate_real_atr_from_equity_curve - B (7)
+    M 1483:4 BacktestingParameterExportService._calculate_trend_exit_threshold - B (7)
+    M 1587:4 BacktestingParameterExportService._calculate_statistical_max_days - B (7)
+    M 327:4 BacktestingParameterExportService.export_generic_csv - B (6)
+app/tools/services/statistical_analysis_service.py
+    M 2686:4 StatisticalAnalysisService._extract_raw_analysis_data - D (27)
+    M 3960:4 StatisticalAnalysisService._check_component_score_override - D (24)
+    M 1072:4 StatisticalAnalysisService._analyze_equity_curve_performance - D (22)
+    M 3303:4 StatisticalAnalysisService._combine_strategy_analyses - D (21)
+    M 2968:4 StatisticalAnalysisService._extract_strategy_analysis_from_coordinated_data - C (18)
+    M 3758:4 StatisticalAnalysisService._determine_enhanced_signal_type - C (18)
+    M 3193:4 StatisticalAnalysisService._analyze_equity_curve_performance_raw - C (17)
+    M 1524:4 StatisticalAnalysisService._determine_position_exit_signal_type - C (16)
+    M 917:4 StatisticalAnalysisService._analyze_strategy_performance - C (14)
+    M 2282:4 StatisticalAnalysisService._calculate_risk_adjusted_score - C (14)
+    M 3111:4 StatisticalAnalysisService._analyze_trade_history_performance_raw - C (14)
+    M 155:4 StatisticalAnalysisService._load_position_context - C (13)
+    M 721:4 StatisticalAnalysisService._analyze_asset_distribution - C (13)
+    M 2330:4 StatisticalAnalysisService._determine_signal_type - C (13)
+    M 2461:4 StatisticalAnalysisService._calculate_overall_confidence - C (13)
+    M 1227:4 StatisticalAnalysisService._check_equity_data_availability - C (11)
+    M 255:4 StatisticalAnalysisService._find_matching_position - B (10)
+    M 2144:4 StatisticalAnalysisService._calculate_max_drawdown - B (9)
+    M 1674:4 StatisticalAnalysisService._estimate_position_exit_timeline - B (8)
+    M 2630:4 StatisticalAnalysisService.health_check - B (8)
+    C 51:0 StatisticalAnalysisService - B (7)
+    M 1702:4 StatisticalAnalysisService._generate_position_risk_warning - B (7)
+    M 2118:4 StatisticalAnalysisService._calculate_kurtosis - B (7)
+    M 2394:4 StatisticalAnalysisService._estimate_expected_upside - B (7)
+    M 2418:4 StatisticalAnalysisService._estimate_expected_timeline - B (7)
+    M 3884:4 StatisticalAnalysisService._estimate_enhanced_expected_upside - B (7)
+    M 3920:4 StatisticalAnalysisService._generate_enhanced_risk_warning - B (7)
+    M 4089:4 StatisticalAnalysisService.validate_signal_generation_for_extreme_scores - B (7)
+    M 60:4 StatisticalAnalysisService.__init__ - B (6)
+    M 1287:4 StatisticalAnalysisService._analyze_combined_strategy_performance - B (6)
+    M 1737:4 StatisticalAnalysisService._generate_exit_signal - B (6)
+    M 2095:4 StatisticalAnalysisService._calculate_skewness - B (6)
+    M 2254:4 StatisticalAnalysisService._calculate_tertiary_signal_strength - B (6)
+    M 2538:4 StatisticalAnalysisService._generate_recommendation_summary - B (6)
+    M 3648:4 StatisticalAnalysisService._calculate_combined_source_confidence - B (6)
+    M 3691:4 StatisticalAnalysisService._calculate_source_reliability_score - B (6)
+app/tools/services/exit_strategy_optimizer.py
+    M 164:4 ExitStrategyOptimizer._generate_exit_scenarios - B (7)
+    M 448:4 ExitStrategyOptimizer._calculate_expected_outcomes - B (6)
+    M 544:4 ExitStrategyOptimizer._calculate_optimization_confidence - B (6)
+app/tools/services/seasonality_service.py
+    M 254:4 SeasonalityService._export_json - D (30)
+    M 476:4 SeasonalityService._display_monthly_calendar - D (28)
+    M 721:4 SeasonalityService._display_week_of_year_calendar - C (20)
+    M 600:4 SeasonalityService._display_weekly_heatmap - C (18)
+    M 808:4 SeasonalityService._display_statistical_summary - C (18)
+    M 666:4 SeasonalityService._display_week_of_year_highlights - C (14)
+    C 26:0 SeasonalityService - C (12)
+    M 116:4 SeasonalityService._analyze_ticker - C (11)
+    M 44:4 SeasonalityService.run_analysis - B (6)
+app/tools/services/strategy_data_coordinator.py
+    M 1099:4 StrategyDataCoordinator._validate_strategy_data - D (27)
+    M 1251:4 StrategyDataCoordinator._find_strategy_in_csv - D (21)
+    M 286:4 StrategyDataCoordinator._load_coordinated_strategy_data - C (20)
+    M 1732:4 StrategyDataCoordinator._log_strategy_not_found_with_suggestions - C (20)
+    M 935:4 StrategyDataCoordinator._load_mfe_mae_from_position - C (18)
+    M 734:4 StrategyDataCoordinator._load_backtesting_from_csv - C (17)
+    M 540:4 StrategyDataCoordinator._populate_from_statistical_json - C (16)
+    M 847:4 StrategyDataCoordinator._populate_from_positions_data - C (14)
+    M 1361:4 StrategyDataCoordinator._parse_strategy_identifier - C (14)
+    M 1446:4 StrategyDataCoordinator._find_strategy_by_constructed_name - C (13)
+    M 2008:4 StrategyDataCoordinator._check_strategy_in_all_sources - C (12)
+    C 91:0 StrategyDataCoordinator - C (11)
+    M 191:4 StrategyDataCoordinator._validate_data_sources - C (11)
+    M 216:4 StrategyDataCoordinator.get_strategy_data - C (11)
+    M 2119:4 StrategyDataCoordinator._find_alternative_strategies - C (11)
+    M 627:4 StrategyDataCoordinator._populate_from_backtesting_data - B (10)
+    M 1897:4 StrategyDataCoordinator._show_available_strategies - B (10)
+    M 2071:4 StrategyDataCoordinator._generate_diagnostic_suggestions - B (10)
+    M 1011:4 StrategyDataCoordinator._populate_from_asset_distribution - B (9)
+    M 1856:4 StrategyDataCoordinator._find_closest_strategy_match - B (9)
+    M 2190:4 StrategyDataCoordinator._check_data_integrity_issues - B (9)
+    M 1646:4 StrategyDataCoordinator.refresh_all_data - B (8)
+    M 1566:4 StrategyDataCoordinator.create_data_snapshot - B (6)
+app/tools/services/strategy_execution_engine.py
+    M 316:4 StrategyExecutionEngine.execute_strategy_with_concurrent_support - C (12)
+    M 221:4 StrategyExecutionEngine._execute_strategy_with_tracking - B (8)
+    M 273:4 StrategyExecutionEngine._optimize_portfolio_results - B (7)
+app/tools/services/sell_report_generator.py
+    M 531:4 SellReportGenerator._determine_optimal_exit - C (18)
+    M 231:4 SellReportGenerator._generate_technical_analysis - B (9)
+    M 588:4 SellReportGenerator._calculate_risk_score - B (8)
+    M 94:4 SellReportGenerator._get_strategy_data - B (7)
+    M 193:4 SellReportGenerator._generate_statistical_foundation - B (6)
+    M 435:4 SellReportGenerator._generate_error_report - B (6)
+app/tools/services/seasonality_expectancy_service.py
+    M 206:4 SeasonalityExpectancyService._analyze_ticker_file - D (23)
+    M 49:4 SeasonalityExpectancyService.analyze_current_period - C (13)
+    M 148:4 SeasonalityExpectancyService._calculate_time_weights - B (7)
+    M 394:4 SeasonalityExpectancyService._calculate_confidence - B (7)
+    C 25:0 SeasonalityExpectancyService - B (6)
+app/tools/services/export_validator.py
+    M 384:4 ExportValidator._generate_comprehensive_fallback_report - D (30)
+    M 30:4 ExportValidator.validate_exports - C (11)
+    M 261:4 ExportValidator._export_statistical_analysis - B (10)
+    C 17:0 ExportValidator - B (9)
+    M 175:4 ExportValidator._generate_analysis_data - B (9)
+    M 110:4 ExportValidator.generate_fallback_exports - B (6)
+app/tools/services/enhanced_service_coordinator.py
+    M 138:4 EnhancedServiceCoordinator.analyze_strategy_with_position_sizing - B (7)
+    M 433:4 EnhancedServiceCoordinator.sync_with_strategy_results - B (6)
+app/tools/services/service_coordinator.py
+    M 596:4 ServiceCoordinator._extract_strategy_identifiers_from_ma_request - B (10)
+    M 556:4 ServiceCoordinator._extract_strategy_identifiers - B (9)
+    M 217:4 ServiceCoordinator.analyze_strategy - B (8)
+app/tools/services/position_sizing_strategy_engine.py
+    M 409:4 PositionSizingStrategyEngine.sync_positions_with_strategy_results - C (14)
+    M 196:4 PositionSizingStrategyEngine._process_position_sizing_for_portfolios - B (9)
+    M 366:4 PositionSizingStrategyEngine._extract_latest_portfolio_data - B (9)
+    C 69:0 PositionSizingStrategyEngine - B (6)
+app/tools/services/signal_data_aggregator.py
+    M 621:4 SignalDataAggregator._populate_from_trade_history - E (39)
+    M 912:4 SignalDataAggregator.validate_mathematical_constraints - E (33)
+    M 1131:4 SignalDataAggregator._check_and_update_stale_mfe_mae - D (27)
+    M 1672:4 SignalDataAggregator.generate_coordinated_data_quality_report - D (21)
+    M 817:4 SignalDataAggregator._validate_performance_metrics - C (19)
+    M 462:4 SignalDataAggregator._populate_from_statistical_json - C (18)
+    M 1627:4 SignalDataAggregator._check_suspicious_patterns - C (17)
+    M 1825:4 SignalDataAggregator.generate_data_quality_report - C (17)
+    M 536:4 SignalDataAggregator._populate_from_backtesting_data - C (15)
+    M 1370:4 SignalDataAggregator.detect_statistical_uniformity - C (13)
+    C 87:0 SignalDataAggregator - C (12)
+    M 1539:4 SignalDataAggregator._check_exact_uniformity - C (11)
+    M 1583:4 SignalDataAggregator._check_statistical_clustering - B (9)
+    M 1957:4 SignalDataAggregator._calculate_data_quality_score - B (9)
+    M 2000:4 SignalDataAggregator._generate_recommendations - B (8)
+    M 171:4 SignalDataAggregator.get_strategy_data - B (7)
+    M 351:4 SignalDataAggregator._find_strategy_in_csv - B (6)
+app/tools/services/result_aggregation_service.py
+    M 399:4 ResultAggregationService.get_analysis_summary - B (8)
+    M 124:4 ResultAggregationService.create_analysis_response - B (7)
+    M 248:4 ResultAggregationService.get_task_status - B (6)
+app/tools/services/portfolio_processing_service.py
+    M 283:4 PortfolioProcessingService.filter_portfolios_by_criteria - C (11)
+    M 151:4 PortfolioProcessingService.collect_export_paths - B (6)
+app/tools/services/divergence_export_service.py
+    M 1267:4 DivergenceExportService._generate_comprehensive_spds_report - F (96)
+    M 752:4 DivergenceExportService._generate_markdown_report - F (43)
+    M 1024:4 DivergenceExportService._generate_portfolio_analysis_summary - D (22)
+    M 668:4 DivergenceExportService._prepare_correlation_export_data - C (12)
+    M 439:4 DivergenceExportService._export_json - B (10)
+    C 25:0 DivergenceExportService - B (9)
+    M 60:4 DivergenceExportService.export_statistical_analysis - B (7)
+    M 262:4 DivergenceExportService._export_csv - B (7)
+    M 965:4 DivergenceExportService._generate_divergence_summary_report - B (6)
+app/tools/services/portfolio_seasonality_service.py
+    M 255:4 PortfolioSeasonalityService._display_analysis_plan - C (11)
+    M 30:4 PortfolioSeasonalityService.run_analysis - B (9)
+    C 17:0 PortfolioSeasonalityService - B (8)
+    M 172:4 PortfolioSeasonalityService._determine_ticker_periods - B (8)
+    M 127:4 PortfolioSeasonalityService._load_portfolio - B (7)
+    M 332:4 PortfolioSeasonalityService._save_portfolio_summary - B (7)
+    M 227:4 PortfolioSeasonalityService._parse_duration_to_days - B (6)
+    M 422:4 PortfolioSeasonalityService._prepare_display_data - B (6)
+app/tools/reports/statistical_analysis_report.py
+    M 227:4 StatisticalAnalysisReportGenerator._generate_executive_summary_report - D (29)
+    M 442:4 StatisticalAnalysisReportGenerator._generate_technical_report - D (24)
+    M 565:4 StatisticalAnalysisReportGenerator._generate_summary_section - C (12)
+    M 707:4 StatisticalAnalysisReportGenerator._generate_correlation_report_content - B (9)
+    C 20:0 StatisticalAnalysisReportGenerator - B (7)
+    M 348:4 StatisticalAnalysisReportGenerator._generate_detailed_report - B (7)
+    M 762:4 StatisticalAnalysisReportGenerator._generate_pattern_report_content - B (7)
+app/tools/strategy/migration_helper.py
+    F 143:0 _generate_validation_errors - C (13)
+    F 175:0 _generate_parameter_suggestions - B (9)
+app/tools/strategy/concrete.py
+    M 466:4 SMAAtrStrategy._generate_sma_atr_positions - C (13)
+    C 374:0 SMAAtrStrategy - B (10)
+    M 203:4 MACDStrategy.calculate - B (9)
+    C 20:0 SMAStrategy - B (8)
+    C 107:0 EMAStrategy - B (8)
+    M 28:4 SMAStrategy.calculate - B (7)
+    M 115:4 EMAStrategy.calculate - B (7)
+app/tools/strategy/sensitivity_analysis.py
+    M 236:4 SensitivityAnalyzerBase._analyze_combinations_parallel - C (18)
+    M 172:4 SensitivityAnalyzerBase.analyze_parameter_combinations - B (10)
+    M 79:4 SensitivityAnalyzerBase.analyze_parameter_combination - B (9)
+    F 989:0 analyze_single_portfolio - B (8)
+    F 917:0 analyze_macd_combination - B (7)
+    M 576:4 MASensitivityAnalyzer._extract_strategy_parameters - B (7)
+    M 600:4 MASensitivityAnalyzer._check_data_sufficiency - B (7)
+    M 662:4 MACDSensitivityAnalyzer._extract_strategy_parameters - B (7)
+    M 699:4 MACDSensitivityAnalyzer._format_parameters - B (6)
+app/tools/strategy/strategy_adapter.py
+    M 101:4 StrategyAdapter.get_strategy_parameter_ranges - C (12)
+    M 203:4 StrategyAdapter._validate_legacy_parameters - B (9)
+app/tools/strategy/error_handling.py
+    F 464:0 validate_parameters - C (11)
+    F 411:0 validate_data_sufficiency - B (10)
+    M 192:4 StandardErrorHandler.handle_error - B (9)
+    M 137:4 ErrorHandlerBase.log_error - B (8)
+    M 295:4 PermissiveErrorHandler.handle_error - B (6)
+app/tools/strategy/export_portfolios.py
+    F 281:0 export_portfolios - F (117)
+    F 68:0 _validate_canonical_ordering - C (12)
+app/tools/strategy/unified_strategies.py
+    M 213:4 UnifiedMACDStrategy.calculate - B (9)
+    M 48:4 UnifiedMAStrategy.calculate - B (7)
+    M 127:4 UnifiedMAStrategy.validate_parameters - B (6)
+    M 366:4 UnifiedMACDStrategy.validate_parameters - B (6)
+    M 453:4 UnifiedMeanReversionStrategy.calculate - B (6)
+app/tools/strategy/filter_portfolios.py
+    F 300:0 filter_portfolios - C (19)
+    F 99:0 create_metric_result - B (9)
+    F 395:0 filter_and_export_portfolios - B (8)
+app/tools/strategy/signal_processing.py
+    M 71:4 SignalProcessorBase.process_current_signals - B (9)
+    F 870:0 process_ticker_portfolios - B (8)
+    M 243:4 SignalProcessorBase._calculate_total_combinations - B (8)
+    M 695:4 SMAAtrSignalProcessor.analyze_parameter_combination - B (8)
+app/tools/strategy/signal_utils.py
+    F 210:0 calculate_signal_unconfirmed_realtime - D (23)
+    F 134:0 calculate_signal_unconfirmed - D (21)
+    F 52:0 is_signal_current - B (6)
+    F 80:0 is_exit_signal_current - B (6)
+app/tools/strategy/unified_config.py
+    M 166:4 ConfigValidator.validate_base_config - C (19)
+    C 157:0 ConfigValidator - B (6)
+app/tools/strategy/template/demo_strategy_creation.py
+    F 212:0 demo_validation_and_testing - B (10)
+    F 78:0 demo_advanced_macd_strategy - B (6)
+app/tools/strategy/template/config_template.py
+    M 216:4 TemplateConfig.get_strategy_specific_imports - C (15)
+    M 77:4 TemplateConfig._generate_default_config - C (11)
+    C 38:0 TemplateConfig - B (10)
+    M 155:4 TemplateConfig.get_config_type_definition - B (10)
+    M 190:4 TemplateConfig.get_default_config_instance - B (8)
+app/tools/strategy/template/generator.py
+    M 231:4 StrategyTemplateGenerator._generate_readme - B (9)
+    M 48:4 StrategyTemplateGenerator.generate_strategy - B (7)
+    M 518:4 StrategyTemplateGenerator.get_strategy_info - B (7)
+    M 19:4 StrategyTemplateGenerator.__init__ - B (6)
+    M 462:4 StrategyTemplateGenerator.list_available_strategies - B (6)
+    M 480:4 StrategyTemplateGenerator.validate_strategy_name - B (6)
+app/tools/strategy/template/cli.py
+    M 390:4 StrategyTemplateCLI._prompt_indicators - C (14)
+    M 245:4 StrategyTemplateCLI._strategy_info - B (7)
+    M 170:4 StrategyTemplateCLI._create_strategy - B (6)
+    M 360:4 StrategyTemplateCLI._prompt_strategy_type - B (6)
+app/tools/allocation/efficient_frontier_integration.py
+    M 91:4 AllocationOptimizer.calculate_max_allocation_percentage - B (8)
+    M 232:4 AllocationOptimizer.validate_allocation_constraints - B (8)
+app/contexts/portfolio/services/portfolio_review_service.py
+    M 347:4 PortfolioSynthesisService.run_multi_strategy_synthesis - D (30)
+    M 995:4 PortfolioSynthesisService._create_dynamic_allocation - D (22)
+    M 835:4 PortfolioSynthesisService.run_multi_strategy_synthesis_parallel - C (17)
+    M 180:4 PortfolioSynthesisService.run_single_strategy_synthesis - B (10)
+    C 99:0 PortfolioSynthesisService - B (9)
+    M 1104:4 PortfolioSynthesisService._calculate_strategy_ready_date - B (9)
+app/contexts/portfolio/services/unified_analysis_service.py
+    M 65:4 UnifiedAnalysisService.run_comprehensive_analysis - B (8)
+    M 156:4 UnifiedAnalysisService.analyze_strategy_interactions - B (6)
+    M 223:4 UnifiedAnalysisService.generate_optimization_recommendations - B (6)
+app/contexts/portfolio/services/permutation_optimization_service.py
+    M 352:4 PermutationOptimizationService._run_parallel_optimization - B (8)
+    M 198:4 PermutationOptimizationService.optimize_with_constraints - B (7)
+    M 419:4 PermutationOptimizationService._run_sequential_optimization - B (7)
+    M 274:4 PermutationOptimizationService._generate_permutations - B (6)
+app/contexts/portfolio/services/portfolio_manager.py
+    M 195:4 PortfolioManager._calculate_allocations - C (12)
+    M 320:4 PortfolioManager._calculate_improvement - B (7)
+    C 37:0 PortfolioManager - B (6)
+app/contexts/portfolio/services/trade_history_service.py
+    M 210:4 TradeHistoryService.update_all_positions - E (35)
+    M 49:4 TradeHistoryService.update_open_positions - C (17)
+    M 454:4 TradeHistoryService._validate_all_calculations - C (16)
+    M 546:4 TradeHistoryService._refresh_price_data - C (13)
+    C 26:0 TradeHistoryService - B (10)
+    M 634:4 TradeHistoryService._calculate_position_metrics_comprehensive - B (10)
+    M 762:4 TradeHistoryService._calculate_position_metrics - B (8)
+    M 725:4 TradeHistoryService._read_prices - B (7)
+app/contexts/portfolio/services/benchmark_comparison_service.py
+    M 58:4 BenchmarkComparisonService.create_benchmark_portfolio - C (19)
+    M 410:4 BenchmarkComparisonService._create_buy_and_hold_benchmark - C (12)
+    M 309:4 BenchmarkComparisonService.create_multi_asset_benchmark - B (8)
+    C 42:0 BenchmarkComparisonService - B (7)
+    M 225:4 BenchmarkComparisonService.compare_portfolios - B (6)
+app/contexts/portfolio/services/portfolio_visualization_service.py
+    M 203:4 PortfolioVisualizationService.create_comprehensive_portfolio_plots - B (10)
+app/contexts/portfolio/services/concurrency_analysis_service.py
+    M 328:4 ConcurrencyAnalysisEngine._generate_report - B (7)
+app/contexts/portfolio/services/portfolio_data_export_service.py
+    M 113:4 PortfolioDataExportService.export_portfolio_data - C (16)
+    M 628:4 PortfolioDataExportService._export_vectorbt_object - C (13)
+    M 368:4 PortfolioDataExportService._export_trades - C (11)
+    M 414:4 PortfolioDataExportService._export_orders - C (11)
+    M 460:4 PortfolioDataExportService._export_positions - C (11)
+    C 90:0 PortfolioDataExportService - B (8)
+    M 737:4 PortfolioDataExportService._export_metadata - B (8)
+    M 506:4 PortfolioDataExportService._export_statistics - B (7)
+    M 546:4 PortfolioDataExportService._export_prices - B (7)
+    M 202:4 PortfolioDataExportService._export_portfolio_value - B (6)
+    M 242:4 PortfolioDataExportService._export_returns - B (6)
+    M 282:4 PortfolioDataExportService._export_cumulative_returns - B (6)
+    M 323:4 PortfolioDataExportService._export_drawdowns - B (6)
+    M 583:4 PortfolioDataExportService._export_benchmark_data - B (6)
+    M 792:4 PortfolioDataExportService._generate_filename - B (6)
+app/contexts/infrastructure/services/data_export_service.py
+    M 156:4 DataExportService.export_to_markdown - D (24)
+    M 346:4 DataExportService.export_multiple_formats - C (12)
+    M 46:4 DataExportService.export_to_csv - C (11)
+    C 20:0 DataExportService - B (9)
+    M 262:4 DataExportService.export_to_excel - B (9)
+    M 97:4 DataExportService.export_to_json - B (8)
+app/contexts/infrastructure/services/configuration_service.py
+    M 37:4 ConfigurationService.load_config - B (9)
+app/contexts/trading/services/strategy_executor.py
+    M 314:4 StrategyExecutor._calculate_performance - B (7)
+    M 112:4 StrategyExecutor._validate_parameters - B (6)
+    M 131:4 StrategyExecutor._validate_sma_parameters - B (6)
+    M 209:4 StrategyExecutor._execute_strategy_logic - B (6)
+app/contexts/trading/services/backtesting_parameter_service.py
+    M 209:4 BacktestingParameterService.validate_parameters - C (14)
+app/contexts/analytics/services/divergence_detector.py
+    M 130:4 DivergenceDetector._calculate_convergence_score - B (7)
+    M 196:4 DivergenceDetector._calculate_divergence_magnitude - B (7)
+    M 221:4 DivergenceDetector._calculate_statistical_divergence - B (6)
+    M 256:4 DivergenceDetector._calculate_volatility_divergence - B (6)
+app/contexts/analytics/services/performance_analyzer.py
+    M 42:4 PerformanceAnalyzer.analyze_trade_history - C (13)
+    M 121:4 PerformanceAnalyzer.analyze_equity_curve - C (11)
+    C 22:0 PerformanceAnalyzer - B (9)
+    M 201:4 PerformanceAnalyzer.analyze_strategy_distribution - B (7)
+    M 263:4 PerformanceAnalyzer.calculate_risk_metrics - B (6)
+app/contexts/analytics/services/signal_aggregator.py
+    M 226:4 SignalAggregator._aggregate_across_sources - B (10)
+    M 183:4 SignalAggregator._extract_signals_from_source - B (9)
+    M 335:4 SignalAggregator._calculate_consistency_score - B (7)
+    C 44:0 SignalAggregator - B (6)
+app/contexts/analytics/services/statistical_analyzer.py
+    M 41:4 StatisticalAnalyzer.calculate_basic_statistics - B (9)
+    C 22:0 StatisticalAnalyzer - B (6)
+app/core/risk_management_layer.py
+    M 467:4 RiskCalculator._calculate_trade_metrics - C (16)
+    M 325:4 RiskCalculator.calculate_comprehensive_metrics - C (12)
+    C 321:0 RiskCalculator - C (11)
+    M 434:4 RiskCalculator._infer_frequency - B (8)
+    M 638:4 RiskManagementLayer.get_portfolio_risk_summary - B (8)
+    M 141:4 PositionSizer.calculate_position_size - B (7)
+app/core/performance_monitoring.py
+    M 427:4 PerformanceMonitor.get_execution_summary - D (30)
+    M 496:4 PerformanceMonitor.get_system_health - B (10)
+    C 213:0 PerformanceMonitor - B (6)
+    M 403:4 PerformanceMonitor.get_recent_metrics - B (6)
+    M 566:4 PerformanceMonitor._update_execution_stats - B (6)
+app/core/strategy_framework.py
+    C 26:0 UnifiedStrategyConfig - B (8)
+    M 94:4 UnifiedStrategyConfig.validate_for_strategy - B (7)
+app/core/parameter_testing_engine.py
+    M 203:4 ParameterTestingEngine.optimize_parameters - C (18)
+    M 153:4 ParameterTestingEngine._calculate_priority - C (15)
+    C 79:0 ParameterTestingEngine - B (7)
+    M 388:4 ParameterTestingEngine.export_results - B (7)
+    C 46:0 OptimizationConstraints - B (6)
+app/core/strategies/ma_cross_strategy.py
+    M 20:4 MACrossStrategy.validate_parameters - D (22)
+    C 13:0 MACrossStrategy - B (9)
+    M 90:4 MACrossStrategy.execute - B (9)
+app/core/strategies/macd_strategy.py
+    M 20:4 MACDStrategy.validate_parameters - B (10)
+app/core/strategies/ma_cross_unified.py
+    M 71:4 MACrossUnifiedStrategy.validate_config - B (7)
+app/analysis/run_analysis.py
+    F 66:0 create_charts - C (12)
+    F 177:0 run_comprehensive_analysis - B (10)
+app/analysis/quantitative_analysis.py
+    M 494:4 QuantitativeAnalyzer.generate_comprehensive_report - D (26)
+    M 343:4 QuantitativeAnalyzer._generate_recommendations - D (21)
+    M 281:4 QuantitativeAnalyzer.calculate_portfolio_metrics - C (13)
+    C 101:0 QuantitativeAnalyzer - B (9)
+    M 405:4 QuantitativeAnalyzer.compare_portfolios - B (8)
+    M 744:4 QuantitativeAnalyzer.export_metrics_to_json - B (8)
+    M 449:4 QuantitativeAnalyzer.run_monte_carlo_analysis - B (6)
+app/dip/dip.py
+    F 101:0 calculate_expectancy - B (7)
+app/strategies/update_portfolios.py
+    F 168:0 _execute_portfolio_processing - F (82)
+app/strategies/geometric_brownian_motion/2_extract_simulations.py
+    F 60:0 extract_simulations - B (7)
+app/strategies/tools/fresh_analysis_dispatcher.py
+    F 211:0 should_trigger_fresh_analysis - C (11)
+    F 79:0 _dispatch_ma_analysis - B (6)
+app/strategies/tools/process_strategy_portfolios.py
+    F 21:0 process_strategy_portfolios - C (17)
+app/strategies/tools/process_ma_portfolios.py
+    F 18:0 process_ma_portfolios - C (15)
+app/strategies/tools/summary_processing.py
+    F 115:0 process_ticker_portfolios - F (123)
+    F 1218:0 update_strategy_files - F (70)
+    F 1653:0 export_summary_results - F (54)
+    F 1108:0 _generate_spds_compatible_entries - C (12)
+app/strategies/sma_atr/1_get_portfolios.py
+    F 76:0 filter_portfolios - B (8)
+    F 175:0 run - B (8)
+app/strategies/sma_atr/tools/signal_generation.py
+    F 17:0 generate_current_signals - C (19)
+app/strategies/sma_atr/tools/strategy_execution.py
+    F 534:0 process_single_ticker - D (30)
+    F 306:0 generate_sma_atr_positions - C (17)
+    F 437:0 execute_single_strategy - B (6)
+app/strategies/macd/config_types.py
+    F 43:0 validate_config - B (6)
+app/strategies/macd/2_macd_cross_rsi.py
+    F 59:0 calculate_metrics - C (14)
+    F 27:0 backtest - B (10)
+app/strategies/macd/test_comprehensive_multi_ticker.py
+    F 76:0 test_comprehensive_macd_functionality - D (30)
+app/strategies/macd/3_macd_cross_stop.py
+    F 47:0 backtest - C (20)
+    F 95:0 calculate_metrics - C (15)
+app/strategies/macd/4_macd_cross_psl.py
+    F 50:0 main - B (9)
+app/strategies/macd/quick_test_multi_ticker.py
+    F 21:0 test_multi_ticker_execution - C (13)
+app/strategies/macd/test_multi_ticker.py
+    M 144:4 TestMACDMultiTicker.test_single_ticker_use_current_false - C (11)
+    M 213:4 TestMACDMultiTicker.test_multi_ticker_use_current_false - C (11)
+    M 181:4 TestMACDMultiTicker.test_multi_ticker_use_current_true - B (10)
+    M 110:4 TestMACDMultiTicker.test_single_ticker_use_current_true - B (9)
+    M 79:4 TestMACDMultiTicker._verify_csv_structure - B (8)
+    C 20:0 TestMACDMultiTicker - B (7)
+app/strategies/macd/tools/signal_generation.py
+    F 177:0 get_current_signals - C (15)
+    F 64:0 generate_macd_signals - B (8)
+    F 289:0 generate_current_signals - B (6)
+app/strategies/macd/tools/portfolio_selection.py
+    F 16:0 get_best_portfolio - C (11)
+app/strategies/macd/tools/sensitivity_analysis.py
+    F 19:0 analyze_parameter_combinations - C (15)
+    F 110:0 analyze_parameter_combination - C (14)
+app/strategies/macd/tools/portfolio_processing.py
+    F 21:0 process_single_ticker - C (13)
+app/strategies/ma_cross/config_types.py
+    F 212:0 validate_config_compatibility - B (7)
+app/strategies/ma_cross/3_get_atr_stop_portfolios.py
+    F 298:0 run_atr_analysis - B (10)
+    F 188:0 export_atr_portfolios - B (8)
+app/strategies/ma_cross/monte_carlo_integration.py
+    M 210:4 MonteCarloEnhancedAnalyzer._convert_results_to_legacy_format - B (9)
+    M 397:4 MonteCarloEnhancedAnalyzer._run_robustness_analysis - B (8)
+    M 464:4 MonteCarloEnhancedAnalyzer._generate_recommendations - B (8)
+    M 337:4 MonteCarloEnhancedAnalyzer._filter_promising_parameters - B (7)
+    M 672:4 MonteCarloEnhancedAnalyzer._export_enhanced_results - B (7)
+    C 50:0 MonteCarloEnhancedAnalyzer - B (6)
+    M 641:4 MonteCarloEnhancedAnalyzer._create_analysis_summary - B (6)
+app/strategies/ma_cross/scanner_cli.py
+    F 43:0 process_scanner - B (10)
+app/strategies/ma_cross/3_get_volume_stop_portfolios.py
+    F 303:0 run_volume_analysis - B (10)
+    F 197:0 export_volume_portfolios - B (7)
+app/strategies/ma_cross/3_review_stop_loss.py
+    F 132:0 run - B (10)
+app/strategies/ma_cross/test_monte_carlo_integration.py
+    F 31:0 test_monte_carlo_integration - B (7)
+app/strategies/ma_cross/quick_monte_carlo_test.py
+    F 22:0 test_core_monte_carlo_functionality - B (7)
+    F 218:0 main - B (6)
+app/strategies/ma_cross/2_review_rsi.py
+    F 36:0 run - B (9)
+app/strategies/ma_cross/1_get_portfolios.py
+    F 96:0 filter_portfolios - B (8)
+    F 207:0 execute_all_strategies - B (7)
+app/strategies/ma_cross/scanner_adapter.py
+    M 162:4 ScannerAdapter._json_to_config - B (6)
+app/strategies/ma_cross/4_review_protective_stop_loss.py
+    F 43:0 run - C (11)
+app/strategies/ma_cross/tools/atr_progress_tracker.py
+    M 244:4 ATRProgressTracker.get_cached_results - B (7)
+app/strategies/ma_cross/tools/atr_signal_processing.py
+    F 19:0 calculate_sma_signals - C (11)
+    F 79:0 generate_hybrid_ma_atr_signals - C (11)
+    F 163:0 _combine_ma_entry_atr_exit_signals - B (9)
+    F 252:0 create_atr_parameter_combinations - B (8)
+    F 306:0 validate_atr_parameters - B (7)
+app/strategies/ma_cross/tools/signal_generation.py
+    F 73:0 generate_current_signals - D (22)
+    F 15:0 get_current_signals - B (9)
+app/strategies/ma_cross/tools/rsi_visualization.py
+    F 35:0 create_rsi_heatmap - B (10)
+app/strategies/ma_cross/tools/scanner_processing.py
+    F 104:0 export_results - F (42)
+app/strategies/ma_cross/tools/rsi_heatmap.py
+    F 24:0 analyze_rsi_parameters - C (14)
+app/strategies/ma_cross/tools/stop_loss_plotting.py
+    F 31:0 create_stop_loss_heatmap - B (6)
+app/strategies/ma_cross/tools/plot_heatmaps.py
+    F 11:0 plot_heatmap - B (10)
+app/strategies/ma_cross/tools/parameter_sensitivity.py
+    F 11:0 analyze_parameter_sensitivity - B (10)
+app/strategies/ma_cross/tools/stop_loss_analysis.py
+    F 20:0 analyze_stop_loss_parameters - C (16)
+app/strategies/ma_cross/tools/slippage_analysis.py
+    F 15:0 analyze_trades - C (13)
+app/strategies/ma_cross/tools/process_strategy_portfolios.py
+    F 20:0 process_strategy_portfolios - C (16)
+app/strategies/ma_cross/tools/process_ma_portfolios.py
+    F 10:0 process_ma_portfolios - C (14)
+app/strategies/ma_cross/tools/psl_exit.py
+    F 11:0 psl_exit - C (13)
+app/strategies/ma_cross/tools/atr_parameter_sweep.py
+    M 521:4 ATRParameterSweepEngine.validate_sweep_results - C (20)
+    M 361:4 ATRParameterSweepEngine.execute_atr_parameter_sweep - C (15)
+    M 127:4 ATRParameterSweepEngine.process_single_atr_combination - C (12)
+    C 37:0 ATRParameterSweepEngine - C (11)
+    M 280:4 ATRParameterSweepEngine.process_atr_parameter_chunk - B (9)
+app/strategies/ma_cross/tools/volume_parameter_sweep.py
+    M 677:4 VolumeParameterSweepEngine.validate_sweep_results - D (22)
+    M 134:4 VolumeParameterSweepEngine.generate_hybrid_ma_volume_signals - C (17)
+    M 524:4 VolumeParameterSweepEngine.execute_volume_parameter_sweep - C (14)
+    C 32:0 VolumeParameterSweepEngine - C (12)
+    M 284:4 VolumeParameterSweepEngine.process_single_volume_combination - C (12)
+    M 449:4 VolumeParameterSweepEngine.process_volume_parameter_chunk - B (8)
+    M 43:4 VolumeParameterSweepEngine.__init__ - B (6)
+app/strategies/ma_cross/tools/protective_stop_loss_plotting.py
+    F 67:0 create_protective_stop_loss_heatmap - B (6)
+app/strategies/ma_cross/tools/generate_signals.py
+    F 11:0 generate_signals - C (12)
+app/strategies/ma_cross/tools/heatmap_figures.py
+    F 8:0 create_heatmap_figures - E (37)
+app/strategies/ma_cross/tools/strategy_execution.py
+    F 144:0 process_single_ticker - C (14)
+    F 402:0 execute_strategy_concurrent - C (12)
+    F 560:0 execute_strategy - C (12)
+    F 301:0 process_ticker_batch - B (10)
+    F 39:0 execute_single_strategy - B (7)
+app/strategies/ma_cross/tools/strategy_execution_all.py
+    F 128:0 execute_strategy_all - C (15)
+    F 19:0 process_ticker_portfolios_all - C (11)
+app/strategies/ma_cross/tools/signal_utils.py
+    F 44:0 is_signal_current - B (6)
+app/strategies/ma_cross/tools/psl_signals.py
+    F 44:0 find_last_negative_candle - C (13)
+    F 12:0 create_signal_column - B (6)
+app/strategies/ma_cross/tools/psl_metrics.py
+    F 79:0 create_filename - B (6)
+app/strategies/ma_cross/tools/summary_processing.py
+    F 31:0 process_ticker_portfolios - F (46)
+    F 392:0 export_summary_results - C (16)
+app/strategies/ma_cross/core/models.py
+    M 42:4 AnalysisConfig.to_dict - B (6)
+app/strategies/ma_cross/core/analyzer.py
+    M 49:4 MACrossAnalyzer.analyze_single - B (10)
+    M 238:4 MACrossAnalyzer._check_single_window - B (10)
+    M 212:4 MACrossAnalyzer._analyze_signals - B (7)
+    C 25:0 MACrossAnalyzer - B (6)
+    M 305:4 MACrossAnalyzer._scan_window_permutations - B (6)
+app/strategies/ma_cross/config/parameter_testing.py
+    M 332:4 ParameterTestingConfig.validate - D (25)
+    C 61:0 FilterCriteria - C (14)
+    M 78:4 FilterCriteria.validate - C (13)
+    C 187:0 ParameterTestingConfig - C (11)
+    M 287:4 ParameterTestingConfig.to_dict - B (9)
+    C 147:0 ExecutionOptions - B (7)
+    C 116:0 ExportOptions - B (6)
+    M 157:4 ExecutionOptions.validate - B (6)
+app/strategies/comp/strategy.py
+    F 147:0 process_ticker - B (9)
+    F 89:0 run - B (7)
+app/strategies/comp/calculator.py
+    F 184:0 generate_compound_signals - B (7)
+    F 253:0 calculate_compound_strategy - B (7)
+    F 57:0 calculate_component_position - B (6)
+app/strategies/mean_reversion_hammer/1_get_portfolios.py
+    F 29:0 run - B (9)
+app/strategies/mean_reversion_hammer/tools/signal_generation.py
+    F 118:0 get_current_signals - B (8)
+    F 22:0 calculate_signals - B (6)
+    F 164:0 generate_current_signals - B (6)
+app/strategies/mean_reversion_hammer/tools/portfolio_processing.py
+    F 21:0 process_single_ticker - B (8)
+app/strategies/monte_carlo/test_parameter_robustness.py
+    F 26:0 test_basic_parameter_robustness - B (9)
+app/strategies/monte_carlo/parameter_robustness.py
+    M 285:4 ParameterRobustnessAnalyzer.analyze_parameter_robustness - C (11)
+    F 544:0 run_parameter_robustness_analysis - B (10)
+    M 236:4 ParameterRobustnessAnalyzer.calculate_performance_stability - B (10)
+    M 458:4 ParameterRobustnessAnalyzer._calculate_regime_consistency - B (7)
+    C 86:0 ParameterRobustnessAnalyzer - B (6)
+    M 412:4 ParameterRobustnessAnalyzer._calculate_statistical_measures - B (6)
+    M 485:4 ParameterRobustnessAnalyzer.export_results - B (6)
+app/strategies/monte_carlo/parameter_visualization.py
+    F 663:0 visualize_monte_carlo_results - C (15)
+    M 520:4 ParameterStabilityVisualizer.create_regime_consistency_plot - C (14)
+    M 67:4 ParameterStabilityVisualizer.create_stability_heatmap - B (9)
+    C 40:0 ParameterStabilityVisualizer - B (8)
+    M 166:4 ParameterStabilityVisualizer.create_confidence_interval_plot - B (7)
+    M 430:4 ParameterStabilityVisualizer.create_parameter_landscape_3d - B (6)
+app/strategies/monte_carlo/simple_test.py
+    F 204:0 test_performance_stability - B (8)
+    F 68:0 test_bootstrap_sampling - B (6)
+    F 108:0 test_parameter_noise - B (6)
+app/strategies/monte_carlo/1_generate_trade_data.py
+    F 49:0 run - B (6)
+app/strategies/atr/config_types.py
+    F 47:0 validate_config - B (7)
+app/strategies/atr/run_tests.py
+    F 367:0 main - C (17)
+    M 148:4 ATRTestRunner.run_tests - C (17)
+    M 273:4 ATRTestRunner.run_specific_test - C (11)
+    C 72:0 ATRTestRunner - B (8)
+    M 118:4 ATRTestRunner._get_test_methods - B (8)
+    M 319:4 ATRTestRunner.list_available_tests - B (6)
+app/strategies/atr/test_unit.py
+    M 201:4 TestATRDirectionSupport.test_short_trailing_stop_movement - B (9)
+    M 301:4 TestATRTrailingStopLogic.test_trailing_stop_position_awareness - B (8)
+    M 172:4 TestATRDirectionSupport.test_short_direction_signal_generation - B (7)
+    C 267:0 TestATRTrailingStopLogic - B (7)
+    M 270:4 TestATRTrailingStopLogic.setUp - B (7)
+    C 553:0 TestATRRegressionPrevention - B (7)
+    C 128:0 TestATRDirectionSupport - B (6)
+    M 585:4 TestATRRegressionPrevention.test_score_calculation_non_zero - B (6)
+app/strategies/atr/test_fixtures.py
+    M 302:4 ATRTestAssertions.assert_valid_atr_portfolio - C (14)
+    C 298:0 ATRTestAssertions - B (9)
+    M 391:4 ATRTestAssertions.assert_no_regression_bugs - B (9)
+    M 364:4 ATRTestAssertions.assert_valid_signals_dataframe - B (8)
+    M 163:4 ATRTestDataGenerator.create_crash_recovery_data - B (7)
+app/strategies/atr/test_integration.py
+    M 400:4 TestATRSignalIntegration.setUp - B (7)
+app/strategies/atr/test_multi_ticker.py
+    M 252:4 TestMultiTickerATRAnalysis.test_multi_ticker_signal_generation_patterns - B (6)
+app/strategies/atr/test_regression.py
+    M 427:4 TestATRRegressionPrevention.test_prevent_position_calculation_regression - B (10)
+    M 320:4 TestATRRegressionPrevention.test_prevent_signal_entry_always_true_export - B (7)
+app/strategies/atr/tools/strategy_execution.py
+    F 58:0 generate_signals - D (21)
+    F 441:0 execute_strategy - D (21)
+    F 197:0 backtest_atr_strategy - C (16)
+    F 291:0 analyze_params - B (8)
+app/strategies/atr/tools/signal_utils.py
+    F 123:0 get_signal_strength - C (12)
+    F 12:0 is_signal_current - B (9)
+    F 56:0 is_exit_signal_current - B (9)
+app/strategies/range/tools/strategy_execution.py
+    F 21:0 process_single_ticker - B (9)
+app/strategies/mean_reversion/1_get_portfolios.py
+    F 23:0 run - B (9)
+app/strategies/mean_reversion/tools/signal_generation.py
+    F 102:0 get_current_signals - B (8)
+    F 19:0 calculate_signals - B (6)
+    F 148:0 generate_current_signals - B (6)
+app/strategies/mean_reversion/tools/portfolio_processing.py
+    F 20:0 process_single_ticker - B (8)
+app/strategies/mean_reversion_rsi/config_types.py
+    F 67:0 validate_config - B (10)
+app/strategies/mean_reversion_rsi/1_get_portfolios.py
+    F 20:0 run - B (9)
+app/strategies/mean_reversion_rsi/tools/signal_generation.py
+    F 105:0 get_current_signals - B (8)
+    F 22:0 calculate_signals - B (6)
+    F 151:0 generate_current_signals - B (6)
+app/strategies/mean_reversion_rsi/tools/portfolio_processing.py
+    F 20:0 process_single_ticker - B (8)
+app/portfolio_synthesis/review.py
+    F 185:0 run - C (13)
+app/portfolio_synthesis/efficient_frontier.py
+    F 459:0 plot_efficient_frontier - B (10)
+    F 326:0 enforce_half_rule_and_normalize - B (7)
+app/cli/main.py
+    F 218:0 pinescript - D (30)
+    F 92:0 status - B (6)
+    F 165:0 init - B (6)
+app/cli/config/manager.py
+    M 64:4 ProfileManager.load_profile - C (14)
+    M 192:4 ProfileManager.resolve_inheritance - B (9)
+app/cli/models/tools.py
+    M 114:4 ExportMADataSweepConfig.validate_tickers - B (6)
+app/cli/models/concurrency.py
+    M 525:4 ConcurrencyAnalysisConfig.model_post_init - B (10)
+    C 419:0 ConcurrencyAnalysisConfig - B (6)
+    M 499:4 ConcurrencyAnalysisConfig.validate_optimization_config - B (6)
+app/cli/models/strategy.py
+    M 433:4 StrategyConfig.validate_strategy_types - C (11)
+app/cli/models/trade_history.py
+    C 152:0 TradeHistoryPositionConfig - B (6)
+app/cli/commands/config.py
+    F 326:0 validate - D (21)
+    F 182:0 edit - B (10)
+    F 273:0 _run_interactive_editor - B (8)
+    F 29:0 list - B (7)
+    F 72:0 show - B (6)
+    F 114:0 verify_defaults - B (6)
+app/cli/commands/tools.py
+    F 886:0 export_ma_data - E (39)
+    F 1237:0 export_ma_data_sweep - E (31)
+    F 1743:0 pinescript - D (30)
+    F 36:0 schema - D (25)
+    F 244:0 validate - D (25)
+    F 424:0 health - D (23)
+    F 653:0 _check_file_system_health - B (7)
+    F 717:0 _check_data_integrity - B (7)
+    F 629:0 _display_validation_results_summary - B (6)
+    F 837:0 _display_health_results_summary - B (6)
+app/cli/commands/concurrency.py
+    F 1315:0 construct - F (65)
+    F 70:0 analyze - E (39)
+    F 1075:0 _select_diversified_portfolio - D (26)
+    F 2300:0 health - C (20)
+    F 721:0 _generate_portfolio_review - C (13)
+    F 1990:0 optimize - C (13)
+    F 440:0 export - C (11)
+    F 809:0 _display_portfolio_review_table - B (10)
+    F 2140:0 monte_carlo - B (9)
+    F 1240:0 _export_strategies_to_file - B (8)
+    F 2433:0 demo - B (8)
+    F 557:0 review - B (7)
+    F 1016:0 _calculate_strategy_diversification_scores - B (7)
+    F 909:0 _display_portfolio_size_comparison - B (6)
+    F 971:0 _display_all_portfolio_compositions - B (6)
+app/cli/commands/strategy.py
+    F 838:0 review - F (73)
+    F 47:0 run - F (46)
+    F 1715:0 _display_strategy_summary - F (44)
+    F 1932:0 sector_compare - D (29)
+    F 476:0 sweep - D (24)
+    F 1569:0 _persist_sweep_results_to_database - C (20)
+    F 1540:0 _display_basic_best_strategy - B (7)
+    F 1410:0 _display_summary_table - B (6)
+    F 1458:0 _display_performance_table - B (6)
+app/cli/commands/positions.py
+    F 110:0 equity - D (23)
+    F 245:0 validate - D (23)
+    F 489:0 info - C (19)
+    F 376:0 validate_equity - C (17)
+    F 48:0 list - B (8)
+app/cli/commands/trade_history.py
+    F 498:0 update - E (37)
+    F 255:0 add - E (33)
+    F 28:0 close - C (20)
+    F 746:0 list - C (12)
+    F 831:0 validate - B (10)
+    F 928:0 health - B (6)
+app/cli/commands/seasonality.py
+    F 426:0 portfolio - D (22)
+    F 298:0 current - C (11)
+    F 585:0 _display_portfolio_results - B (10)
+    F 184:0 results - B (8)
+    F 34:0 run - B (7)
+    F 128:0 list_tickers - B (7)
+    F 269:0 clean - B (6)
+app/cli/commands/strategy_utils.py
+    F 91:0 build_configuration_overrides - F (45)
+    F 324:0 convert_to_legacy_config - F (45)
+    F 552:0 show_config_preview - F (44)
+    F 978:0 _display_risk_comparison_matrix - D (21)
+    F 1124:0 display_sector_comparison_table - D (21)
+    F 942:0 validate_parameter_relationships - C (15)
+    F 812:0 display_sweep_results_table - B (9)
+    F 735:0 display_results_table - B (7)
+    F 24:0 process_ticker_input - B (6)
+    F 55:0 process_strategy_type_input - B (6)
+app/cli/commands/portfolio.py
+    F 664:0 synthesize - F (47)
+    F 1074:0 review - E (33)
+    F 1456:0 _display_portfolio_synthesis_results - E (31)
+    F 454:0 aggregate - C (19)
+    F 193:0 process - C (18)
+    F 63:0 update - C (12)
+    F 1359:0 _display_aggregation_results - B (10)
+    F 1302:0 _display_processing_summary - B (6)
+app/cli/commands/spds.py
+    F 1125:0 _output_table_results - E (34)
+    F 785:0 _analyze_enhanced_parameter_mode - D (28)
+    F 610:0 _analyze_portfolio_mode - D (25)
+    F 1402:0 _validate_data_source_mapping - C (16)
+    F 77:0 analyze - C (15)
+    F 273:0 export - C (15)
+    F 1033:0 _export_all_formats - B (8)
+    F 437:0 health - B (6)
+app/cli/profiles/strategies/make_sp500_qqq_yaml.py
+    F 50:0 get_qqq_holdings_invesco - C (13)
+    F 31:0 get_sp500_from_wikipedia - B (9)
+    F 84:0 get_qqq_holdings_fallback - B (7)
+app/cli/services/best_selection_service.py
+    M 14:4 BestSelectionService.find_best_for_ticker_strategy - C (13)
+    C 11:0 BestSelectionService - B (7)
+    M 176:4 BestSelectionService._check_top_n_k_match - B (6)
+app/cli/services/profile_editor_service.py
+    M 90:4 ProfileEditorService._convert_and_validate_value - B (9)
+app/cli/services/strategy_dispatcher.py
+    M 550:4 StrategyDispatcher._calculate_parameter_combinations - F (46)
+    M 825:4 StrategyDispatcher.execute_strategy - F (42)
+    M 72:4 StrategyDispatcher._extract_strategy_parameters - F (41)
+    M 1333:4 StrategyDispatcher._execute_mixed_strategies - E (33)
+    M 189:4 StrategyDispatcher._analyze_cached_results - E (32)
+    M 1868:4 StrategyDispatcher._convert_strategy_config_to_legacy - D (25)
+    M 1218:4 StrategyDispatcher._extract_portfolio_results_from_files - C (19)
+    C 37:0 StrategyDispatcher - C (17)
+    M 2026:4 StrategyDispatcher._execute_batch_processing - C (14)
+    M 1685:4 StrategyDispatcher._determine_service - C (13)
+    M 445:4 StrategyDispatcher._display_cached_results_summary - C (12)
+    M 1813:4 StrategyDispatcher._convert_config_to_legacy_for_skip_mode - B (10)
+    M 733:4 StrategyDispatcher._calculate_actual_current_signal_combinations - B (8)
+    M 1652:4 StrategyDispatcher._determine_single_service - B (7)
+    M 1984:4 StrategyDispatcher._convert_legacy_to_strategy_config - B (6)
+app/cli/services/batch_processing_service.py
+    M 228:4 BatchProcessingService.get_tickers_needing_processing - B (9)
+    M 85:4 BatchProcessingService.read_batch_file - B (6)
+app/cli/services/strategy_services.py
+    M 276:4 MACDStrategyService.convert_config_to_legacy - E (37)
+    M 596:4 SMAAtrStrategyService.convert_config_to_legacy - E (37)
+    M 84:4 MAStrategyService.convert_config_to_legacy - E (36)
+    M 478:4 ATRStrategyService.convert_config_to_legacy - C (18)
+    C 54:0 MAStrategyService - C (15)
+    C 246:0 MACDStrategyService - C (15)
+    C 566:0 SMAAtrStrategyService - C (15)
+    C 440:0 ATRStrategyService - B (9)
+    M 443:4 ATRStrategyService.execute_strategy - B (6)
+app/cli/services/portfolio_analysis_service.py
+    M 446:4 PortfolioAnalysisService._standardize_output_schema - D (23)
+    M 39:4 PortfolioAnalysisService.aggregate_portfolios_best - C (17)
+    M 130:4 PortfolioAnalysisService.aggregate_all_current_portfolios - C (15)
+    M 363:4 PortfolioAnalysisService._calculate_stats - C (13)
+    C 15:0 PortfolioAnalysisService - B (7)
+    M 208:4 PortfolioAnalysisService._discover_all_current_files - B (6)
+    M 237:4 PortfolioAnalysisService._find_ticker_files - B (6)
+app/cli/services/smart_resume_service.py
+    M 131:4 SmartResumeService.filter_config_for_resume - C (11)
+    M 291:4 SmartResumeService._are_files_fresh - B (8)
+    M 180:4 SmartResumeService._extract_tickers_from_config - B (6)
+app/concurrency/demonstrate_risk_fix.py
+    F 75:0 main - B (9)
+app/concurrency/config.py
+    F 293:0 validate_config - C (20)
+    F 469:0 validate_ma_portfolio - C (11)
+    F 227:0 detect_portfolio_format - B (7)
+    F 537:0 validate_macd_portfolio - B (6)
+app/concurrency/validate_all_fixes.py
+    F 154:0 main - B (7)
+app/concurrency/review.py
+    F 96:0 run_analysis - D (30)
+app/concurrency/demonstrate_signal_processing_fix.py
+    F 29:0 demonstrate_signal_variance_fix - C (16)
+    F 207:0 demonstrate_filtering_transparency - B (6)
+app/concurrency/config_defaults.py
+    F 160:0 validate_config - D (29)
+    F 324:0 load_config_from_file - B (6)
+app/concurrency/run_phase5_validation.py
+    F 112:0 compare_with_and_without_fixes - B (7)
+    F 33:0 validate_real_portfolio - B (6)
+app/concurrency/verify_risk_fix_active.py
+    F 22:0 main - C (11)
+app/concurrency/validate_phase5_integration.py
+    M 44:4 IntegrationValidator.validate_json_output - C (14)
+    M 153:4 IntegrationValidator.run_full_validation - C (14)
+    C 29:0 IntegrationValidator - B (8)
+app/concurrency/quick_risk_check.py
+    F 23:0 main - C (11)
+app/concurrency/tools/optimization_report.py
+    F 34:0 generate_optimization_report - B (7)
+    C 17:0 NumpyEncoder - B (6)
+app/concurrency/tools/efficiency.py
+    F 365:0 _validate_expectancy_calculation - C (11)
+    F 81:0 calculate_portfolio_efficiency - B (10)
+    F 445:0 convert_expectancy_units - B (8)
+app/concurrency/tools/runner.py
+    F 109:0 run_analysis - E (38)
+    C 31:0 NumpyEncoder - B (7)
+    M 34:4 NumpyEncoder.default - B (6)
+app/concurrency/tools/risk_metrics.py
+    F 522:0 calculate_risk_contributions_legacy - F (45)
+    F 185:0 calculate_portfolio_var_fixed - C (18)
+    F 323:0 calculate_component_var - C (16)
+    F 84:0 calculate_portfolio_max_drawdown_legacy - B (9)
+    F 133:0 calculate_portfolio_volatility_fixed - B (8)
+app/concurrency/tools/portfolio_constructor.py
+    M 43:4 PortfolioConstructor.construct_optimal_portfolio - C (12)
+    M 173:4 PortfolioConstructor.generate_construction_report - B (10)
+    C 36:0 PortfolioConstructor - B (8)
+app/concurrency/tools/analysis.py
+    F 158:0 analyze_concurrency - F (43)
+    F 21:0 validate_inputs - B (7)
+app/concurrency/tools/execution_timing.py
+    F 32:0 apply_execution_timing - C (12)
+    F 174:0 analyze_execution_impact - C (11)
+app/concurrency/tools/data_reconciler.py
+    M 506:4 DataReconciler._generate_overall_summary - C (17)
+    M 619:4 DataReconciler._generate_recommendations - C (16)
+    M 568:4 DataReconciler._identify_critical_issues - C (15)
+    M 209:4 DataReconciler._reconcile_ticker_metrics - C (14)
+    M 325:4 DataReconciler._reconcile_portfolio_metrics - C (14)
+    M 410:4 DataReconciler._compare_metric_values - C (13)
+    M 698:4 DataReconciler._assess_data_quality - C (13)
+    C 75:0 DataReconciler - C (12)
+    M 114:4 DataReconciler.reconcile_data - C (12)
+app/concurrency/tools/format_adapters.py
+    M 185:4 FormatAdapter._apply_validation_rule - C (16)
+    M 110:4 FormatAdapter.validate_adapted_data - C (12)
+    M 338:4 VectorBTAdapter.adapt_to_standard - C (12)
+    M 481:4 CustomCSVAdapter.adapt_to_standard - B (9)
+    M 736:4 FormatDetector.detect_and_adapt - B (8)
+    C 246:0 VectorBTAdapter - B (7)
+    C 421:0 CustomCSVAdapter - B (7)
+    M 451:4 CustomCSVAdapter.detect_format - B (7)
+    M 701:4 JSONAdapter._json_to_dataframe - B (7)
+    C 64:0 FormatAdapter - B (6)
+    M 547:4 CustomCSVAdapter._detect_column_mappings - B (6)
+app/concurrency/tools/risk_contribution_calculator.py
+    F 984:0 calculate_risk_contributions_fixed - D (22)
+    M 353:4 RiskContributionCalculator.calculate_portfolio_metrics_with_cov - D (21)
+    M 34:4 RiskContributionCalculator.calculate_portfolio_metrics - C (20)
+    M 752:4 RiskContributionCalculator.calculate_risk_metrics_from_dataframes - C (18)
+    M 544:4 RiskContributionCalculator.calculate_portfolio_metrics_enhanced - C (17)
+    C 23:0 RiskContributionCalculator - C (15)
+    M 237:4 RiskContributionCalculator.calculate_portfolio_metrics_from_returns - B (7)
+app/concurrency/tools/risk_accuracy_validator.py
+    M 82:4 RiskAccuracyValidator.validate_return_data - F (41)
+    M 406:4 RiskAccuracyValidator.validate_covariance_matrix - D (28)
+    C 35:0 RiskAccuracyValidator - C (19)
+    M 664:4 RiskAccuracyValidator.validate_portfolio_weights - C (16)
+app/concurrency/tools/expectancy_calculator.py
+    M 64:4 ExpectancyCalculator.calculate_from_returns - B (6)
+app/concurrency/tools/csv_loader.py
+    M 134:4 CSVLoader.load_csv - C (15)
+    M 396:4 CSVLoader._calculate_data_quality_score - C (14)
+    M 281:4 CSVLoader._clean_data - C (11)
+    C 57:0 CSVLoader - B (9)
+    M 550:4 CSVMetricsExtractor._extract_ticker_metrics - B (9)
+    M 616:4 CSVMetricsExtractor._calculate_portfolio_summary - B (9)
+    M 723:4 CSVMetricsExtractor._assess_data_quality - B (9)
+    C 462:0 CSVMetricsExtractor - B (8)
+    M 671:4 CSVMetricsExtractor._extract_strategy_breakdown - B (8)
+    M 780:4 CSVMetricsExtractor._get_date_range - B (7)
+    M 890:4 CSVValidator._check_completeness - B (7)
+    M 959:4 CSVValidator._check_data_consistency - B (7)
+    M 253:4 CSVLoader._detect_schema - B (6)
+    M 479:4 CSVMetricsExtractor.extract_metrics - B (6)
+    M 828:4 CSVValidator.validate_csv_data - B (6)
+    M 924:4 CSVValidator._check_data_ranges - B (6)
+app/concurrency/tools/position_metrics.py
+    F 8:0 calculate_position_metrics - C (16)
+app/concurrency/tools/visualization.py
+    F 219:0 plot_concurrency - C (19)
+    F 25:0 create_strategy_traces - C (12)
+app/concurrency/tools/signal_quality.py
+    F 25:0 calculate_signal_quality_metrics - E (35)
+    F 1127:0 _validate_performance_aggregation - D (22)
+    F 971:0 calculate_aggregate_signal_quality - D (21)
+    F 334:0 _calculate_metrics_for_strategy - C (15)
+    F 509:0 _calculate_horizon_metrics - C (13)
+    F 706:0 _calculate_signal_timing_efficiency - B (9)
+    F 913:0 _calculate_aggregate_metrics - B (7)
+    F 1222:0 validate_win_rate_consistency - B (7)
+app/concurrency/tools/data_alignment.py
+    F 289:0 validate_aligned_data_quality - D (23)
+    F 210:0 align_multiple_data - B (8)
+    F 45:0 prepare_dataframe - B (7)
+    F 114:0 find_common_dates - B (6)
+app/concurrency/tools/return_alignment.py
+    F 140:0 align_return_series - B (8)
+    F 228:0 validate_return_matrix - B (8)
+    F 70:0 calculate_return_series - B (7)
+    F 29:0 validate_return_series_data - B (6)
+app/concurrency/tools/risk_contribution_integration.py
+    F 71:0 compare_risk_calculations - C (11)
+    F 194:0 create_risk_contribution_report - B (7)
+app/concurrency/tools/variance_estimators.py
+    M 585:4 VarianceEstimator.select_best_estimator - C (20)
+    F 672:0 estimate_portfolio_variance - C (11)
+    M 98:4 VarianceEstimator.calculate_data_quality_score - C (11)
+    M 431:4 VarianceEstimator.bayesian_variance - B (8)
+    C 35:0 VarianceEstimator - B (7)
+    M 58:4 VarianceEstimator.validate_data_sufficiency - B (6)
+    M 216:4 VarianceEstimator.rolling_variance - B (6)
+    M 288:4 VarianceEstimator.ewma_variance - B (6)
+app/concurrency/tools/strategy_processor.py
+    F 24:0 process_strategies - E (31)
+app/concurrency/tools/signal_definition.py
+    F 31:0 extract_signals - C (11)
+    F 141:0 align_signal_definitions - C (11)
+    F 237:0 count_signals_standardized - C (11)
+    F 314:0 calculate_portfolio_unique_signals_v2 - C (11)
+    F 441:0 validate_signal_consistency - B (7)
+app/concurrency/tools/optimized_runner.py
+    M 160:4 MemoryOptimizedConcurrencyRunner._process_strategies_optimized - B (9)
+app/concurrency/tools/signal_processor.py
+    M 300:4 SignalProcessor.standardize_signal_column - C (11)
+    F 348:0 calculate_signal_count_standardized - B (7)
+    M 119:4 SignalProcessor.count_filtered_signals - B (7)
+app/concurrency/tools/risk_metrics_validator.py
+    M 466:4 DrawdownCalculator.calculate_portfolio_max_drawdown - C (15)
+    C 457:0 DrawdownCalculator - C (13)
+    M 80:4 RiskMetricsValidator.validate_max_drawdown - C (12)
+    M 158:4 RiskMetricsValidator.validate_volatility_aggregation - C (12)
+    M 280:4 RiskMetricsValidator.validate_risk_contributions - C (12)
+    C 53:0 RiskMetricsValidator - C (11)
+    M 370:4 RiskMetricsValidator.validate_all_risk_metrics - B (9)
+    M 565:4 DrawdownCalculator.calculate_individual_drawdown - B (9)
+    C 627:0 VolatilityAggregator - B (7)
+    M 64:4 RiskMetricsValidator.__init__ - B (6)
+    M 635:4 VolatilityAggregator.calculate_portfolio_volatility - B (6)
+app/concurrency/tools/permutation.py
+    F 15:0 generate_strategy_permutations - B (10)
+    F 117:0 find_optimal_permutation - B (8)
+app/concurrency/tools/cross_validator.py
+    M 387:4 CSVJSONCrossValidator._generate_recommendations - D (23)
+    M 287:4 CSVJSONCrossValidator._identify_portfolio_issues - C (15)
+    M 529:4 CSVJSONCrossValidator._generate_markdown_report - C (13)
+    M 167:4 CSVJSONCrossValidator._compare_ticker_metrics - C (11)
+    C 69:0 CSVJSONCrossValidator - B (9)
+app/concurrency/tools/asset_strategy_loader.py
+    M 304:4 AssetStrategyLoader.validate_asset_data - C (14)
+    M 145:4 AssetStrategyLoader._load_and_filter_file - B (9)
+    C 79:0 AssetStrategyLoader - B (6)
+    M 254:4 AssetStrategyLoader._extract_strategy_id - B (6)
+app/concurrency/tools/signal_metrics.py
+    F 24:0 calculate_signal_metrics - C (20)
+    F 257:0 _calculate_unique_portfolio_signals - B (7)
+app/concurrency/tools/signal_value.py
+    F 22:0 calculate_signal_value_metrics - C (13)
+    F 301:0 _calculate_aggregate_signal_value_metrics - B (8)
+app/concurrency/tools/stats_visualization.py
+    F 8:0 create_stats_annotation - D (30)
+app/concurrency/tools/unified_metrics_calculator.py
+    M 98:4 UnifiedMetricsCalculator.calculate_unified_metrics - C (19)
+    M 424:4 UnifiedMetricsCalculator._calculate_portfolio_enhancements - C (18)
+    M 606:4 UnifiedMetricsCalculator._perform_final_validation - C (13)
+    M 263:4 UnifiedMetricsCalculator._validate_json_structure - C (11)
+    M 306:4 UnifiedMetricsCalculator._calculate_metrics - B (10)
+    C 68:0 UnifiedMetricsCalculator - B (9)
+    M 532:4 UnifiedMetricsCalculator._apply_corrections - B (9)
+    F 688:0 export_unified_metrics - B (7)
+app/concurrency/tools/format_adapter.py
+    F 117:0 load_portfolio - B (7)
+    F 25:0 convert_csv_strategy - B (6)
+app/concurrency/tools/allocation_strategy.py
+    F 26:0 calculate_allocations - E (39)
+    F 235:0 analyze_allocation_impact - C (15)
+app/concurrency/tools/atr_strategy.py
+    F 16:0 process_atr_strategy - C (12)
+app/concurrency/tools/correlation_calculator.py
+    M 74:4 CorrelationCalculator.calculate_correlation - C (18)
+    M 291:4 CorrelationCalculator.calculate_covariance_matrix - C (12)
+    M 472:4 CorrelationMatrix.calculate_matrix - C (11)
+    C 52:0 CorrelationCalculator - B (7)
+    C 452:0 CorrelationMatrix - B (7)
+    M 566:4 CorrelationMatrix._regularize_matrix - B (7)
+app/concurrency/tools/portfolio_returns.py
+    M 120:4 PortfolioReturnsCalculator._calculate_weighted_returns - B (8)
+    M 353:4 PortfolioReturnsCalculator.calculate_portfolio_metrics_from_positions - B (6)
+app/concurrency/tools/win_rate_calculator.py
+    M 272:4 WinRateCalculator.calculate_from_dataframe - B (7)
+    M 139:4 WinRateCalculator._calculate_from_returns - B (6)
+app/concurrency/tools/correlation_filter.py
+    F 33:0 filter_correlated_strategies - D (22)
+    F 228:0 limit_strategy_concurrency - D (21)
+    F 172:0 _simple_hierarchical_clustering - C (11)
+app/concurrency/tools/validation.py
+    M 211:4 PortfolioMetricsValidator._validate_performance_signs - C (14)
+    M 604:4 PortfolioMetricsValidator._generate_summary - B (9)
+    C 51:0 PortfolioMetricsValidator - B (7)
+    M 282:4 PortfolioMetricsValidator._validate_risk_bounds - B (7)
+    M 406:4 PortfolioMetricsValidator._validate_unit_consistency - B (7)
+    M 482:4 PortfolioMetricsValidator._validate_win_rates - B (7)
+    M 133:4 PortfolioMetricsValidator._validate_trade_counts - B (6)
+    M 345:4 PortfolioMetricsValidator._validate_allocation_weights - B (6)
+app/concurrency/tools/monte_carlo/__init__.py
+    M 144:4 MonteCarloManager._run_return_simulations - B (6)
+app/concurrency/tools/monte_carlo/core.py
+    M 267:4 MonteCarloAnalyzer._calculate_strategy_performance - C (12)
+    M 341:4 MonteCarloAnalyzer._calculate_stability_metrics - C (11)
+app/concurrency/tools/monte_carlo/visualization.py
+    M 331:4 PortfolioMonteCarloVisualizer.create_portfolio_summary_plot - C (15)
+    M 87:4 PortfolioMonteCarloVisualizer.create_portfolio_stability_heatmap - C (14)
+    C 60:0 PortfolioMonteCarloVisualizer - B (8)
+    M 214:4 PortfolioMonteCarloVisualizer.create_stability_distribution_plot - B (6)
+app/concurrency/tools/monte_carlo/manager.py
+    M 186:4 PortfolioMonteCarloManager._assign_strategy_ids - C (18)
+    M 255:4 PortfolioMonteCarloManager._analyze_strategy_with_error_handling - C (17)
+    M 498:4 PortfolioMonteCarloManager._extract_parameter_combinations - C (17)
+    M 591:4 PortfolioMonteCarloManager.get_portfolio_stability_metrics - B (10)
+    C 87:0 PortfolioMonteCarloManager - B (9)
+    M 119:4 PortfolioMonteCarloManager.analyze_portfolio - B (7)
+    M 456:4 PortfolioMonteCarloManager._download_ticker_data - B (7)
+    M 380:4 PortfolioMonteCarloManager._group_strategies_by_ticker - B (6)
+app/concurrency/tools/report/metrics.py
+    F 19:0 calculate_ticker_metrics - C (17)
+    F 102:0 create_portfolio_metrics - C (13)
+app/concurrency/tools/report/strategy.py
+    F 25:0 create_strategy_object - F (42)
+app/concurrency/tools/report/generator.py
+    F 22:0 generate_json_report - F (43)
+app/concurrency/error_handling/recovery.py
+    F 130:0 apply_error_recovery - D (21)
+app/concurrency/error_handling/registry.py
+    M 124:4 ErrorRegistry.get_error_stats - B (9)
+app/concurrency/error_handling/context_managers.py
+    F 22:0 concurrency_error_context - B (9)
+app/portfolio_optimization/1_analysis.py
+    F 201:0 main - C (13)
+app/portfolio_optimization/tools/position_sizing.py
+    F 88:0 calculate_position_sizes - C (12)
+app/api/main.py
+    F 152:0 custom_openapi - B (9)
+app/api/routers/health.py
+    F 35:0 detailed_health_check - B (6)
+app/api/routers/sweeps.py
+    F 178:0 get_sweep_results - C (17)
+    F 346:0 get_best_results_for_sweep - C (12)
+    F 94:0 get_latest_sweep_results - C (11)
+    F 459:0 get_best_per_ticker - C (11)
+    F 28:0 list_sweeps - B (8)
+app/api/middleware/rate_limit.py
+    M 55:4 SSERateLimiter.dispatch - C (11)
+app/api/models/schemas.py
+    M 243:4 StrategySweepRequest.validate_ranges - C (11)
+    C 517:0 ConcurrencyAnalyzeRequest - B (9)
+    C 203:0 StrategySweepRequest - B (8)
+    M 545:4 ConcurrencyAnalyzeRequest.to_cli_args - B (8)
+    C 133:0 StrategyRunRequest - B (7)
+    C 631:0 ConcurrencyConstructRequest - B (7)
+    M 168:4 StrategyRunRequest.to_cli_args - B (6)
+    M 656:4 ConcurrencyConstructRequest.to_cli_args - B (6)
+    C 940:0 SeasonalityCurrentRequest - B (6)
+app/api/jobs/tasks.py
+    F 23:0 update_job_status - B (6)
+app/api/services/webhook_service.py
+    C 18:0 WebhookService - B (6)
+app/api/services/base.py
+    M 87:4 BaseCommandService.execute_cli_command - C (13)
+    M 198:4 BaseCommandService.execute_with_progress - B (6)
+app/atr/1_get_portfolios.py
+    F 256:0 backtest_strategy - C (19)
+    F 115:0 generate_signals - C (17)
+    F 616:0 main - B (10)
+    F 386:0 analyze_params - B (9)
+    F 480:0 parameter_sensitivity_analysis - B (7)
+app/monitoring/performance_logger.py
+    M 94:4 PerformanceLogger.start_phase - B (9)
+    M 293:4 PerformanceLogger._display_execution_summary - B (9)
+    C 20:0 PerformanceLogger - B (7)
+    M 274:4 PerformanceLogger.complete_execution_monitoring - B (7)
+    M 151:4 PerformanceLogger.end_phase - B (6)
+    M 221:4 PerformanceLogger._detect_bottlenecks - B (6)
+app/infrastructure/logging.py
+    M 24:4 LoggingService.configure - B (8)
+app/infrastructure/strategy.py
+    M 94:4 StrategyAnalyzer.validate_config - B (8)
+app/infrastructure/progress.py
+    M 168:4 ProgressTracker._notify_subscribers - B (6)
+app/infrastructure/portfolio.py
+    M 128:4 PortfolioManager.list_portfolios - B (7)
+    M 212:4 PortfolioManager.validate_portfolio - B (6)
+app/infrastructure/data.py
+    M 106:4 DataAccessService.download_data - B (10)
+    M 159:4 DataAccessService.validate_data - B (6)
+    M 175:4 DataAccessService.get_data_info - B (6)
+    M 224:4 DataAccessService._filter_by_date - B (6)
+app/histograms_series/return_distribution.py
+    F 387:0 export_return_distribution_json - C (15)
+    F 629:0 main - C (15)
+    F 120:0 calculate_returns - B (6)
+app/services/position_service.py
+    M 139:4 PositionService.calculate_mfe_mae - C (16)
+    M 247:4 PositionService.verify_entry_signal - C (14)
+    M 365:4 PositionService.create_position_record - C (11)
+    M 486:4 PositionService.add_position_to_portfolio - B (10)
+    C 70:0 PositionService - B (8)
+    M 120:4 PositionService.validate_date_string - B (7)
+    M 602:4 PositionService.close_position - B (7)
+
+1564 blocks (classes, functions, methods) analyzed.
+Average complexity: C (11.707161125319693)

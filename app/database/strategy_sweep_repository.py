@@ -219,7 +219,7 @@ class StrategySweepRepository:
         query = f"""
             INSERT INTO strategy_sweep_results ({column_list})
             VALUES ({", ".join(f"${i + 1}" for i in range(num_columns))})
-        """
+        """  # nosec B608 - Column names from record keys, properly quoted
 
         # Insert in batches for performance
         batch_size = 100
@@ -261,7 +261,7 @@ class StrategySweepRepository:
                                     query = f"""
                                         INSERT INTO strategy_sweep_results ({column_list})
                                         VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
-                                    """
+                                    """  # nosec B608 - Column names from record keys, properly quoted
 
                             # Convert strategy_type to strategy_type_id
                             if "strategy_type" in record:
@@ -292,7 +292,7 @@ class StrategySweepRepository:
                                         query = f"""
                                             INSERT INTO strategy_sweep_results ({column_list})
                                             VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
-                                        """
+                                        """  # nosec B608 - Column names from record keys, properly quoted
 
                             # Extract values in the same order as columns
                             values = [record.get(col) for col in columns]
@@ -514,7 +514,7 @@ class StrategySweepRepository:
             INSERT INTO strategy_sweep_results ({column_list})
             VALUES ({", ".join(f"${i + 1}" for i in range(num_columns))})
             RETURNING id
-        """
+        """  # nosec B608 - Column names from record keys, properly quoted
 
         # Insert in batches for performance
         batch_size = 100
@@ -555,7 +555,7 @@ class StrategySweepRepository:
                                         INSERT INTO strategy_sweep_results ({column_list})
                                         VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                         RETURNING id
-                                    """
+                                    """  # nosec B608 - Column names from record keys, properly quoted
 
                             # Convert strategy_type to strategy_type_id
                             if "strategy_type" in record:
@@ -587,7 +587,7 @@ class StrategySweepRepository:
                                             INSERT INTO strategy_sweep_results ({column_list})
                                             VALUES ({", ".join(f"${i + 1}" for i in range(len(columns)))})
                                             RETURNING id
-                                        """
+                                        """  # nosec B608 - Column names from record keys, properly quoted
 
                             # Extract values in the same order as columns
                             values = [record.get(col) for col in columns]

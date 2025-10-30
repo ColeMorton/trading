@@ -1,0 +1,40 @@
+# <type>: <subject>
+#
+# <body>
+#
+# <footer>
+#
+# Type can be:
+#   feat     (new feature)
+#   fix      (bug fix)
+#   docs     (documentation)
+#   style    (formatting, missing semicolons, etc)
+#   refactor (restructuring code without changing behavior)
+#   perf     (performance improvements)
+#   test     (adding tests)
+#   chore    (maintenance tasks, dependencies)
+#   security (security fixes or improvements)
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔒 SECURITY PRE-COMMIT CHECKS
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# ✅ Before committing, ensure all pre-commit hooks have passed:
+#    - Ruff format & linting
+#    - MyPy type checking
+#    - Bandit security scanning (CRITICAL)
+#
+# ⛔ NEVER use 'git commit --no-verify' to bypass security checks!
+#    - Bypassing security hooks can introduce vulnerabilities
+#    - CI will reject commits that fail Bandit security scans
+#    - If you must bypass, get approval from security lead first
+#
+# 📋 If you see security issues:
+#    1. Fix the issue properly (preferred)
+#    2. Add # nosec comment with justification if false positive
+#    3. Document why the code is safe in the nosec comment
+#
+# Run hooks manually: make pre-commit-run
+# Check security:     make security-scan
+#
+# ═══════════════════════════════════════════════════════════════════════════
