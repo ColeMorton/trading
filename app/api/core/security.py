@@ -69,8 +69,12 @@ def compute_key_fingerprint(api_key: str) -> str:
     Returns:
         SHA256 hash prefix (first 8 characters)
     """
-    hash_obj = hashlib.sha256(api_key.encode("utf-8"))
-    return hash_obj.hexdigest()[:8]
+    # Compute a salted bcrypt hash for API key fingerprint.
+    salt = bcrypt.gensalt()
+    key_bytes = api_key.encode("utf-8")
+    hashed = bcrypt.hashpw(key_bytes, salt)
+    # Return only the first 8 characters of the base64 hash string as fingerprint.
+    return hashed.decode("utf-8")[:8]
 
 
 class APIKey:
