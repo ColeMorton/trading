@@ -5,8 +5,8 @@ This module handles the processing of portfolio data for single tickers,
 including loading existing data and analyzing parameter sensitivity.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 
 import numpy as np
 import polars as pl

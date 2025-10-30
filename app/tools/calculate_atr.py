@@ -4,8 +4,8 @@ This module provides functions for calculating ATR indicators and generating
 trading signals based on ATR Trailing Stop strategy.
 """
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd

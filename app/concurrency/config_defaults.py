@@ -6,11 +6,11 @@ concurrency analysis system, addressing the root causes identified in the
 performance discrepancy investigation.
 """
 
+import json
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
-import json
 from pathlib import Path
-import sys
 from typing import Any
 
 

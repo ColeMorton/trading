@@ -6,8 +6,8 @@ Tests that all components can be imported and initialized correctly.
 
 import asyncio
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path

@@ -9,11 +9,11 @@ This script validates that all fixes are working correctly:
 4. Signal processing (USE_FIXED_SIGNAL_PROC)
 """
 
-from datetime import datetime
 import json
 import os
-from pathlib import Path
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import polars as pl
 

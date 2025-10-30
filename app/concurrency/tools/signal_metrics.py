@@ -4,8 +4,8 @@ This module provides functionality for calculating signal metrics
 to analyze the frequency and distribution of trading signals.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 

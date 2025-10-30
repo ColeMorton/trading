@@ -5,18 +5,18 @@ This module implements structured performance logging with JSON metrics output.
 It provides comprehensive performance tracking, analysis, and alerting capabilities.
 """
 
+import json
+import logging
+import statistics
+import threading
+import time
 from collections import defaultdict, deque
 from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from functools import wraps
-import json
-import logging
 from pathlib import Path
-import statistics
-import threading
-import time
 from typing import Any
 
 import psutil

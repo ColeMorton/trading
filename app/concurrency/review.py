@@ -20,8 +20,8 @@ Configuration Options:
 """
 
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 
@@ -49,8 +49,8 @@ from app.tools.config_service import ConfigService
 from app.tools.entry_point import run_from_command_line
 from app.tools.error_context import error_context
 from app.tools.error_decorators import handle_errors
+from app.tools.exceptions import ConfigurationError as SystemConfigurationError
 from app.tools.exceptions import (
-    ConfigurationError as SystemConfigurationError,
     PortfolioLoadError,
     SyntheticTickerError,
     TradingSystemError,

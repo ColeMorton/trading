@@ -5,8 +5,8 @@ This module integrates with @app/portfolio_review/efficient_frontier.py for auto
 allocation calculations and price data fetching.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 from app.tools.data_types import DataConfig

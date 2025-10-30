@@ -4,9 +4,9 @@ Provides specialized context managers that wrap common operations with
 appropriate error handling, logging, and recovery mechanisms.
 """
 
+import traceback
 from collections.abc import Callable
 from contextlib import contextmanager
-import traceback
 from typing import Any
 
 from .exceptions import (

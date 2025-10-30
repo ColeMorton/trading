@@ -7,11 +7,11 @@ to ensure consistency and eliminate code duplication.
 
 from typing import Any
 
+import typer
 from rich import print as rprint
 from rich.box import ROUNDED
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from app.tools.console_logging import ConsoleLogger
 

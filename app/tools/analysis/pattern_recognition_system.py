@@ -5,8 +5,8 @@ Identifies recurring performance patterns and trends using statistical
 pattern matching algorithms and regime change detection.
 """
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Any
 
 import numpy as np

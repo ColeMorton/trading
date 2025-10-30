@@ -8,9 +8,9 @@ This test suite covers end-to-end integration testing, including:
 - Runner integration and workflow
 """
 
-from pathlib import Path
 import sys
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np

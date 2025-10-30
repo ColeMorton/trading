@@ -7,10 +7,10 @@ settings, and system configuration.
 
 import builtins
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from ..config import ConfigManager
 

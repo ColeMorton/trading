@@ -1,7 +1,7 @@
 """File utility functions for data loading and caching."""
 
-from datetime import datetime
 import os
+from datetime import datetime
 
 import polars as pl
 

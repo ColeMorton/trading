@@ -6,9 +6,9 @@ portfolio analysis system, following the established testing framework patterns.
 Integrated into the existing test infrastructure for the trading platform.
 """
 
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-import tempfile
 from unittest.mock import Mock, patch
 
 import numpy as np

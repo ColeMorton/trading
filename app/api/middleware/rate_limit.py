@@ -5,9 +5,9 @@ This module provides rate limiting for SSE connections to prevent abuse
 and ensure fair resource allocation.
 """
 
+import time
 from collections import defaultdict
 from collections.abc import Callable
-import time
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse

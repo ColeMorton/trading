@@ -13,8 +13,8 @@ BODY_TEXT = "#444444"  # Dark gray
 MUTED_TEXT = "#717171"  # Medium gray
 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import polars as pl
+from plotly.subplots import make_subplots
 
 from app.concurrency.tools.plot_config import STRATEGY_COLORS, get_heatmap_config
 from app.concurrency.tools.stats_visualization import create_stats_annotation

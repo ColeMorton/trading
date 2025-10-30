@@ -5,13 +5,13 @@ Unified service for creating portfolio analysis visualizations,
 integrating with the existing headless plotting system.
 """
 
-from dataclasses import dataclass, field
 import os
+from dataclasses import dataclass, field
 from typing import Optional
 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import vectorbt as vbt
+from plotly.subplots import make_subplots
 
 from app.contexts.portfolio.services.benchmark_comparison_service import (
     ComparisonMetrics,

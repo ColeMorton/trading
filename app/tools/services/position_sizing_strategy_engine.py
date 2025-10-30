@@ -5,10 +5,11 @@ This module extends the StrategyExecutionEngine to include real-time position si
 calculations integrated with strategy analysis workflows.
 """
 
+import time
+
 # API removed - creating local definitions
 from dataclasses import dataclass
 from enum import Enum
-import time
 from typing import Any
 
 

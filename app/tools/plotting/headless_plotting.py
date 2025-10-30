@@ -5,8 +5,8 @@ This module provides alternatives to VectorBT's interactive plotting that work
 in headless environments without requiring anywidget or Jupyter widgets.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 
 import matplotlib
 import matplotlib.pyplot as plt

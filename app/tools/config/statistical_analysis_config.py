@@ -5,9 +5,9 @@ Provides configuration schema and validation for the SPDS with USE_TRADE_HISTORY
 for flexible data source selection between equity curves and trade history.
 """
 
+import os
 from dataclasses import dataclass, field
 from enum import Enum
-import os
 from pathlib import Path
 from typing import Any
 

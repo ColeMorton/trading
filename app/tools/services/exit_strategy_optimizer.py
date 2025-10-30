@@ -13,10 +13,10 @@ Features:
 - Performance prediction modeling
 """
 
-from dataclasses import dataclass
-from enum import Enum
 import logging
 import sys
+from dataclasses import dataclass
+from enum import Enum
 
 from .signal_data_aggregator import StrategyData
 

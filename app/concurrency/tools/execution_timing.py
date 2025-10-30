@@ -5,9 +5,9 @@ This module provides functionality to handle signal execution timing,
 reducing implementation lag and improving performance.
 """
 
+import os
 from collections.abc import Callable
 from enum import Enum
-import os
 from typing import Any
 
 import numpy as np

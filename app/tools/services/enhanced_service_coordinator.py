@@ -5,11 +5,11 @@ This module extends the ServiceCoordinator to include position sizing capabiliti
 integrating the PositionSizingOrchestrator with the existing strategy analysis pipeline.
 """
 
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 # API removed - creating local model definitions
 from dataclasses import dataclass
-import time
 from typing import Any
 
 

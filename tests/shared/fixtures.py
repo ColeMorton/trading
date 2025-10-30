@@ -3,9 +3,9 @@ Shared test fixtures for trading system testing infrastructure.
 Phase 3: Testing Infrastructure Consolidation
 """
 
+import tempfile
 from collections.abc import Generator
 from pathlib import Path
-import tempfile
 from typing import Any
 
 import pandas as pd

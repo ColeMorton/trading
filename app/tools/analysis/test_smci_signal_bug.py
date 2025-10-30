@@ -9,8 +9,8 @@ Author: Claude Code Analysis
 Date: July 2025
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add the project root to Python path

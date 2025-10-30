@@ -5,16 +5,16 @@ This module implements result pre-computation for the 20 most common parameter c
 to provide instant responses for frequently requested analyses.
 """
 
+import hashlib
+import json
+import logging
+import threading
+import time
 from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import hashlib
-import json
-import logging
 from pathlib import Path
-import threading
-import time
 from typing import Any
 
 from .cache_manager import IntelligentCacheManager

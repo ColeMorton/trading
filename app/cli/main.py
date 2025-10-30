@@ -5,13 +5,13 @@ This module provides the main entry point and command structure for the
 unified trading CLI system.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from .commands import (
     concurrency,

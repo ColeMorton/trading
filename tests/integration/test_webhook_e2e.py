@@ -14,9 +14,9 @@ import logging
 import time
 from urllib.parse import urljoin
 
-from aiohttp import web
 import pytest
 import requests
+from aiohttp import web
 
 
 # Configure logging

@@ -18,9 +18,9 @@ Test coverage includes:
 - Large ticker list performance
 """
 
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-import tempfile
 from unittest.mock import Mock
 
 import pandas as pd

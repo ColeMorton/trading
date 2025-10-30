@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
 import yfinance as yf
+from scipy.optimize import minimize
 
 
 # Set date range and assets

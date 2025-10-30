@@ -5,8 +5,8 @@ This module contains functions for creating heatmap visualizations of RSI parame
 """
 
 import numpy as np
-from numpy.typing import NDArray
 import plotly.graph_objects as go
+from numpy.typing import NDArray
 from typing_extensions import TypedDict
 
 

@@ -6,10 +6,10 @@ Focus: Test complete workflows and component interactions
 Principles: Test real scenarios, minimal mocking, behavior validation
 """
 
-from datetime import datetime
 import os
 import tempfile
 import unittest
+from datetime import datetime
 from unittest.mock import patch
 
 import polars as pl

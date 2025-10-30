@@ -1,5 +1,5 @@
-from collections.abc import Callable
 import math
+from collections.abc import Callable
 from typing import Any
 
 import polars as pl

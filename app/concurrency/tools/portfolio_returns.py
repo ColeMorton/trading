@@ -6,9 +6,9 @@ rather than individual components, providing more accurate risk metrics
 that account for actual portfolio behavior.
 """
 
+import logging
 from collections.abc import Callable
 from datetime import datetime
-import logging
 from typing import Any
 
 import numpy as np

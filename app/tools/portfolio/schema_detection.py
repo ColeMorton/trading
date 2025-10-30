@@ -11,10 +11,10 @@ It handles schema versions:
 The module migrates all data to the canonical Extended schema to ensure consistency.
 """
 
-from collections.abc import Callable
 import csv
 import io
 import os
+from collections.abc import Callable
 from typing import Any
 
 from app.tools.portfolio.base_extended_schemas import SchemaTransformer, SchemaType

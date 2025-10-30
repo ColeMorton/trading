@@ -3,14 +3,14 @@ Intelligent file-based cache manager for trading system performance optimization
 Provides timestamp-based invalidation and efficient caching for signals, portfolios, and computations.
 """
 
-from dataclasses import dataclass
 import hashlib
 import json
 import logging
 import os
-from pathlib import Path
 import pickle  # nosec B403 - Used for trusted internal cache data only
 import time
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 

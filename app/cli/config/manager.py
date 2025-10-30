@@ -5,13 +5,13 @@ This module provides the core functionality for managing YAML-based
 configuration profiles with inheritance and validation.
 """
 
+import shutil
 from datetime import datetime
 from pathlib import Path
-import shutil
 from typing import Any
 
-from pydantic import ValidationError
 import yaml
+from pydantic import ValidationError
 
 from ..models.base import BaseConfig
 from .profiles import Profile, ProfileConfig, ProfileMetadata

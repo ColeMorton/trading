@@ -7,8 +7,8 @@ by comparing legacy and fixed calculations.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add parent directory to path

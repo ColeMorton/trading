@@ -19,10 +19,10 @@ Classes:
     MetricsValidator: Validate calculated metrics against source data
 """
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any
 

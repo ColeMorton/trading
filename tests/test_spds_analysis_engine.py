@@ -6,8 +6,8 @@ Tests the new simplified 3-layer architecture against the documented
 critical paths and validates performance improvements.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pandas as pd
 import pytest

@@ -6,8 +6,8 @@ A simple test to verify the new SPDS architecture works.
 """
 
 import asyncio
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).parent.parent))

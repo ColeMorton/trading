@@ -8,8 +8,8 @@ New Test Development (Integration, Performance, Error Handling)
 This serves as a working demonstration of advanced testing patterns.
 """
 
-from concurrent.futures import ThreadPoolExecutor
 import time
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
 import pytest

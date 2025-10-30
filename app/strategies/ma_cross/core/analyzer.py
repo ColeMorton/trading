@@ -5,9 +5,9 @@ This module provides the core analysis logic for MA Cross strategy,
 decoupled from file I/O and specific execution contexts.
 """
 
+import time
 from collections.abc import Callable
 from datetime import datetime
-import time
 from typing import Any
 
 from app.strategies.ma_cross.core.models import (

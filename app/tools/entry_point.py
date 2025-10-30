@@ -4,8 +4,8 @@ This module provides utilities for creating standardized entry points
 for trading system modules.
 """
 
-from collections.abc import Callable
 import sys
+from collections.abc import Callable
 from typing import Any
 
 from app.tools.error_context import error_context

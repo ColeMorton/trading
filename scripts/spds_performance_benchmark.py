@@ -13,15 +13,15 @@ Usage:
 """
 
 import asyncio
-from dataclasses import dataclass
 import json
 import logging
-from pathlib import Path
 import statistics
 
 # Import SPDS components
 import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np

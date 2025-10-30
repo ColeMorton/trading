@@ -7,10 +7,10 @@ from position-level data.
 
 from pathlib import Path
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from app.tools.equity_data_extractor import MetricType
 from app.tools.position_equity_generator import generate_position_equity

@@ -7,9 +7,9 @@ This prevents regression of the original SMCI P&L calculation bug.
 """
 
 import logging
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd

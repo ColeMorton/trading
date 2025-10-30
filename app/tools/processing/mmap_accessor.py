@@ -6,10 +6,10 @@ large files, especially frequently accessed price data files, without
 loading entire contents into memory.
 """
 
-from collections.abc import Iterator
-from contextlib import contextmanager, suppress
 import logging
 import mmap
+from collections.abc import Iterator
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import Any
 

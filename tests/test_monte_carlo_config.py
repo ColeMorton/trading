@@ -5,8 +5,8 @@ This test suite covers configuration validation, error handling,
 bootstrap sampling configuration, and edge cases in Monte Carlo analysis.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import polars as pl

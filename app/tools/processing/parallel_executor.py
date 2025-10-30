@@ -3,14 +3,14 @@ Optimized parallel execution with dynamic ThreadPool sizing and resource monitor
 Designed for trading system workloads with intelligent resource adaptation.
 """
 
-from collections.abc import Callable, Iterable
-from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
 import functools
 import logging
 import os
-from threading import RLock
 import time
+from collections.abc import Callable, Iterable
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+from threading import RLock
 from typing import Any, TypeVar
 
 import psutil

@@ -5,9 +5,9 @@ This module handles the processing of scanner data, including loading existing r
 and processing new tickers for both SMA and EMA configurations.
 """
 
+import os
 from collections.abc import Callable
 from datetime import datetime
-import os
 
 import polars as pl
 

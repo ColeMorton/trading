@@ -5,8 +5,8 @@ This module provides the ProgressTracker class for tracking and reporting
 job progress through Redis for SSE streaming.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Any
 
 from redis.asyncio import Redis

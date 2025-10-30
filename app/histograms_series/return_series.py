@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm, percentileofscore
 import yfinance as yf
+from scipy.stats import norm, percentileofscore
 
 
 # Complete Color Palette Constants

@@ -1,12 +1,12 @@
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
-from scipy.signal import find_peaks
 import yfinance as yf
+from scipy.signal import find_peaks
 
 
 # Add project root to path for imports

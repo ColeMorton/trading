@@ -8,10 +8,10 @@ and MACD strategies with various configuration options.
 from pathlib import Path
 
 import pandas as pd
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from app.tools.console_logging import ConsoleLogger, PerformanceAwareConsoleLogger
 from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
@@ -957,8 +957,8 @@ def review(
 
         # Validate date parameter if provided
         if date:
-            from pathlib import Path
             import re
+            from pathlib import Path
 
             # Validate YYYYMMDD format
             if not re.match(r"^\d{8}$", date):

@@ -7,10 +7,10 @@ designed for both local development and continuous integration environments.
 
 import argparse
 import json
-from pathlib import Path
 import subprocess
 import sys
 import time
+from pathlib import Path
 from typing import Any
 
 

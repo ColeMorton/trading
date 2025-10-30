@@ -5,8 +5,8 @@ Tests endpoint registration, authentication, validation, and response schemas
 without requiring full database integration.
 """
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from app.api.main import app
 

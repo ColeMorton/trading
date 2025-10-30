@@ -5,15 +5,15 @@ analysis system, supporting multiple portfolio formats and configurations.
 """
 
 import csv
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypedDict
 
 from typing_extensions import NotRequired
 
+from app.concurrency.error_handling import ValidationError as BaseValidationError
 from app.concurrency.error_handling import (
-    ValidationError as BaseValidationError,
     handle_concurrency_errors,
     track_error,
     validate_inputs,

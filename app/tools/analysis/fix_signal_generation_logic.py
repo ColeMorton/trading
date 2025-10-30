@@ -10,8 +10,8 @@ The fix ensures that if a value > P70 threshold, it generates a SELL signal
 regardless of the exact percentile rank calculation.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 sys.path.append(str(Path(__file__).parent.parent.parent))

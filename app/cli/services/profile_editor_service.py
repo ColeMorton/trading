@@ -5,8 +5,8 @@ This service provides profile editing functionality with proper separation of co
 following TDD principles and clean architecture patterns.
 """
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Any
 
 

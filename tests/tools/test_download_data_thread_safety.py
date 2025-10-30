@@ -5,9 +5,9 @@ This test suite ensures that concurrent data downloads don't experience
 column name contamination or other thread safety issues.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd

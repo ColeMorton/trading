@@ -8,9 +8,9 @@ and providing progress tracking.
 Exit Criteria: RVOL(volume_Lookback) >= X AND Price Close < EMA(N)
 """
 
+import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
 from typing import Any
 
 import pandas as pd

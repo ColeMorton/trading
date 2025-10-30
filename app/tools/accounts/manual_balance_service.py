@@ -5,9 +5,9 @@ This module implements manual account balance entry system for IBKR, Bybit, and 
 accounts, providing Net Worth calculation as specified in the migration plan.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any
 

@@ -4,8 +4,8 @@ Quick check of risk contribution fix status.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Set to use fixed calculation

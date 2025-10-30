@@ -12,9 +12,9 @@ Usage:
 """
 
 import ast
+import json
 from collections import defaultdict
 from dataclasses import dataclass
-import json
 from pathlib import Path
 
 from rich.console import Console

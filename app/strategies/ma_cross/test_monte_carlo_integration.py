@@ -8,9 +8,9 @@ while maintaining compatibility with existing test workflows.
 Consider updating to use app.concurrency.tools.monte_carlo directly.
 """
 
-from pathlib import Path
 import sys
 import warnings
+from pathlib import Path
 
 
 # Add project root to path

@@ -5,8 +5,8 @@ This module provides intelligent parameter parsing for the SPDS analyze command,
 supporting multiple input types: tickers, strategies, position UUIDs, and portfolios.
 """
 
-from enum import Enum
 import re
+from enum import Enum
 
 from pydantic import BaseModel
 

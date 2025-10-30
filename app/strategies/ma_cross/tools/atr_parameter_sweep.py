@@ -6,8 +6,8 @@ processing 860 combinations of ATR parameters while maintaining memory efficienc
 and providing progress tracking.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 import polars as pl

@@ -22,10 +22,10 @@ Classes:
     FormatDetector: Automatic format detection
 """
 
+import json
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
-import json
 from pathlib import Path
 from typing import Any
 

@@ -9,9 +9,9 @@ Tests the standardized signal processor to ensure:
 4. Trade counting methodology correctness
 """
 
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pandas as pd

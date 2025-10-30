@@ -8,8 +8,8 @@ consistent results across signal-based and trade-based calculations.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 

@@ -33,13 +33,13 @@ Example usage:
     ```
 """
 
-from collections.abc import AsyncGenerator
 import json
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
-import httpx
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 

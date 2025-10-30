@@ -5,12 +5,12 @@ This module creates a performance monitoring dashboard using log analysis
 to visualize system performance metrics and trends.
 """
 
-from collections import defaultdict, deque
-from datetime import datetime, timedelta
 import json
 import logging
-from pathlib import Path
 import statistics
+from collections import defaultdict, deque
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 

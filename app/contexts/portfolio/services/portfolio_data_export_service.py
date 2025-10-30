@@ -5,11 +5,11 @@ Service for extracting and exporting raw data from VectorBT portfolios
 to enable external chart generation and custom analysis.
 """
 
-from dataclasses import dataclass, field
-from enum import Enum
 import json
 import os
 import pickle
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional
 
 import pandas as pd

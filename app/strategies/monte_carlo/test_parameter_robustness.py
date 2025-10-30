@@ -6,8 +6,8 @@ with a simple example using BTC-USD data.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path

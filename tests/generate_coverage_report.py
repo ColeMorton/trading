@@ -7,12 +7,12 @@ Generates detailed coverage reports with analysis and recommendations.
 """
 
 import argparse
-from datetime import datetime
 import json
-from pathlib import Path
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime
+from pathlib import Path
 
 
 class CoverageReporter:

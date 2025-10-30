@@ -5,9 +5,9 @@ This module provides utilities for tracking and reporting progress during
 long-running operations like strategy analysis and backtesting.
 """
 
+import time
 from collections.abc import Callable
 from datetime import datetime
-import time
 from typing import Any
 
 

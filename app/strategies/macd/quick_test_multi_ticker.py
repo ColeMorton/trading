@@ -2,9 +2,9 @@
 Quick test script to verify MACD multi-ticker functionality.
 """
 
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 
 # Add project root to path

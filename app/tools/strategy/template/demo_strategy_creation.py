@@ -5,8 +5,8 @@ This script demonstrates how to use the Strategy Template Generator to create
 new trading strategies quickly and consistently.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add the project root to the path

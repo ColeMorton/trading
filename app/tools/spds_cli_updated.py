@@ -9,8 +9,8 @@ import argparse
 import asyncio
 import json
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Configure logging

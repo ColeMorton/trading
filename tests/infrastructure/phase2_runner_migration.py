@@ -7,9 +7,9 @@ This script demonstrates the migration from 9 fragmented test runners to the
 single enhanced unified test runner with intelligent parallel execution.
 """
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 # Add project root to path

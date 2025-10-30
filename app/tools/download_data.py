@@ -1,6 +1,6 @@
+import threading
 from collections.abc import Callable
 from datetime import datetime, timedelta
-import threading
 
 import polars as pl
 import yfinance as yf

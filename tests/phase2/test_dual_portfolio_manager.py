@@ -1,7 +1,7 @@
 """Tests for DualPortfolioManager."""
 
-from datetime import datetime
 import tempfile
+from datetime import datetime
 
 import pytest
 

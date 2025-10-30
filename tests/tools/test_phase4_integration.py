@@ -5,9 +5,9 @@ This module tests the integration of all Phase 4 advanced optimization component
 """
 
 import gc
-from pathlib import Path
 import statistics
 import time
+from pathlib import Path
 
 import pandas as pd
 import psutil

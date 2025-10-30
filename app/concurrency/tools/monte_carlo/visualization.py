@@ -7,8 +7,8 @@ and concurrent strategy analysis.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd

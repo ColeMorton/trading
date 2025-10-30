@@ -4,8 +4,8 @@ Test the risk calculation fix on the actual portfolio_d_20250530 data.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add parent directory to path

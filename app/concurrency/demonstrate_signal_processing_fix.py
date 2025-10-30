@@ -8,8 +8,8 @@ consistent results across raw, filtered, position, and trade signals.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd

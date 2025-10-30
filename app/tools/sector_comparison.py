@@ -5,8 +5,8 @@ Provides functionality to compare sector ETF performance using SMA strategy scor
 generating cross-comparison matrices for sector opportunity identification.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd

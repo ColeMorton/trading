@@ -208,11 +208,14 @@ ignore = [
 "scripts/**/*.py" = ["T201", "S101"]
 
 [tool.ruff.lint.isort]
-# Make isort compatible with black
+# Make isort compatible with black and standalone isort
 combine-as-imports = true
-force-sort-within-sections = true
+force-sort-within-sections = false
 known-first-party = ["app"]
 lines-after-imports = 2
+force-single-line = false
+# Match isort profile="black"
+split-on-trailing-comma = true
 
 [tool.ruff.lint.mccabe]
 # Maximum cyclomatic complexity

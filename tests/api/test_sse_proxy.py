@@ -5,8 +5,8 @@ Tests the browser-friendly SSE proxy that allows EventSource to stream
 job progress without exposing API keys.
 """
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from app.api.main import app
 

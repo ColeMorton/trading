@@ -4,10 +4,10 @@ Provides policies and functions for handling recoverable errors,
 including retry strategies, fallback operations, and graceful degradation.
 """
 
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-import time
 from typing import Any
 
 from .exceptions import ConcurrencyError

@@ -5,8 +5,8 @@ This service provides a unified interface for running concurrency analysis
 on trading portfolios, following the modular service architecture pattern.
 """
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 

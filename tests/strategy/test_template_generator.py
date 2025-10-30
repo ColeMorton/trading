@@ -4,9 +4,9 @@ Test Suite for Strategy Template Generator
 Comprehensive tests for the template-based strategy development system.
 """
 
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
 
 import pytest
 

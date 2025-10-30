@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,8 +109,8 @@ def calculate_expectancy(trades: vbt.portfolio.trades.Trades) -> float:
 
     # Import standardized expectancy calculation
     import os
-    from pathlib import Path
     import sys
+    from pathlib import Path
 
     sys.path.append(str(Path(__file__).parent.parent))
     from tools.expectancy import calculate_expectancy_from_returns

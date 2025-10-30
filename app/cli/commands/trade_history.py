@@ -4,10 +4,10 @@ This module provides CLI commands for trade history analysis, sell signal genera
 and position management functionality.
 """
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from ..config import ConfigLoader
 from ..models.trade_history import TradeHistoryConfig

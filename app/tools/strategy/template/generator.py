@@ -4,8 +4,8 @@ Strategy Template Generator
 Main generator class that orchestrates template-based strategy creation.
 """
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Any
 
 from .config_template import TemplateConfig

@@ -5,9 +5,9 @@ This module implements drawdown calculations from manual stop-loss distance entr
 as specified in Phase 2 of the position sizing migration plan.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any
 

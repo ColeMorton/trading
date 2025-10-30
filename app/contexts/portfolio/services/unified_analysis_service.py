@@ -6,8 +6,8 @@ and the Statistical Performance Divergence System (SPDS) for comprehensive
 portfolio analysis.
 """
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 

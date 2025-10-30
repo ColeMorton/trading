@@ -4,9 +4,9 @@ Phase 1 Validation Script: Configuration Emergency Repair & Unification
 Tests the success criteria for Phase 1 implementation.
 """
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 def check_pytest_syntax():

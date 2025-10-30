@@ -5,10 +5,10 @@ This module handles the execution of trading strategies, including portfolio pro
 filtering, and best portfolio selection for both single and multiple tickers.
 """
 
+import uuid
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, Optional
-import uuid
 
 from app.strategies.ma_cross.config_types import Config
 from app.tools.backtest_strategy import backtest_strategy

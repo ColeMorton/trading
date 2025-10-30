@@ -5,8 +5,8 @@ Focused service for converting statistical analysis results to backtesting param
 Extracted from the larger backtesting_parameter_export_service for better maintainability.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd

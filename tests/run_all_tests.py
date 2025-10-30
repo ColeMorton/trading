@@ -7,10 +7,10 @@ and handles different test requirements (servers, dependencies, etc.)
 """
 
 import json
-from pathlib import Path
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 
 class TestRunner:

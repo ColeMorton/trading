@@ -5,10 +5,10 @@ Integrates pattern recognition with trade quality analysis for enhanced
 decision making and statistical validation of trade outcomes.
 """
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import logging
 from typing import Any
 
 import numpy as np

@@ -14,9 +14,9 @@ Example:
 """
 
 import argparse
-from collections.abc import Callable
 import os
 import sys
+from collections.abc import Callable
 
 import polars as pl
 

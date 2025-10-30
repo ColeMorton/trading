@@ -8,9 +8,9 @@ through API serialization to frontend consumption.
 import json
 import time
 
-from fastapi.testclient import TestClient
 import pytest
 import requests
+from fastapi.testclient import TestClient
 
 
 # from app.api.main import app  # Temporarily disabled - module not found

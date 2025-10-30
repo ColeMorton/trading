@@ -4,9 +4,9 @@ Kelly Criterion Calculator for Position Sizing
 This module implements Excel B17-B21 Kelly calculations using manual trading journal inputs.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any
 

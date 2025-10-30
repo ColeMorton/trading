@@ -11,9 +11,9 @@ import hashlib
 import logging
 from typing import Any
 
-from cachetools import LRUCache
 import pandas as pd
 import polars as pl
+from cachetools import LRUCache
 
 from app.tools.processing.memory_optimizer import get_memory_optimizer
 

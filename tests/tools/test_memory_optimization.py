@@ -5,8 +5,8 @@ This module tests the memory optimization components including object pooling,
 memory monitoring, data conversion, streaming processing, and memory-mapped file access.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd

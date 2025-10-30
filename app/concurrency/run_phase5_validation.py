@@ -5,10 +5,10 @@ This script runs the complete Phase 5 validation suite to ensure all
 concurrency calculation fixes work correctly together.
 """
 
-from datetime import datetime
 import json
-from pathlib import Path
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import polars as pl
 

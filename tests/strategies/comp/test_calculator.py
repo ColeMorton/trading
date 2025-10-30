@@ -5,8 +5,8 @@ Tests component strategy loading, position calculation,
 aggregation, and signal generation.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np

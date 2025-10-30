@@ -6,15 +6,15 @@ Comprehensive health check for the Statistical Performance Divergence System.
 Validates system components, data integrity, and export functionality.
 """
 
-from datetime import datetime
 import logging
-from pathlib import Path
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
+import typer
 from rich.console import Console
 from rich.table import Table
-import typer
 
 
 # Setup

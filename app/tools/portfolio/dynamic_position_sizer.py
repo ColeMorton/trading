@@ -4,8 +4,8 @@ This module provides adaptive position sizing capabilities that adjust
 allocation based on statistical analysis and performance metrics.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd

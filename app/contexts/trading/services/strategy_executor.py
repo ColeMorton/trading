@@ -5,8 +5,8 @@ Focused service for executing trading strategies.
 Extracted from the larger execution engines for better maintainability.
 """
 
-from enum import Enum
 import logging
+from enum import Enum
 from typing import Any
 
 import pandas as pd

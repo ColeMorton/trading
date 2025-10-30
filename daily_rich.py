@@ -5,16 +5,17 @@ Provides beautiful terminal output by default, with --quiet mode for automation.
 """
 
 import argparse
-from datetime import datetime
 import logging
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
+from datetime import datetime
+from pathlib import Path
 
+import yaml
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.panel import Panel
@@ -29,7 +30,6 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from rich.table import Table
-import yaml
 
 
 class DailyTradingExecutor:

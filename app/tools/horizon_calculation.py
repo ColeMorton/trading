@@ -5,9 +5,9 @@ This module provides efficient calculation of horizon metrics with caching
 and optimized data processing for improved performance.
 """
 
+import time
 from collections.abc import Callable
 from pathlib import Path
-import time
 from typing import Any, TypeVar
 
 import numpy as np

@@ -1,9 +1,9 @@
 """Service layer for seasonality expectancy analysis."""
 
+import warnings
 from calendar import monthrange
 from datetime import datetime, timedelta
 from pathlib import Path
-import warnings
 
 import numpy as np
 import pandas as pd

@@ -8,8 +8,8 @@ for all sweep-related response schemas.
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from app.api.models.schemas import (
     BestResultsResponse,

@@ -6,11 +6,11 @@ This test ensures that when multiple tickers are provided as a list,
 they are combined into a single date-based portfolios_best file.
 """
 
-from datetime import datetime
 import os
-from pathlib import Path
 import sys
 import unittest
+from datetime import datetime
+from pathlib import Path
 
 import polars as pl
 

@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
 import yaml
+from pydantic import BaseModel, Field, field_validator
 
 from ..models.base import BaseConfig
 from ..models.concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig

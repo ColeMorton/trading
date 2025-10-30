@@ -12,8 +12,8 @@ This test suite prevents regression of specific export issues that were recently
 These tests ensure that previously fixed bugs do not reoccur.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import polars as pl

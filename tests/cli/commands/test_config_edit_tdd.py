@@ -6,8 +6,8 @@ This test demonstrates the Red-Green-Refactor TDD cycle for implementing
 the profile editing functionality in the CLI config command.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest

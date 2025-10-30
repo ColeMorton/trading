@@ -5,9 +5,9 @@ This module tests the performance monitoring, benchmarking, and memory tracking
 capabilities for equity data export operations.
 """
 
-from pathlib import Path
 import tempfile
 import time
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest

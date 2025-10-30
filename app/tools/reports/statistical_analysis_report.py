@@ -5,8 +5,8 @@ Generates comprehensive markdown reports with statistical analysis insights,
 performance summaries, and actionable recommendations.
 """
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 

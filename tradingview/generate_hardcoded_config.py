@@ -7,11 +7,11 @@ hardcoded strategy blocks for the Strategy Breadth Oscillator indicator,
 following the best practices identified in the error resolution process.
 """
 
-from collections import defaultdict
 import csv
-from datetime import datetime
 import os
 import sys
+from collections import defaultdict
+from datetime import datetime
 
 
 def generate_hardcoded_strategies(csv_path, ticker_filter=None):

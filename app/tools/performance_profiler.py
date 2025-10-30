@@ -5,13 +5,13 @@ This module provides performance monitoring, memory tracking, and benchmarking
 capabilities to ensure the equity data export feature meets performance requirements.
 """
 
+import os
+import time
+import tracemalloc
 from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
-import os
 from pathlib import Path
-import time
-import tracemalloc
 from typing import Any
 
 import numpy as np

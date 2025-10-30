@@ -6,8 +6,8 @@ This script demonstrates the unified strategy framework capabilities
 and shows how to use the new infrastructure.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path

@@ -5,9 +5,9 @@ This module provides intelligent resume functionality for strategy execution,
 detecting completed analyses and filtering out work that doesn't need to be redone.
 """
 
+import os
 from collections.abc import Callable
 from datetime import datetime, time, timedelta
-import os
 from pathlib import Path
 from typing import Any
 

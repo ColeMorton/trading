@@ -5,8 +5,8 @@ This script tests the core Monte Carlo functionality directly without
 running the full parameter sensitivity analysis.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path

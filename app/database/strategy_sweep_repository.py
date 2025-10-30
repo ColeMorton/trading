@@ -4,9 +4,9 @@ Strategy Sweep Repository
 Repository for persisting strategy sweep results to PostgreSQL database.
 """
 
-from decimal import Decimal
 import json
 import logging
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 

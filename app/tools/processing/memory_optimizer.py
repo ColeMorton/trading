@@ -6,15 +6,15 @@ garbage collection management, and memory usage monitoring for efficient
 data processing in trading strategies.
 """
 
+import gc
+import logging
+import sys
+import weakref
 from collections import deque
 from collections.abc import Callable
 from contextlib import contextmanager
 from datetime import datetime
-import gc
-import logging
-import sys
 from typing import Any, Generic, TypeVar
-import weakref
 
 import pandas as pd
 import polars as pl

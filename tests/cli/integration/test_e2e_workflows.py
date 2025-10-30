@@ -13,8 +13,8 @@ through to file system effects:
 These tests ensure the entire pipeline works correctly in realistic usage scenarios.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import polars as pl

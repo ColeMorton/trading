@@ -5,9 +5,9 @@ Validates 50% fixture duplication reduction and 30% performance improvement targ
 """
 
 import ast
-from pathlib import Path
 import sys
 import time
+from pathlib import Path
 from typing import Any
 
 

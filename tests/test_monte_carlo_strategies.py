@@ -6,9 +6,9 @@ SMA, EMA, and MACD strategies, including proper parameter handling and
 signal period support for MACD.
 """
 
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 from unittest.mock import Mock
 
 import numpy as np

@@ -16,8 +16,8 @@ These tests ensure the system fails gracefully and provides meaningful error mes
 import contextlib
 import json
 import os
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import polars as pl

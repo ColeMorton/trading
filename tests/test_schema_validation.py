@@ -5,8 +5,8 @@ Tests the canonical schema definition and validation functions to ensure
 they correctly identify compliant and non-compliant CSV exports.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import pandas as pd
 import pytest

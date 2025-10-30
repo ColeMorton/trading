@@ -1,8 +1,8 @@
 """Utility for converting and formatting portfolio statistics."""
 
+import math
 from collections.abc import Callable
 from datetime import datetime
-import math
 from typing import Any, TypedDict
 
 import numpy as np

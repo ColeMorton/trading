@@ -10,9 +10,9 @@ Tests the new portfolio analysis service functionality including:
 - Error handling and edge cases
 """
 
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd

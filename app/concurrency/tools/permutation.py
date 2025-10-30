@@ -4,9 +4,9 @@ This module provides functionality for generating and analyzing permutations
 of trading strategies to find the most efficient combinations.
 """
 
+import time
 from collections.abc import Callable
 from itertools import combinations
-import time
 from typing import Any
 
 from app.tools.portfolio import StrategyConfig

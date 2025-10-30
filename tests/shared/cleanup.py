@@ -3,14 +3,14 @@ Automated resource cleanup framework to prevent test pollution.
 Phase 3: Testing Infrastructure Consolidation
 """
 
-from collections.abc import Callable
-from contextlib import contextmanager
 import os
-from pathlib import Path
 import shutil
 import tempfile
 import threading
 import time
+from collections.abc import Callable
+from contextlib import contextmanager
+from pathlib import Path
 from typing import Any
 
 import pytest

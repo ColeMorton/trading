@@ -1,7 +1,7 @@
 """Risk metrics calculation for concurrency analysis."""
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np

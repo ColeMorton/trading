@@ -6,11 +6,11 @@ implementing Rich-based console output with proper categorization and visual hie
 Enhanced with integrated performance monitoring for strategy execution optimization.
 """
 
-from contextlib import contextmanager
-from datetime import datetime
 import logging
 import threading
 import time
+from contextlib import contextmanager
+from datetime import datetime
 from typing import Any
 
 import psutil

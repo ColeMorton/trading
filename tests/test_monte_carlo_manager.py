@@ -6,8 +6,8 @@ analysis, strategy ID generation, parallel processing, and integration
 with the concurrency framework.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np

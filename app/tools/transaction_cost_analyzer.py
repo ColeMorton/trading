@@ -5,9 +5,9 @@ This module provides transaction cost estimation and integration for the SPDS
 scoring system, enabling cost-aware signal generation and turnover optimization.
 """
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import logging
 from typing import Any
 
 

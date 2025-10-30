@@ -8,11 +8,11 @@ and functionality compared to the existing system.
 
 import asyncio
 import json
-from pathlib import Path
 
 # Add project root to path
 import sys
 import time
+from pathlib import Path
 from typing import Any
 
 import numpy as np

@@ -5,8 +5,8 @@ This module contains the main execution logic for running concurrency analysis
 across multiple trading strategies.
 """
 
-from collections.abc import Callable
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 

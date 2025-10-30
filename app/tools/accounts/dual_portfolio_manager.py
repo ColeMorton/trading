@@ -5,10 +5,10 @@ This module implements dual portfolio coordination separating Risk On positions
 vs Investment holdings as specified in Phase 2 of the position sizing migration plan.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import json
 from pathlib import Path
 from typing import Any
 

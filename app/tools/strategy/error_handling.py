@@ -5,10 +5,10 @@ This module provides standardized error handling across all strategy implementat
 eliminating duplication while maintaining strategy-specific error context.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from enum import Enum
-import logging
 from typing import Any
 
 

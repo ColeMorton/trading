@@ -8,8 +8,8 @@ This module provides volume and liquidity scoring capabilities including:
 - Liquidity risk assessment
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np

@@ -9,9 +9,9 @@ Tests the standardized win rate calculator to ensure:
 4. Legacy compatibility is maintained
 """
 
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pandas as pd

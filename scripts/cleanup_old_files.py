@@ -26,12 +26,12 @@ Safe to clean (when explicitly whitelisted):
 """
 
 import argparse
-from datetime import datetime
 import fnmatch
 import os
-from pathlib import Path
 import sys
 import time
+from datetime import datetime
+from pathlib import Path
 
 
 def is_interactive_environment() -> bool:

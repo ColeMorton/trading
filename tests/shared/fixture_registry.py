@@ -3,8 +3,8 @@ Smart fixture dependency injection system for automated resolution.
 Phase 3: Testing Infrastructure Consolidation
 """
 
-from collections.abc import Callable
 import inspect
+from collections.abc import Callable
 from typing import Any
 
 

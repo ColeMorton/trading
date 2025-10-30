@@ -4,8 +4,8 @@ This module provides functionality for generating reports that compare
 the full strategy set with the optimal subset identified through permutation analysis.
 """
 
-from collections.abc import Callable
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 

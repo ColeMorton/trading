@@ -5,13 +5,13 @@ This module provides CLI commands for concurrency analysis,
 trade history export, and portfolio interaction analysis.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from ..config import ConfigLoader
 from ..models.concurrency import ConcurrencyConfig
@@ -2538,8 +2538,8 @@ def demo(
 
 def _generate_demo_portfolio(n_strategies: int) -> dict:
     """Generate a demo portfolio with sample strategies."""
-    from datetime import datetime
     import random
+    from datetime import datetime
 
     tickers = [
         "AAPL",

@@ -6,8 +6,8 @@ column name contamination or other thread safety issues, using stable
 mock data instead of external API calls for reliable testing.
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd

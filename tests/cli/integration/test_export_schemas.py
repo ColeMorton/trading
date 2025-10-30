@@ -11,8 +11,8 @@ This test suite validates that exported CSV files match expected schemas:
 """
 
 import csv
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd

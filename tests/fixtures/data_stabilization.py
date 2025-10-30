@@ -13,8 +13,8 @@ Key Features:
 - Easy integration with existing tests
 """
 
-from collections.abc import Callable
 import functools
+from collections.abc import Callable
 from typing import Any
 from unittest.mock import Mock, patch
 

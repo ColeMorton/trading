@@ -8,8 +8,8 @@ This migration creates a normalized structure for metric type classifications,
 replacing the comma-separated string field with proper relational tables.
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 

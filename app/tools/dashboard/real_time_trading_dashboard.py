@@ -6,9 +6,9 @@ real-time divergence analysis, and automated signal generation.
 """
 
 import asyncio
+import logging
 from dataclasses import asdict, dataclass
 from datetime import datetime
-import logging
 from pathlib import Path
 from typing import Any
 

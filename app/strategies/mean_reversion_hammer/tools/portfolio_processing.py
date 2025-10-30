@@ -6,8 +6,8 @@ including loading existing data and analyzing parameter sensitivity for
 the mean reversion hammer strategy.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 
 import numpy as np
 import polars as pl

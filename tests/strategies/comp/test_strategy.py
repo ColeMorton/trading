@@ -5,8 +5,8 @@ Tests score calculation, strategy execution, ticker processing,
 and CSV export functionality.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import polars as pl

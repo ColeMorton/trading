@@ -5,8 +5,8 @@ This module provides functions to calculate various signal quality metrics
 for trading strategies, helping to quantify the value of each signal.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np

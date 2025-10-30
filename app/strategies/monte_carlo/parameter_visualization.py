@@ -8,11 +8,11 @@ interval plots, and performance distribution analysis.
 
 import os
 
-from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
+from matplotlib.gridspec import GridSpec
 from scipy import stats
 
 from app.strategies.monte_carlo.parameter_robustness import ParameterStabilityResult

@@ -5,11 +5,11 @@ This service provides strategy combination optimization using systematic
 permutation analysis to find the most efficient portfolio configurations.
 """
 
+import itertools
+import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-import itertools
-import time
 from typing import Any
 
 from app.concurrency.config import ConcurrencyConfig

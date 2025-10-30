@@ -6,9 +6,9 @@ Tests the integration of PortfolioAnalysisService with CLI commands to ensure
 end-to-end functionality works correctly in realistic scenarios.
 """
 
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd

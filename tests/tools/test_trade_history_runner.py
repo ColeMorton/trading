@@ -3,11 +3,11 @@
 Test runner for comprehensive trade history export tests.
 """
 
-from io import StringIO
 import os
 import sys
 import time
 import unittest
+from io import StringIO
 
 
 def run_comprehensive_tests():

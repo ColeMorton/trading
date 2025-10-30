@@ -4,8 +4,8 @@ Only tests workflows that can work with current implementation.
 """
 
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 import pytest
 

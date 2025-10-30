@@ -5,9 +5,9 @@ This module defines the database tables as SQLModel classes,
 combining SQLAlchemy ORM with Pydantic validation.
 """
 
+import uuid
 from datetime import datetime
 from enum import Enum
-import uuid
 
 from sqlalchemy import JSON, Column, Text
 from sqlmodel import Field, SQLModel

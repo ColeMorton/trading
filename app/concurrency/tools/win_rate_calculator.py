@@ -10,9 +10,9 @@ Classes:
     WinRateType: Enumeration of different win rate calculation types
 """
 
+import os
 from dataclasses import dataclass
 from enum import Enum
-import os
 
 import numpy as np
 import pandas as pd

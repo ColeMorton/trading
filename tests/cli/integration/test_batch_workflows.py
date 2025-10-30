@@ -29,9 +29,9 @@ This ensures the batch system maintains state correctly across:
 - Error conditions and recovery
 """
 
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-import tempfile
 from unittest.mock import Mock
 
 import pandas as pd

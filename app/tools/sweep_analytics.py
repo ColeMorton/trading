@@ -5,10 +5,10 @@ Financial analytics engine for MA parameter sweep analysis, providing
 comprehensive performance metrics, rankings, and optimization recommendations.
 """
 
-from dataclasses import dataclass
 import json
 import math
 import os
+from dataclasses import dataclass
 from typing import Any
 
 

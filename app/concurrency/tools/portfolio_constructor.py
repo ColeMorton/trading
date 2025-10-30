@@ -6,9 +6,9 @@ Constructs optimal portfolios by testing different sizes (5, 7, 9) and selecting
 the configuration with the highest efficiency_score.
 """
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-import logging
 from typing import Any
 
 from app.concurrency.tools.asset_strategy_loader import AssetStrategyLoader

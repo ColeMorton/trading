@@ -5,11 +5,11 @@ Orchestrates Monte Carlo parameter robustness testing across multiple tickers
 in a portfolio using concurrent processing with proper resource management.
 """
 
+import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-import sys
 from typing import Any
 
 import polars as pl

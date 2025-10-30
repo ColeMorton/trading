@@ -11,8 +11,8 @@ processed by splitting them into their component tickers.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path
@@ -36,10 +36,8 @@ from app.tools.exceptions import (
     TradingSystemError,
 )
 from app.tools.logging_context import logging_context
-from app.tools.portfolio import (
-    PortfolioLoadError,  # Using specific error type
-    load_portfolio_with_logging,  # Using enhanced loader
-)
+from app.tools.portfolio import PortfolioLoadError  # Using specific error type
+from app.tools.portfolio import load_portfolio_with_logging  # Using enhanced loader
 from app.tools.portfolio.allocation import (
     calculate_position_sizes,
     ensure_allocation_sum_100_percent,

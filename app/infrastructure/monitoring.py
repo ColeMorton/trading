@@ -1,9 +1,9 @@
 """Concrete implementation of monitoring interface."""
 
-from collections import defaultdict
-from datetime import datetime
 import statistics
 import time
+from collections import defaultdict
+from datetime import datetime
 from typing import Any
 
 from app.core.interfaces import ConfigurationInterface, MetricType, MonitoringInterface

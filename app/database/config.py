@@ -5,13 +5,13 @@ This module provides database configuration and connection management
 for PostgreSQL with connection pooling and health checks.
 """
 
-from functools import lru_cache
 import logging
+from functools import lru_cache
 
 import asyncpg
+import redis.asyncio as redis
 from pydantic import ConfigDict, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
-import redis.asyncio as redis
 
 
 logger = logging.getLogger(__name__)

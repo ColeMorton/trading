@@ -5,15 +5,15 @@ This module implements intelligent cache warming based on historical access patt
 It analyzes usage patterns and proactively loads frequently accessed data into cache.
 """
 
+import json
+import logging
+import threading
+import time
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-import json
-import logging
 from pathlib import Path
-import threading
-import time
 from typing import Any
 
 from .cache_manager import IntelligentCacheManager

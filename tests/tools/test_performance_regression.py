@@ -5,12 +5,12 @@ This module implements performance regression detection for the optimization sys
 It ensures that performance improvements are maintained over time.
 """
 
-from datetime import datetime
 import json
 import logging
-from pathlib import Path
 import statistics
 import time
+from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 import psutil

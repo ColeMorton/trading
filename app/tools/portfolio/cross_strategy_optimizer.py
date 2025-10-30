@@ -4,9 +4,9 @@ This module provides portfolio-level optimization capabilities that analyze
 correlations and performance across multiple strategies.
 """
 
-from dataclasses import dataclass
 import logging
 import warnings
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd

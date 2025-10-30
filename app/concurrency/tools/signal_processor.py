@@ -6,9 +6,9 @@ This module provides consistent signal counting, filtering, and processing
 methodologies across all trading modules to eliminate discrepancies.
 """
 
+import os
 from dataclasses import dataclass
 from enum import Enum
-import os
 
 import numpy as np
 import pandas as pd

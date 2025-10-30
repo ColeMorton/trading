@@ -1,7 +1,7 @@
 """Logging interface definition."""
 
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from typing import Any
 
 

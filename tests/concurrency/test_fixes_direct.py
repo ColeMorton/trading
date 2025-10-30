@@ -3,10 +3,10 @@
 Direct test of concurrency calculation fixes.
 """
 
-from datetime import datetime
 import os
-from pathlib import Path
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import polars as pl

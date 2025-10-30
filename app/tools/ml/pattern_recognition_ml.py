@@ -4,8 +4,8 @@ This module provides ML-based pattern recognition capabilities for identifying
 recurring performance patterns and anomalies in trading strategies.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np

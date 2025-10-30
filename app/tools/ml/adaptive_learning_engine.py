@@ -4,9 +4,9 @@ This module provides continuous learning capabilities for optimizing
 statistical thresholds based on historical performance data.
 """
 
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-import logging
 from typing import Any
 
 import numpy as np

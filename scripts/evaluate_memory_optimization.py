@@ -8,8 +8,8 @@ is justified by the benefits.
 
 import ast
 import json
-from pathlib import Path
 import time
+from pathlib import Path
 
 from rich.console import Console
 from rich.table import Table

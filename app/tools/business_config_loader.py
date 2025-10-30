@@ -5,8 +5,8 @@ This module provides specialized loading for business configuration files from
 data/config/ directory with support for composition, inheritance, and YAML processing.
 """
 
-from functools import lru_cache
 import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 

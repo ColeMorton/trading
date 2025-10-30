@@ -5,8 +5,8 @@ Focused service for portfolio management operations.
 Extracted from the larger portfolio services for better maintainability.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 from app.tools.config.statistical_analysis_config import SPDSConfig, get_spds_config

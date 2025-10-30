@@ -7,18 +7,16 @@ implementation that orchestrates the decomposed services.
 """
 
 import asyncio
+import time
+import traceback
 from collections import defaultdict
-from concurrent.futures import (
-    ThreadPoolExecutor,
-    ThreadPoolExecutor as ConcurrentExecutor,
-)
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor as ConcurrentExecutor
 
 # API removed - creating local model definitions
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import time
-import traceback
 from typing import Any
 
 

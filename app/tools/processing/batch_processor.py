@@ -4,12 +4,12 @@ Optimized for trading system workloads with intelligent batching strategies
 and memory-efficient processing.
 """
 
+import logging
+import time
 from collections.abc import Callable
 from concurrent.futures import as_completed
 from dataclasses import dataclass
-import logging
 from pathlib import Path
-import time
 from typing import Any, TypeVar
 
 import polars as pl

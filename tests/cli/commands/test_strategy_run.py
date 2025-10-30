@@ -11,8 +11,8 @@ This test suite covers the `trading-cli strategy sweep` command with focus on:
 - Profile integration
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest

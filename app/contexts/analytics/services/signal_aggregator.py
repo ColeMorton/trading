@@ -5,8 +5,8 @@ Focused service for aggregating and processing signal data from multiple sources
 Extracted from the larger signal_data_aggregator for better maintainability.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd

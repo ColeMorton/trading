@@ -4,8 +4,8 @@ Verify that the fixed risk calculation is now active.
 """
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add parent directory to path

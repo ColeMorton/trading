@@ -7,10 +7,10 @@ Compares current performance results against baseline to detect regressions.
 """
 
 import argparse
-from datetime import datetime
 import json
-from pathlib import Path
 import sys
+from datetime import datetime
+from pathlib import Path
 
 
 class PerformanceRegressionChecker:

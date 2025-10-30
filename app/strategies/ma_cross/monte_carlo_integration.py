@@ -17,14 +17,14 @@ See: /architect/monte_carlo_refactoring_plan.md
 """
 
 import os
-from typing import Any
 import warnings
+from typing import Any
 
 import polars as pl
 
 # Import new concurrency-based Monte Carlo framework
+from app.concurrency.tools.monte_carlo import MonteCarloConfig as NewMonteCarloConfig
 from app.concurrency.tools.monte_carlo import (
-    MonteCarloConfig as NewMonteCarloConfig,
     PortfolioMonteCarloManager,
     create_monte_carlo_config,
 )
@@ -39,6 +39,8 @@ from app.tools.setup_logging import setup_logging
 try:
     from app.strategies.monte_carlo.parameter_robustness import (
         MonteCarloConfig as LegacyMonteCarloConfig,
+    )
+    from app.strategies.monte_carlo.parameter_robustness import (
         run_parameter_robustness_analysis,
     )
 except ImportError:

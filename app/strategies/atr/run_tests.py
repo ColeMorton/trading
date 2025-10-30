@@ -26,10 +26,10 @@ Options:
 """
 
 import argparse
-from pathlib import Path
 import sys
 import time
 import unittest
+from pathlib import Path
 
 
 # Add parent directory to path for imports

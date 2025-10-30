@@ -6,10 +6,10 @@ minimizing conversions between polars and pandas and implementing
 efficient batch processing techniques.
 """
 
+import time
 from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
-import time
 from typing import Any, TypeVar
 
 import numpy as np

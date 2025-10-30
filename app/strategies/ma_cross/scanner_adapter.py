@@ -5,9 +5,9 @@ This module provides an adapter that allows the existing scanner functionality
 to be used programmatically without file I/O dependencies.
 """
 
+import os
 from collections.abc import Callable
 from datetime import datetime
-import os
 from typing import Any
 
 import polars as pl

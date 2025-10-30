@@ -1,7 +1,7 @@
-from collections.abc import Callable
 import logging
 import os
 import time
+from collections.abc import Callable
 
 
 def get_project_root() -> str:

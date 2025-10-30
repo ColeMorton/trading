@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from app.tools.services.portfolio_seasonality_service import PortfolioSeasonalityService
 from app.tools.services.seasonality_expectancy_service import (

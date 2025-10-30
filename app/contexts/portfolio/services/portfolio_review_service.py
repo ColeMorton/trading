@@ -7,11 +7,11 @@ and multi-strategy analysis with benchmark comparison.
 Uses unified 3-layer directory structure: portfolio/{type}/{name}/{charts|data|analysis}/
 """
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
 import json
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from typing import Any, Optional
 
 import pandas as pd

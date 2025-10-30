@@ -5,8 +5,8 @@ ensures proper resource cleanup across the system. It follows SOLID principles
 and KISS (Keep It Simple, Stupid) design philosophy.
 """
 
-from contextlib import contextmanager
 import logging
+from contextlib import contextmanager
 
 from app.tools.setup_logging import setup_logging
 

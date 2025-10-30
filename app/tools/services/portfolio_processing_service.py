@@ -6,9 +6,10 @@ It provides utilities for converting portfolio dictionaries to metrics and
 processing portfolio data with proper validation.
 """
 
+import glob
+
 # API removed - creating local definitions
 from dataclasses import dataclass
-import glob
 from typing import Any
 
 

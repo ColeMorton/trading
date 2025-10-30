@@ -4,9 +4,9 @@ This module provides a context manager for standardized error handling
 across the trading system, following SOLID principles and KISS design.
 """
 
+import traceback
 from collections.abc import Callable
 from contextlib import contextmanager
-import traceback
 from typing import TypeVar
 
 from app.tools.exceptions import TradingSystemError

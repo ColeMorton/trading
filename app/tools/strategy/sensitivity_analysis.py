@@ -6,9 +6,9 @@ eliminating duplication while maintaining strategy-specific behavior through
 polymorphism and configuration.
 """
 
+import os
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-import os
 from typing import Any
 
 import polars as pl

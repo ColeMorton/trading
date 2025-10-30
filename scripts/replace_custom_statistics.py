@@ -6,8 +6,8 @@ Replaces custom statistical implementations in divergence_detector.py with
 standard scipy/numpy functions for better maintainability and performance.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 # Add project root to path

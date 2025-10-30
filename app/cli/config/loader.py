@@ -8,8 +8,8 @@ configurations from various sources.
 from pathlib import Path
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, ValidationError
 import yaml
+from pydantic import BaseModel, ValidationError
 
 from ..models.concurrency import ConcurrencyConfig
 from ..models.portfolio import PortfolioConfig

@@ -4,8 +4,8 @@ Logging Middleware.
 Adds request ID and logging context to API requests.
 """
 
-from collections.abc import Callable
 import uuid
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware

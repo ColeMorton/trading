@@ -11,8 +11,8 @@ This module provides reusable testing utilities for the trading CLI test suite:
 These utilities reduce code duplication and improve test maintainability.
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
 

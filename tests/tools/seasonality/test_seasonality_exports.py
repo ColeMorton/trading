@@ -4,8 +4,8 @@ CRITICAL: These tests verify that exported data is correctly structured
 and contains all required fields for downstream analysis.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
 
 import pandas as pd
 

@@ -5,8 +5,8 @@ This module provides streaming capabilities for processing large CSV files
 with automatic chunking and memory-efficient data handling.
 """
 
-from collections.abc import Callable, Iterator
 import logging
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 

@@ -5,9 +5,9 @@ This module provides memory-efficient processing techniques for large-scale
 equity data export operations, including streaming, chunking, and data optimization.
 """
 
+import gc
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-import gc
 from typing import Any
 
 import numpy as np

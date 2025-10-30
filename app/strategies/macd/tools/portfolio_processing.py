@@ -6,8 +6,8 @@ including loading existing data and analyzing parameter sensitivity for
 the MACD cross strategy.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 
 import polars as pl
 

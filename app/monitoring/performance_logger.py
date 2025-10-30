@@ -4,9 +4,9 @@ Performance Logging Module.
 Provides performance-aware logging with phase tracking and bottleneck detection.
 """
 
-from datetime import datetime
 import threading
 import time
+from datetime import datetime
 from typing import Any
 
 from rich.table import Table

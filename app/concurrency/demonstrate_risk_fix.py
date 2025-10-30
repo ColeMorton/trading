@@ -5,8 +5,8 @@ This script compares the original (broken) and fixed implementations
 using the portfolio_d_20250530 data.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import numpy as np
 import polars as pl

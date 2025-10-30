@@ -4,11 +4,11 @@ This module provides utilities for loading and processing portfolio data,
 with standardized error handling and logging.
 """
 
-from collections.abc import Callable
-from contextlib import contextmanager
 import csv
 import json
 import os
+from collections.abc import Callable
+from contextlib import contextmanager
 from typing import Any
 
 from app.concurrency.tools.strategy_id import generate_strategy_id

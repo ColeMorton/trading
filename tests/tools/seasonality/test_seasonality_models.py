@@ -6,8 +6,8 @@ invalid configurations and data structures.
 
 from datetime import datetime
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 
 def get_models():

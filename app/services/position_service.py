@@ -10,8 +10,8 @@ This service consolidates functionality from:
 - trade_history_close_live_signal.py
 """
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 

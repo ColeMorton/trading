@@ -6,10 +6,10 @@ parameter configuration, and strategy execution through the Strategy Pattern.
 """
 
 import asyncio
-from enum import Enum
 import json
 import sys
 import time
+from enum import Enum
 from typing import Any
 
 

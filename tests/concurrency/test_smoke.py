@@ -1,8 +1,8 @@
 """Smoke tests to verify testing framework setup."""
 
 import json
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from .base import ConcurrencyTestCase, MockDataMixin
 

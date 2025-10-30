@@ -6,8 +6,8 @@ Verifies that the updated CLI works with the new SPDSAnalysisEngine.
 """
 
 import asyncio
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).parent.parent))

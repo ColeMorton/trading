@@ -8,10 +8,10 @@ import json
 import os
 from pathlib import Path
 
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from ..config import ConfigLoader
 from ..models.tools import (
@@ -991,9 +991,9 @@ def export_ma_data(
             raise typer.Exit(1)
 
         # Import required modules
-        from datetime import datetime
         import json
         import os
+        from datetime import datetime
 
         # Determine file paths
         output_path = config.output_dir or "data/raw/ma_cross/prices/"
@@ -1345,9 +1345,9 @@ def export_ma_data_sweep(
         rprint("")
 
         # Import required modules for the sweep
-        from datetime import datetime
         import json
         import time
+        from datetime import datetime
 
         from rich.progress import (
             BarColumn,

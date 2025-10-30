@@ -6,8 +6,8 @@ This script analyzes the signal generation thresholds to understand
 the correct behavior for SMCI_SMA_58_60.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 sys.path.append(str(Path(__file__).parent.parent.parent))

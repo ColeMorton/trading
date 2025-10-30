@@ -27,9 +27,9 @@ After the fix:
 - User sees "processed 2 tickers" as expected
 """
 
+import tempfile
 from datetime import datetime
 from pathlib import Path
-import tempfile
 from unittest.mock import Mock, patch
 
 import pandas as pd

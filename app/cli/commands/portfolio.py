@@ -9,10 +9,10 @@ import os
 from pathlib import Path
 
 import pandas as pd
+import typer
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from app.tools.console_logging import ConsoleLogger
 from app.tools.portfolio.aggregation_logic import (
@@ -908,11 +908,17 @@ def synthesize(
         )
         from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisConfig as ServiceConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_review_service import (
             PortfolioSynthesisService,
+        )
+        from ...contexts.portfolio.services.portfolio_review_service import (
             StrategyConfig as ServiceStrategyConfig,
         )
         from ...contexts.portfolio.services.portfolio_visualization_service import (
             PlotConfig as ServicePlotConfig,
+        )
+        from ...contexts.portfolio.services.portfolio_visualization_service import (
             PortfolioVisualizationService,
         )
 

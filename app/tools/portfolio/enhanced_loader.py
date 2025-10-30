@@ -5,9 +5,9 @@ error handling, logging, and path resolution in a consistent way across the syst
 It follows SOLID principles and KISS (Keep It Simple, Stupid) design philosophy.
 """
 
-from collections.abc import Callable, Generator
 import contextlib
 import os
+from collections.abc import Callable, Generator
 from typing import Any
 
 from app.tools.portfolio.loader import load_portfolio as base_load_portfolio
