@@ -1,3 +1,12 @@
+---
+title: Testing Best Practices and Patterns
+version: 2.1
+last_updated: 2025-10-30
+owner: QA Team
+status: Active
+audience: Developers, QA Engineers
+---
+
 # Testing Best Practices and Patterns
 
 ## Overview

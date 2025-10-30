@@ -1,0 +1,52 @@
+name: Pre-commit Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  pre-commit:
+    name: Pre-commit Hooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-
+
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Generate summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "## ✅ Pre-commit Checks Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All code quality checks passed successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Pre-commit Checks Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some code quality checks failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### How to fix locally:" >> $GITHUB_STEP_SUMMARY
+            echo '```bash' >> $GITHUB_STEP_SUMMARY
+            echo 'pre-commit install  # Install pre-commit hooks' >> $GITHUB_STEP_SUMMARY
+            echo 'pre-commit run --all-files  # Run all hooks' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

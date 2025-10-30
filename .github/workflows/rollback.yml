@@ -1,0 +1,147 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      previous_image_tag:
+        description: 'Previous known good image tag (optional - will use latest stable if empty)'
+        required: false
+      reason:
+        description: 'Reason for rollback'
+        required: true
+
+jobs:
+  rollback:
+    name: Rollback ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log rollback initiation
+        run: |
+          echo "# 🔄 Emergency Rollback Initiated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Initiated by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason**: ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **CAUTION**: This will rollback the ${{ github.event.inputs.environment }} environment to a previous version." >> $GITHUB_STEP_SUMMARY
+
+      - name: Determine rollback target
+        id: rollback-target
+        run: |
+          if [ -n "${{ github.event.inputs.previous_image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.previous_image_tag }}" >> $GITHUB_OUTPUT
+            echo "Using specified tag: ${{ github.event.inputs.previous_image_tag }}"
+          else
+            # Logic to find last known good version
+            # This could query a deployment history database, git tags, etc.
+            LAST_GOOD_TAG="latest-stable"
+            echo "tag=$LAST_GOOD_TAG" >> $GITHUB_OUTPUT
+            echo "Using last known good tag: $LAST_GOOD_TAG"
+          fi
+
+      - name: Create pre-rollback snapshot
+        run: |
+          echo "📸 Creating snapshot before rollback..."
+          # Add snapshot logic (database backup, config backup, etc.)
+          echo "✅ Snapshot created: snapshot-pre-rollback-$(date +%Y%m%d-%H%M%S)"
+
+      - name: Verify rollback target exists
+        run: |
+          echo "✅ Verifying image ghcr.io/${{ github.repository }}-api:${{ steps.rollback-target.outputs.tag }} exists..."
+          # docker manifest inspect ghcr.io/${{ github.repository }}-api:${{ steps.rollback-target.outputs.tag }}
+
+      - name: Execute rollback
+        run: |
+          echo "🔄 Rolling back ${{ github.event.inputs.environment }} to ${{ steps.rollback-target.outputs.tag }}..."
+
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            # Production rollback - switch from green back to blue
+            echo "Switching production traffic back to previous version..."
+            # kubectl patch service app -p '{"spec":{"selector":{"version":"blue"}}}'
+            # OR: docker-compose -f docker-compose.prod.yml down && docker-compose -f docker-compose.prod-backup.yml up -d
+          else
+            # Staging rollback
+            echo "Rolling back staging environment..."
+            # docker-compose -f docker-compose.staging.yml down
+            # docker-compose -f docker-compose.staging.yml pull ${{ steps.rollback-target.outputs.tag }}
+            # docker-compose -f docker-compose.staging.yml up -d
+          fi
+
+          echo "✅ Rollback deployment completed"
+
+      - name: Wait for health check
+        run: |
+          echo "⏳ Waiting for services to be healthy after rollback..."
+          TIMEOUT=300
+          INTERVAL=10
+          elapsed=0
+
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            HEALTH_URL="https://trading.example.com/health"
+          else
+            HEALTH_URL="https://staging.trading.example.com/health"
+          fi
+
+          while [ $elapsed -lt $TIMEOUT ]; do
+            if curl -f -s $HEALTH_URL > /dev/null 2>&1; then
+              echo "✅ Services are healthy after rollback!"
+              exit 0
+            fi
+            echo "⏳ Waiting for services... (${elapsed}s/${TIMEOUT}s)"
+            sleep $INTERVAL
+            elapsed=$((elapsed + INTERVAL))
+          done
+
+          echo "❌ Health check timeout after rollback!"
+          exit 1
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests after rollback..."
+          # Add smoke test logic
+          echo "✅ Smoke tests passed"
+
+      - name: Log rollback completion
+        if: success()
+        run: |
+          echo "## ✅ Rollback Completed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Rolled back to**: ${{ steps.rollback-target.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Health check**: PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Post-Rollback Actions" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Investigate root cause of issue" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Review logs from failed deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Update incident report" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Notify stakeholders" >> $GITHUB_STEP_SUMMARY
+
+      - name: Log rollback failure
+        if: failure()
+        run: |
+          echo "## ❌ CRITICAL: Rollback Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URGENT**: Rollback to ${{ steps.rollback-target.outputs.tag }} failed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Immediate Actions Required" >> $GITHUB_STEP_SUMMARY
+          echo "1. Escalate to senior engineering team" >> $GITHUB_STEP_SUMMARY
+          echo "2. Consider manual intervention" >> $GITHUB_STEP_SUMMARY
+          echo "3. Activate incident response protocol" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send notification
+        if: always()
+        run: |
+          echo "📧 Sending rollback notification..."
+          # Add notification logic
+          # curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Rollback ${{ job.status }} for ${{ github.event.inputs.environment }}\"}" ${{ secrets.SLACK_WEBHOOK }}

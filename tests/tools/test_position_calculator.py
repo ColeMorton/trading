@@ -11,8 +11,7 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock
 
-from hypothesis import given
-from hypothesis import strategies as st
+from hypothesis import given, strategies as st
 
 from app.tools.position_calculator import (
     STANDARD_DAYS_PRECISION,

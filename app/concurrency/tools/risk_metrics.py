@@ -558,12 +558,12 @@ def calculate_risk_contributions_legacy(
         log("Calculating strategy returns and volatilities", "info")
         volatilities = []
         strategy_returns = []
-        all_active_returns: list[float] = (
-            []
-        )  # Store all active returns for combined VaR/CVaR
-        weighted_active_returns: list[float] = (
-            []
-        )  # Store returns weighted by allocation
+        all_active_returns: list[
+            float
+        ] = []  # Store all active returns for combined VaR/CVaR
+        weighted_active_returns: list[
+            float
+        ] = []  # Store returns weighted by allocation
         for i, df in enumerate(data_list):
             # Get stop loss value if available
             stop_loss = None

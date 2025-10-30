@@ -275,9 +275,9 @@ class AdaptiveLearningEngine:
 
             # Suggest specific adjustments
             if current_performance.get("premature_exits", 0) > 0.2:
-                recommendations["threshold_adjustments"][
-                    "percentile_threshold"
-                ] = 5  # Increase
+                recommendations["threshold_adjustments"]["percentile_threshold"] = (
+                    5  # Increase
+                )
             if current_performance.get("late_exits", 0) > 0.2:
                 recommendations["threshold_adjustments"][
                     "percentile_threshold"

@@ -201,9 +201,9 @@ class UnifiedAnalysisService:
             # SPDS-based interactions (placeholder)
             if self.enable_spds:
                 spds_interactions = self._analyze_spds_interactions(strategies)
-                interaction_results["system_specific_results"][
-                    "spds"
-                ] = spds_interactions
+                interaction_results["system_specific_results"]["spds"] = (
+                    spds_interactions
+                )
 
             # Cross-system interaction analysis
             if len(interaction_results["system_specific_results"]) > 1:

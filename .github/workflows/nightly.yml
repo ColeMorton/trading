@@ -1,0 +1,185 @@
+name: Nightly Regression & Performance Tests
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  regression-tests:
+    name: Regression Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'nightly'
+
+      - name: Run regression tests
+        env:
+          PYTEST_RUNNING: 1
+        run: |
+          poetry run pytest tests/ -v -m regression --tb=short --maxfail=0
+
+      - name: Upload regression results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-regression-results
+          path: |
+            .pytest_cache/
+            htmlcov/
+          retention-days: 90
+
+  performance-baseline:
+    name: Performance Baseline Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'perf-baseline'
+
+      - name: Run performance benchmarks
+        env:
+          PYTEST_RUNNING: 1
+        run: |
+          poetry run pytest tests/performance/ -v -m performance --tb=short --benchmark-only
+
+      - name: Upload performance baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-baseline-$(date +%Y%m%d)
+          path: |
+            .pytest_cache/
+            .benchmarks/
+          retention-days: 365 # Keep performance baselines for 1 year
+
+  stress-tests:
+    name: Stress Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'stress'
+
+      - name: Run stress tests
+        env:
+          PYTEST_RUNNING: 1
+        run: |
+          poetry run pytest tests/ -v -m stress --tb=short --maxfail=0
+        timeout-minutes: 60
+
+      - name: Upload stress test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stress-test-results
+          path: |
+            .pytest_cache/
+            logs/
+          retention-days: 30
+
+  memory-leak-detection:
+    name: Memory Leak Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'memory'
+
+      - name: Run memory leak tests
+        env:
+          PYTEST_RUNNING: 1
+        run: |
+          poetry run pytest tests/ -v -m memory --tb=short --maxfail=0
+        timeout-minutes: 45
+
+      - name: Upload memory test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: memory-test-results
+          path: |
+            .pytest_cache/
+            memory-profiles/
+          retention-days: 30
+
+  nightly-summary:
+    name: Nightly Test Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        regression-tests,
+        performance-baseline,
+        stress-tests,
+        memory-leak-detection,
+      ]
+    if: always()
+    steps:
+      - name: Generate nightly summary
+        run: |
+          echo "# 🌙 Nightly Test Results - $(date +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.regression-tests.result }}" == "success" ]; then
+            echo "✅ **Regression Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Regression Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.performance-baseline.result }}" == "success" ]; then
+            echo "✅ **Performance Baseline**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Performance Baseline**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.stress-tests.result }}" == "success" ]; then
+            echo "✅ **Stress Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Stress Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.memory-leak-detection.result }}" == "success" ]; then
+            echo "✅ **Memory Leak Detection**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Memory Leak Detection**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance baselines retained for 365 days" >> $GITHUB_STEP_SUMMARY
+          echo "- Other test results retained for 30-90 days" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send notification on failure
+        if: needs.regression-tests.result == 'failure' || needs.performance-baseline.result == 'failure' || needs.stress-tests.result == 'failure' || needs.memory-leak-detection.result == 'failure'
+        run: |
+          echo "📧 Sending failure notification..."
+          # Add notification logic
+          # curl -X POST -H 'Content-type: application/json' --data '{"text":"Nightly tests failed - $(date)"}' ${{ secrets.SLACK_WEBHOOK }}

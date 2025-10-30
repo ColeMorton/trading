@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres-e2e
+    environment:
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: trading_db
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U trading_user']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - trading-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis-e2e
+    command: redis-server --appendonly yes
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - trading-network
+
+  trading-api:
+    extends:
+      file: docker-compose.yml
+      service: trading-api
+    environment:
+      - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - API_KEY_SECRET=dev-secret-key-change-in-production
+      - RUN_MIGRATIONS=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - trading-network
+
+  arq-worker:
+    extends:
+      file: docker-compose.yml
+      service: arq-worker
+    environment:
+      - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+      - DEBUG=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge

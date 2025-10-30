@@ -69,9 +69,7 @@ def apply_stop_loss_to_returns(
     # Create arrays to track position-specific data
     position_ids = np.zeros_like(signals)  # Unique ID for each position
     current_position_id = 0
-    position_cumulative_returns = (
-        {}
-    )  # Dictionary to track cumulative returns by position ID
+    position_cumulative_returns = {}  # Dictionary to track cumulative returns by position ID
 
     # Assign position IDs and initialize tracking
     for i in range(len(positions)):

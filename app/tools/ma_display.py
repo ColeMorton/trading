@@ -867,29 +867,39 @@ class SweepAnalyticsDisplayer:
             score_color = (
                 "green"
                 if data.risk_adjusted_score > 1.5
-                else "yellow" if data.risk_adjusted_score > 1.0 else "white"
+                else "yellow"
+                if data.risk_adjusted_score > 1.0
+                else "white"
             )
             sharpe_color = (
                 "green"
                 if data.sharpe_ratio > 1.5
-                else "yellow" if data.sharpe_ratio > 1.0 else "white"
+                else "yellow"
+                if data.sharpe_ratio > 1.0
+                else "white"
             )
             return_color = (
                 "green"
                 if data.total_return > 100
-                else "yellow" if data.total_return > 50 else "white"
+                else "yellow"
+                if data.total_return > 50
+                else "white"
             )
             dd_color = (
                 "green"
                 if data.max_drawdown < 20
-                else "yellow" if data.max_drawdown < 40 else "red"
+                else "yellow"
+                if data.max_drawdown < 40
+                else "red"
             )
 
             # Trend direction emoji
             trend_emoji = (
                 "📈"
                 if data.trend_direction == "Upward"
-                else "📉" if data.trend_direction == "Downward" else "➡️"
+                else "📉"
+                if data.trend_direction == "Downward"
+                else "➡️"
             )
 
             table.add_row(
@@ -1020,7 +1030,9 @@ class SweepAnalyticsDisplayer:
                 dd_color = (
                     "green"
                     if data.max_drawdown < 20
-                    else "yellow" if data.max_drawdown < 40 else "red"
+                    else "yellow"
+                    if data.max_drawdown < 40
+                    else "red"
                 )
 
                 table.add_row(

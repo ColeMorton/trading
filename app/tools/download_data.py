@@ -190,7 +190,11 @@ def download_data(ticker: str, config: DataConfig, log: Callable) -> pl.DataFram
                 "frequency": (
                     "2-Day"
                     if use_2day
-                    else "4-Hour" if use_4hour else "Hourly" if use_hourly else "Daily"
+                    else "4-Hour"
+                    if use_4hour
+                    else "Hourly"
+                    if use_hourly
+                    else "Daily"
                 ),
                 "records_count": len(df),
             }

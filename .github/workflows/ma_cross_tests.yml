@@ -58,36 +58,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Cache Poetry installation
-        uses: actions/cache@v3
-        with:
-          path: ~/.local
-          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction --no-ansi
-          poetry run pip install pytest-cov pytest-xdist
+          poetry-version: ${{ env.POETRY_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'ma-cross-${{ matrix.test-suite }}'
 
       - name: Lint code
         run: |
@@ -101,21 +78,27 @@ jobs:
 
       - name: Run ${{ matrix.test-suite }} tests
         run: |
-          poetry run python tests/run_ma_cross_tests.py \
-            --suite ${{ matrix.test-suite }} \
-            --verbose \
-            --coverage \
-            --report test-results-${{ matrix.test-suite }}.json
+          # Run tests directly with pytest instead of custom runner
+          if [ "${{ matrix.test-suite }}" = "smoke" ]; then
+            poetry run pytest tests/strategies/ma_cross/ -v -m "smoke" --tb=short
+          elif [ "${{ matrix.test-suite }}" = "unit" ]; then
+            poetry run pytest tests/strategies/ma_cross/ -v -m "unit" --cov=app/strategies/ma_cross --cov-report=xml --cov-report=term-missing -n auto
+          elif [ "${{ matrix.test-suite }}" = "integration" ]; then
+            poetry run pytest tests/strategies/ma_cross/ -v -m "integration" --tb=short
+          elif [ "${{ matrix.test-suite }}" = "regression" ]; then
+            poetry run pytest tests/strategies/ma_cross/ -v -m "regression" --tb=short
+          fi
         timeout-minutes: 30
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.test-suite }}
+          name: ma-cross-test-results-${{ matrix.test-suite }}
           path: |
-            test-results-${{ matrix.test-suite }}.json
             .coverage
+            coverage.xml
+            .pytest_cache/
           retention-days: 30
 
       - name: Upload coverage to Codecov
@@ -136,34 +119,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
+          poetry-version: ${{ env.POETRY_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'ma-cross-perf'
 
       - name: Run performance benchmarks
         run: |
-          poetry run python tests/run_ma_cross_tests.py \
-            --suite performance \
-            --verbose \
-            --report performance-results.json
+          poetry run pytest tests/strategies/ma_cross/ -v -m "performance" --tb=short --benchmark-only
         timeout-minutes: 45
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
         with:
-          name: performance-results
-          path: performance-results.json
+          name: ma-cross-performance-results
+          path: |
+            .pytest_cache/
+            .benchmarks/
           retention-days: 90
 
   e2e:
@@ -175,20 +150,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python with Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
+          poetry-version: ${{ env.POETRY_VERSION }}
+          dependency-groups: 'all'
+          cache-key-suffix: 'ma-cross-e2e'
 
       - name: Create test directories
         run: |
@@ -197,19 +165,16 @@ jobs:
 
       - name: Run end-to-end tests
         run: |
-          poetry run python tests/run_ma_cross_tests.py \
-            --suite e2e \
-            --verbose \
-            --report e2e-results.json
+          poetry run pytest tests/strategies/ma_cross/ -v -m "e2e" --tb=short
         timeout-minutes: 20
 
       - name: Upload e2e results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-results
+          name: ma-cross-e2e-results
           path: |
-            e2e-results.json
+            .pytest_cache/
             logs/
           retention-days: 30
 

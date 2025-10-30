@@ -28,23 +28,15 @@ repos:
   # LOCAL HOOKS - Use Poetry environment for version consistency
   - repo: local
     hooks:
-      - id: black
-        name: black (Poetry)
-        entry: poetry run black
-        language: system
-        types: [python]
-        pass_filenames: true
-        args: ['--line-length', '88']
-
-      - id: isort
-        name: isort (Poetry)
-        entry: poetry run isort
+      - id: ruff-format
+        name: ruff format (Poetry)
+        entry: poetry run ruff format
         language: system
         types: [python]
         pass_filenames: true
 
-      - id: ruff
-        name: ruff (Poetry)
+      - id: ruff-check
+        name: ruff check (Poetry)
         entry: poetry run ruff check --fix
         language: system
         types: [python]
@@ -58,13 +50,6 @@ repos:
         pass_filenames: true
         files: ^app/
         exclude: ^(tests/|scripts/|experimental/)
-
-      - id: flake8
-        name: flake8 (Poetry)
-        entry: poetry run flake8
-        language: system
-        types: [python]
-        pass_filenames: true
 
   # pylint - Code analysis (temporarily disabled)
   # - repo: https://github.com/pycqa/pylint

@@ -10,8 +10,10 @@ import asyncio
 import time
 import traceback
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import ThreadPoolExecutor as ConcurrentExecutor
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    ThreadPoolExecutor as ConcurrentExecutor,
+)
 
 # API removed - creating local model definitions
 from dataclasses import dataclass

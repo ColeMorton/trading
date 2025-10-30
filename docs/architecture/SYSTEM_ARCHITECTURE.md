@@ -1,3 +1,12 @@
+---
+title: System Architecture
+version: 3.0
+last_updated: 2025-10-30
+owner: Architecture Team
+status: Active
+audience: Architects, Developers
+---
+
 # System Architecture
 
 ## Overview

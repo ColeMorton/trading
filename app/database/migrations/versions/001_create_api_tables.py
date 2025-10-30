@@ -59,6 +59,10 @@ def upgrade() -> None:
         ),
         sa.Column("started_at", sa.DateTime, nullable=True),
         sa.Column("completed_at", sa.DateTime, nullable=True),
+        sa.Column("webhook_url", sa.String(500), nullable=True),
+        sa.Column("webhook_headers", postgresql.JSON, nullable=True),
+        sa.Column("webhook_sent_at", sa.DateTime, nullable=True),
+        sa.Column("webhook_response_status", sa.Integer, nullable=True),
         sa.ForeignKeyConstraint(["api_key_id"], ["api_keys.id"], ondelete="CASCADE"),
     )
 

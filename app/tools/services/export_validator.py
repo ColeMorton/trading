@@ -228,7 +228,9 @@ class ExportValidator:
                 "statistical_significance": (
                     "HIGH"
                     if confidence >= 0.85
-                    else "MEDIUM" if confidence >= 0.70 else "LOW"
+                    else "MEDIUM"
+                    if confidence >= 0.70
+                    else "LOW"
                 ),
                 "analysis_timestamp": datetime.now().isoformat(),
             }

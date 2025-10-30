@@ -1617,12 +1617,16 @@ async def _persist_sweep_results_to_database(
             "market_type": (
                 config.market_type.value
                 if hasattr(config.market_type, "value")
-                else str(config.market_type) if config.market_type else None
+                else str(config.market_type)
+                if config.market_type
+                else None
             ),
             "direction": (
                 config.direction.value
                 if hasattr(config.direction, "value")
-                else str(config.direction) if config.direction else None
+                else str(config.direction)
+                if config.direction
+                else None
             ),
             "minimums": {
                 "win_rate": config.minimums.win_rate,

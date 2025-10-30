@@ -132,9 +132,9 @@ def compare_risk_calculations(
         comparison["comparison"]["original_sum_pct"] = f"{original_sum * 100:.2f}%"
         comparison["comparison"]["fixed_sum_pct"] = f"{fixed_sum * 100:.2f}%"
         comparison["comparison"]["sum_difference"] = original_sum - fixed_sum
-        comparison["comparison"][
-            "sum_difference_pct"
-        ] = f"{(original_sum - fixed_sum) * 100:.2f}%"
+        comparison["comparison"]["sum_difference_pct"] = (
+            f"{(original_sum - fixed_sum) * 100:.2f}%"
+        )
 
         # Compare individual contributions
         strategy_comparison = []
