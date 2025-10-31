@@ -10,6 +10,7 @@ from app.core.logging_factory import bind_context, clear_context, get_logger
 from app.ui.console_display import ConsoleDisplay
 
 
+@pytest.mark.integration
 def test_basic_logging_flow():
     """Test basic logging and display flow."""
     logger = get_logger(__name__)
@@ -27,6 +28,7 @@ def test_basic_logging_flow():
     logger.info("operation_completed", success=True)
 
 
+@pytest.mark.integration
 def test_logging_with_context():
     """Test logging with context binding."""
     logger = get_logger(__name__)
@@ -41,6 +43,7 @@ def test_logging_with_context():
     clear_context()
 
 
+@pytest.mark.integration
 def test_error_flow():
     """Test error logging and display flow."""
     logger = get_logger(__name__)
@@ -55,6 +58,7 @@ def test_error_flow():
         logger.error("error_occurred", error=str(e), exc_info=True)
 
 
+@pytest.mark.integration
 def test_multi_phase_operation():
     """Test multi-phase operation with logging and display."""
     logger = get_logger(__name__)
@@ -80,6 +84,7 @@ def test_multi_phase_operation():
     logger.info("operation_completed", total_duration=5.5)
 
 
+@pytest.mark.integration
 def test_structured_logging_data():
     """Test structured logging with various data types."""
     logger = get_logger(__name__)
@@ -97,6 +102,7 @@ def test_structured_logging_data():
     )
 
 
+@pytest.mark.integration
 def test_performance_monitoring_flow():
     """Test performance monitoring integration."""
     from app.monitoring.performance_logger import PerformanceLogger
@@ -126,6 +132,7 @@ def test_performance_monitoring_flow():
     perf_logger.complete_execution_monitoring()
 
 
+@pytest.mark.integration
 def test_console_and_logger_separation():
     """Test that console and logger are properly separated."""
     logger = get_logger(__name__)

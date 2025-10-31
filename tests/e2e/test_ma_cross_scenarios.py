@@ -15,6 +15,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import polars as pl
+import pytest
 
 
 # Add project root to path
@@ -33,6 +34,7 @@ run_strategies = get_portfolios_module.run_strategies
 from tests.fixtures.market_data import create_realistic_price_data
 
 
+@pytest.mark.integration
 class TestMACrossE2EScenarios(unittest.TestCase):
     """End-to-end tests for real MA Cross usage scenarios."""
 

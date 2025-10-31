@@ -12,6 +12,7 @@ API_KEY = os.getenv("E2E_API_KEY", "dev-key-000000000000000000000000")
 
 
 @pytest.mark.asyncio
+@pytest.mark.e2e
 async def test_sweep_e2e() -> None:
     async with httpx.AsyncClient(timeout=60) as client:
         # Wait for API to be healthy
