@@ -11,7 +11,6 @@ from . import (
     test_enhanced_parameter_analysis,
     test_market_data_analyzer,
     test_momentum_calculations,
-    test_recommendation_generation,
     test_trend_calculations,
 )
 
@@ -20,6 +19,5 @@ __all__ = [
     "test_enhanced_parameter_analysis",
     "test_market_data_analyzer",
     "test_momentum_calculations",
-    "test_recommendation_generation",
     "test_trend_calculations",
 ]

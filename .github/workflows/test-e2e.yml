@@ -23,7 +23,7 @@ jobs:
 
       - name: Start Docker Compose stack
         run: |
-          docker-compose -f docker-compose.e2e.yml up -d
+          docker compose -f docker-compose.e2e.yml up -d
           echo "⏳ Waiting for services to be healthy..."
 
       - name: Wait for API health
@@ -37,14 +37,14 @@ jobs:
             sleep 1
           done
           echo "❌ API did not become healthy in time"
-          docker-compose -f docker-compose.e2e.yml logs
+          docker compose -f docker-compose.e2e.yml logs
           exit 1
 
       - name: Verify service health
         run: |
           echo "🔍 Checking service health..."
           curl -v http://localhost:8000/health/detailed || true
-          docker-compose -f docker-compose.e2e.yml ps
+          docker compose -f docker-compose.e2e.yml ps
 
       - name: Run E2E tests
         run: |
@@ -66,7 +66,7 @@ jobs:
       - name: Upload Docker logs on failure
         if: failure()
         run: |
-          docker-compose -f docker-compose.e2e.yml logs > docker-logs.txt
+          docker compose -f docker-compose.e2e.yml logs > docker-logs.txt
 
       - name: Upload Docker logs artifact
         if: failure()
@@ -78,7 +78,7 @@ jobs:
       - name: Cleanup Docker stack
         if: always()
         run: |
-          docker-compose -f docker-compose.e2e.yml down -v
+          docker compose -f docker-compose.e2e.yml down -v
           docker system prune -f
 
       - name: Test Summary
