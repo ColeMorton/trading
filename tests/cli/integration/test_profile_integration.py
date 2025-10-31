@@ -374,11 +374,13 @@ class TestDefaultStrategyCurrentProfileIntegration:
     def test_default_strategy_current_profile_inheritance(self, config_loader):
         """Test that default_strategy_current inherits from default_strategy correctly."""
         # Load both profiles
-        base_config = config_loader.load_from_profile("default_strategy", {}, {})
+        base_config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides={}
+        )
         current_config = config_loader.load_from_profile(
             "default_strategy_current",
-            {},
-            {},
+            config_type=None,
+            overrides={},
         )
 
         # Verify inheritance - current should have all base parameters
@@ -394,7 +396,9 @@ class TestDefaultStrategyCurrentProfileIntegration:
 
     def test_default_strategy_current_profile_loading(self, config_loader):
         """Test that default_strategy_current profile loads with inheritance."""
-        config = config_loader.load_from_profile("default_strategy_current", {}, {})
+        config = config_loader.load_from_profile(
+            "default_strategy_current", config_type=None, overrides={}
+        )
 
         # Verify inherited parameters
         assert isinstance(config, StrategyConfig)
@@ -409,7 +413,7 @@ class TestDefaultStrategyCurrentProfileIntegration:
         assert config.short_window_start == 5
         assert config.long_window_start == 8
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_current_profile_cli_execution(
@@ -424,8 +428,8 @@ class TestDefaultStrategyCurrentProfileIntegration:
         real_config_loader = ConfigLoader()
         real_config = real_config_loader.load_from_profile(
             "default_strategy_current",
-            {},
-            {},
+            config_type=None,
+            overrides={},
         )
         mock_config_loader.return_value.load_from_profile.return_value = real_config
 
@@ -455,8 +459,8 @@ class TestDefaultStrategyCurrentProfileIntegration:
         overrides = {"ticker": ["DOGE-USD"], "years": 3}
         config = config_loader.load_from_profile(
             "default_strategy_current",
-            {},
-            overrides,
+            config_type=None,
+            overrides=overrides,
         )
 
         # Verify overrides applied
@@ -487,7 +491,9 @@ class TestCrossProfileCompatibility:
         """Test that all profiles load without errors."""
         for profile_name in all_strategy_profiles:
             try:
-                config = config_loader.load_from_profile(profile_name, {}, {})
+                config = config_loader.load_from_profile(
+                    profile_name, config_type=None, overrides={}
+                )
                 # Verify basic structure
                 assert isinstance(config, StrategyConfig)
                 assert hasattr(config, "ticker")

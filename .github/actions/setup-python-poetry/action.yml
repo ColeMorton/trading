@@ -60,13 +60,32 @@ runs:
       uses: actions/cache@v3
       with:
         path: .venv
-        key: venv-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.dependency-groups }}-${{ inputs.cache-key-suffix }}
+        key: venv-v2-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.dependency-groups }}-${{ inputs.cache-key-suffix }}
         restore-keys: |
-          venv-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.dependency-groups }}-
-          venv-${{ runner.os }}-${{ inputs.python-version }}-
+          venv-v2-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ inputs.dependency-groups }}-
+          venv-v2-${{ runner.os }}-${{ inputs.python-version }}-
+
+    - name: Validate virtual environment
+      id: validate-venv
+      if: inputs.install-dependencies == 'true' && steps.cache-deps.outputs.cache-hit == 'true'
+      shell: bash
+      run: |
+        echo "Validating cached virtual environment..."
+        if [ -f .venv/bin/python ] && .venv/bin/python -c "import sys; sys.exit(0)" 2>/dev/null; then
+          echo "venv-valid=true" >> $GITHUB_OUTPUT
+          echo "✓ Virtual environment is valid"
+        else
+          echo "venv-valid=false" >> $GITHUB_OUTPUT
+          echo "✗ Virtual environment is broken, will reinstall dependencies"
+        fi
 
     - name: Install dependencies
-      if: inputs.install-dependencies == 'true' && steps.cache-deps.outputs.cache-hit != 'true'
+      if: |
+        inputs.install-dependencies == 'true' && (
+          steps.cache-deps.outputs.cache-hit != 'true' ||
+          steps.validate-venv.outputs.venv-valid == 'false' ||
+          steps.validate-venv.outputs.venv-valid == ''
+        )
       shell: bash
       run: |
         if [ "${{ inputs.dependency-groups }}" = "main" ]; then
