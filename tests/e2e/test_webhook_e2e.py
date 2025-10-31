@@ -93,8 +93,14 @@ class WebhookReceiver:
 
     @property
     def webhook_url(self) -> str:
-        """Get the webhook URL."""
-        return f"http://localhost:{self.actual_port}/webhook"
+        """Get the webhook URL.
+
+        Uses host.docker.internal so containers can reach the host machine.
+        This is necessary because the API runs in a Docker container with
+        bridge networking, so 'localhost' inside the container refers to
+        the container itself, not the host where the test is running.
+        """
+        return f"http://host.docker.internal:{self.actual_port}/webhook"
 
 
 class SweepTestClient:

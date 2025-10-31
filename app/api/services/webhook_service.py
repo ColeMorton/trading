@@ -50,7 +50,10 @@ class WebhookService:
 
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:
-                logger.info(f"Sending webhook for job {job_id} to {webhook_url}")
+                logger.info(
+                    f"Sending webhook for job {job_id} to {webhook_url} "
+                    f"(payload keys: {list(payload.keys())})"
+                )
 
                 response = await client.post(
                     webhook_url,
@@ -59,11 +62,19 @@ class WebhookService:
                 )
 
                 logger.info(
-                    f"Webhook sent for job {job_id}: status={response.status_code}",
+                    f"Webhook delivered successfully for job {job_id}: "
+                    f"status={response.status_code}, response_length={len(response.text)}"
                 )
 
                 return response.status_code, response.text
 
+        except httpx.ConnectError as e:
+            logger.error(
+                f"Webhook connection failed for job {job_id} to {webhook_url}: {e}. "
+                f"If using Docker, ensure 'host.docker.internal' is configured.",
+                exc_info=True,
+            )
+            return 0, f"connection_error: {e}"
         except httpx.TimeoutException:
             logger.exception(f"Webhook timeout for job {job_id} to {webhook_url}")
             return 0, "timeout"

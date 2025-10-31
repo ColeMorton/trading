@@ -99,12 +99,36 @@ class StrategyService(BaseCommandService):
         sweep_run_id = None
         output = result["stdout"]
 
-        # Look for "run ID: xxxxxxxx..." pattern in output
+        # Try multiple patterns to handle different CLI output formats
+        import logging
         import re
 
-        run_id_match = re.search(r"run ID: ([a-f0-9]{8})", output)
-        if run_id_match:
-            sweep_run_id = run_id_match.group(1)
+        logger = logging.getLogger(__name__)
+
+        patterns = [
+            r"run ID: ([a-f0-9]{8})",  # Original: "run ID: abc12345"
+            r"Run ID: ([a-f0-9]{8})",  # Capitalized: "Run ID: abc12345"
+            r"run_id:\s*([a-f0-9]{8})",  # Underscore: "run_id: abc12345"
+            r"sweep_run_id:\s*([a-f0-9]{8})",  # Full name: "sweep_run_id: abc12345"
+            r"sweep run: ([a-f0-9]{8})",  # Alt format: "sweep run: abc12345"
+            r"\[([a-f0-9]{8})\]",  # Bracketed: "[abc12345]"
+            r"ID:\s*([a-f0-9]{8})",  # Generic: "ID: abc12345"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, output, re.IGNORECASE)
+            if match:
+                sweep_run_id = match.group(1)
+                logger.info(
+                    f"Extracted sweep_run_id '{sweep_run_id}' using pattern: {pattern}"
+                )
+                break
+
+        if not sweep_run_id:
+            logger.warning(
+                f"Could not extract sweep_run_id from output. "
+                f"Output preview (first 500 chars): {output[:500]}"
+            )
 
         return {
             "success": True,

@@ -52,6 +52,8 @@ services:
         condition: service_healthy
     networks:
       - trading-network
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 10s
@@ -78,6 +80,8 @@ services:
         condition: service_healthy
     networks:
       - trading-network
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     command: arq app.api.jobs.worker.WorkerSettings
 
 networks:
