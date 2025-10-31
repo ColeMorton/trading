@@ -6,10 +6,12 @@ to ensure correct signal prediction based on moving average positions.
 """
 
 import polars as pl
+import pytest
 
 from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
 
+@pytest.mark.unit
 class TestCalculateSignalUnconfirmed:
     """Test calculate_signal_unconfirmed function across different scenarios."""
 

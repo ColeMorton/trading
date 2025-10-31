@@ -18,6 +18,24 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: poetry install --only main,dev
+
       - name: Install pre-commit
         run: pip install pre-commit
 

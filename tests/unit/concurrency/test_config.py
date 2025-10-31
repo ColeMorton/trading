@@ -17,6 +17,7 @@ from app.concurrency.config_defaults import get_default_config
 from .base import ConcurrencyTestCase
 
 
+@pytest.mark.unit
 class TestConfigValidation(ConcurrencyTestCase):
     """Test configuration validation functions."""
 
@@ -119,6 +120,7 @@ class TestConfigValidation(ConcurrencyTestCase):
         )
 
 
+@pytest.mark.unit
 class TestPortfolioFormatDetection(ConcurrencyTestCase):
     """Test portfolio format detection."""
 
@@ -184,6 +186,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         self.assertIn("must contain a non-empty array", str(cm.exception))
 
 
+@pytest.mark.unit
 class TestPortfolioValidation(ConcurrencyTestCase):
     """Test portfolio file validation."""
 
@@ -316,6 +319,7 @@ BTC-USD,10,30"""
         self.assertIn("missing required fields", str(cm.exception))
 
 
+@pytest.mark.unit
 class TestDefaultConfig(unittest.TestCase):
     """Test default configuration generation."""
 

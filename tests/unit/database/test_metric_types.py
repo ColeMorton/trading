@@ -16,6 +16,7 @@ from app.database.models import (
 )
 
 
+@pytest.mark.unit
 class TestMetricTypeModel:
     """Test MetricType SQLAlchemy model."""
 
@@ -63,6 +64,7 @@ class TestMetricTypeModel:
         assert "risk" in repr_str
 
 
+@pytest.mark.unit
 class TestStrategySweepResultMetricModel:
     """Test StrategySweepResultMetric junction table model."""
 
@@ -93,6 +95,7 @@ class TestStrategySweepResultMetricModel:
         assert "metric_type_id=5" in repr_str
 
 
+@pytest.mark.unit
 class TestStrategySweepResultModel:
     """Test StrategySweepResult model with metric type relationships."""
 
@@ -140,6 +143,7 @@ class TestStrategySweepResultModel:
         assert "EMA" in repr_str
 
 
+@pytest.mark.unit
 class TestMetricTypeRepository:
     """Test repository methods for metric types."""
 
@@ -235,6 +239,7 @@ class TestMetricTypeRepository:
         assert result == ["Most Sharpe Ratio", "Most Total Return [%]"]
 
 
+@pytest.mark.unit
 class TestMetricTypeSeedData:
     """Test that seed data constants are valid."""
 
