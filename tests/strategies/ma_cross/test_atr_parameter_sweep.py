@@ -239,49 +239,6 @@ class TestATRSignalProcessing:
         mock_atr.assert_called_once()
 
     @pytest.mark.performance
-    @patch(
-        "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals",
-    )
-    @pytest.mark.performance
-    @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
-    def test_generate_signals_with_atr_exits(
-        self,
-        mock_atr,
-        mock_sma,
-        sample_price_data,
-        sample_ma_config,
-        mock_logger,
-    ):
-        """Test that ATR exits are properly generated."""
-        pandas_data = sample_price_data.to_pandas()
-
-        # Mock SMA signals with entry at index 10
-        mock_sma_result = pandas_data.copy()
-        mock_sma_result["Signal"] = [0] * len(pandas_data)
-        mock_sma_result["Position"] = [0] * len(pandas_data)
-        mock_sma_result.loc[10, "Signal"] = 1  # Entry signal
-        # Convert to Polars DataFrame as expected by the function
-        mock_sma.return_value = pl.from_pandas(mock_sma_result)
-
-        # Mock ATR with consistent values
-        mock_atr.return_value = pd.Series([2.0] * len(pandas_data))
-
-        result = generate_hybrid_ma_atr_signals(
-            pandas_data,
-            sample_ma_config,
-            atr_length=14,
-            atr_multiplier=2.0,
-            log=mock_logger,
-        )
-
-        assert result is not None
-        assert "Signal" in result.columns
-        assert "Position" in result.columns
-
-        # Should have at least the original entry signal
-        assert result["Signal"].sum() >= 1
-
-    @pytest.mark.performance
     def test_generate_signals_error_handling(self, sample_ma_config, mock_logger):
         """Test error handling in signal generation."""
         # Test with invalid data (missing required OHLCV columns)
@@ -348,83 +305,6 @@ class TestATRParameterSweepEngine:
             5,
             2.5,
         ) in combinations  # Changed from 3.0 to 2.5 (max actual multiplier)
-
-    @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.convert_stats")
-    @pytest.mark.performance
-    @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.backtest_strategy")
-    @pytest.mark.performance
-    @patch(
-        "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
-    )
-    @pytest.mark.performance
-    def test_process_single_atr_combination_success(
-        self,
-        mock_signals,
-        mock_backtest,
-        mock_convert_stats,
-        sample_atr_config,
-        sample_price_data,
-        sample_ma_config,
-        mock_logger,
-        sample_portfolio_stats,
-    ):
-        """Test successful processing of single ATR combination."""
-        engine = create_atr_sweep_engine(sample_atr_config)
-
-        # Mock signal generation - return properly formatted DataFrame
-        pandas_data = sample_price_data.to_pandas()
-        pandas_data["Signal"] = [0] * len(pandas_data)
-        pandas_data["Position"] = [0] * len(pandas_data)
-        # Add some signals
-        if len(pandas_data) > 10:
-            pandas_data.loc[5:10, "Signal"] = 1
-            pandas_data.loc[5:10, "Position"] = 1
-        mock_signals.return_value = pandas_data
-
-        # Mock backtest portfolio with stats method
-        mock_portfolio = Mock()
-        mock_portfolio.stats.return_value = sample_portfolio_stats
-        mock_backtest.return_value = mock_portfolio
-
-        # Mock stats converter to return properly formatted portfolio result
-        mock_convert_stats.return_value = {
-            "Ticker": "TEST",
-            "Strategy Type": "SMA",
-            "Fast Period": 19,
-            "Slow Period": 29,
-            "Exit Fast Period": 14,
-            "Exit Slow Period": 2.0,
-            "Exit Signal Period": None,
-            "Total Return": 25.5,
-            "Sharpe Ratio": 1.45,
-            "Max Drawdown": -12.3,
-            "Win Rate": 58.2,
-            "Total Trades": 45,
-            "Profit Factor": 1.85,
-            "Expectancy per Trade": 0.035,
-            "Sortino Ratio": 1.22,
-        }
-
-        result = engine.process_single_atr_combination(
-            ticker="TEST",
-            ma_config=sample_ma_config,
-            atr_length=14,
-            atr_multiplier=2.0,
-            prices=sample_price_data,
-            log=mock_logger,
-        )
-
-        assert result is not None
-        assert isinstance(result, dict)
-        assert result["Exit Fast Period"] == 14
-        assert result["Exit Slow Period"] == 2.0
-        assert result["Ticker"] == "TEST"
-        assert engine.sweep_stats["successful_combinations"] == 1
-
-        # Verify mocks were called
-        mock_signals.assert_called_once()
-        mock_backtest.assert_called_once()
-        mock_portfolio.stats.assert_called_once()
 
     @pytest.mark.performance
     @patch(

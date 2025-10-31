@@ -139,6 +139,9 @@ METRIC_TYPES_SEED_DATA = [
     ("Mean Score", "composite", "Average composite score"),
 ]
 
+# Lowercase alias for test compatibility
+metric_types_seed_data = METRIC_TYPES_SEED_DATA
+
 
 def upgrade() -> None:
     """Upgrade database schema - create metric_types and junction table."""

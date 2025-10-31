@@ -251,11 +251,25 @@ class TestMetricTypeSeedData:
         """Test that seed data has correct structure."""
         import importlib.util
         import sys
+        from pathlib import Path
 
         # Import migration module dynamically (can't use regular import due to numeric prefix)
+        # Navigate from tests/unit/database up to project root, then to app/database/migrations
+        test_file = Path(__file__).resolve()
+        project_root = test_file.parents[
+            3
+        ]  # 0=database, 1=unit, 2=tests, 3=project_root
+        migration_path = (
+            project_root
+            / "app"
+            / "database"
+            / "migrations"
+            / "versions"
+            / "003_create_metric_types_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
             "migration_003",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/003_create_metric_types_table.py",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
         sys.modules["migration_003"] = migration_module
@@ -276,10 +290,23 @@ class TestMetricTypeSeedData:
         """Test that all seed data names are unique."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        test_file = Path(__file__).resolve()
+        project_root = test_file.parents[
+            3
+        ]  # 0=database, 1=unit, 2=tests, 3=project_root
+        migration_path = (
+            project_root
+            / "app"
+            / "database"
+            / "migrations"
+            / "versions"
+            / "003_create_metric_types_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
             "migration_003",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/003_create_metric_types_table.py",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
         sys.modules["migration_003"] = migration_module
@@ -296,10 +323,23 @@ class TestMetricTypeSeedData:
         """Test that seed data uses valid categories."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        test_file = Path(__file__).resolve()
+        project_root = test_file.parents[
+            3
+        ]  # 0=database, 1=unit, 2=tests, 3=project_root
+        migration_path = (
+            project_root
+            / "app"
+            / "database"
+            / "migrations"
+            / "versions"
+            / "003_create_metric_types_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
             "migration_003",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/003_create_metric_types_table.py",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
         sys.modules["migration_003"] = migration_module
@@ -319,10 +359,23 @@ class TestMetricTypeSeedData:
         """Test that seed data includes expected metric types."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        test_file = Path(__file__).resolve()
+        project_root = test_file.parents[
+            3
+        ]  # 0=database, 1=unit, 2=tests, 3=project_root
+        migration_path = (
+            project_root
+            / "app"
+            / "database"
+            / "migrations"
+            / "versions"
+            / "003_create_metric_types_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
             "migration_003",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/003_create_metric_types_table.py",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
         sys.modules["migration_003"] = migration_module
@@ -351,10 +404,23 @@ class TestMetricTypeSeedData:
         """Test that seed data has reasonable number of entries."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        test_file = Path(__file__).resolve()
+        project_root = test_file.parents[
+            3
+        ]  # 0=database, 1=unit, 2=tests, 3=project_root
+        migration_path = (
+            project_root
+            / "app"
+            / "database"
+            / "migrations"
+            / "versions"
+            / "003_create_metric_types_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
             "migration_003",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/003_create_metric_types_table.py",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
         sys.modules["migration_003"] = migration_module

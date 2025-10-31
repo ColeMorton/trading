@@ -187,7 +187,7 @@ class StrategyConfig(BaseConfig):
 
     # Strategy types
     strategy_types: list[StrategyType] = Field(
-        default=[StrategyType.SMA, StrategyType.MACD],
+        default=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
         description="List of strategy types to execute",
     )
 

@@ -50,7 +50,7 @@ class TestConfigValidation(ConcurrencyTestCase):
         with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
-        self.assertIn("Missing required fields", str(cm.exception))
+        self.assertIn("Missing required fields", str(cm.value))
 
     def test_validate_config_invalid_types(self):
         """Test validation with invalid field types."""
@@ -64,7 +64,7 @@ class TestConfigValidation(ConcurrencyTestCase):
         with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
-        self.assertIn("PORTFOLIO must be a string", str(cm.exception))
+        self.assertIn("PORTFOLIO must be a string", str(cm.value))
 
         # Invalid REFRESH type
         config = {
@@ -76,7 +76,7 @@ class TestConfigValidation(ConcurrencyTestCase):
         with pytest.raises(ValidationError) as cm:
             validate_config(config)
 
-        self.assertIn("REFRESH must be a boolean", str(cm.exception))
+        self.assertIn("REFRESH must be a boolean", str(cm.value))
 
     def test_validate_config_optional_fields(self):
         """Test validation of optional configuration fields."""
@@ -116,7 +116,7 @@ class TestConfigValidation(ConcurrencyTestCase):
 
         self.assertIn(
             "OPTIMIZE_MIN_STRATEGIES must be an integer >= 2",
-            str(cm.exception),
+            str(cm.value),
         )
 
 
@@ -152,7 +152,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format("/nonexistent/file.json")
 
-        self.assertIn("File not found", str(cm.exception))
+        self.assertIn("File not found", str(cm.value))
 
     def test_detect_unsupported_format(self):
         """Test detection of unsupported file format."""
@@ -163,7 +163,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(str(txt_file))
 
-        self.assertIn("Unsupported file extension", str(cm.exception))
+        self.assertIn("Unsupported file extension", str(cm.value))
 
     def test_detect_invalid_json(self):
         """Test detection of invalid JSON file."""
@@ -174,7 +174,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(str(json_file))
 
-        self.assertIn("Invalid JSON file", str(cm.exception))
+        self.assertIn("Invalid JSON file", str(cm.value))
 
     def test_detect_empty_json_array(self):
         """Test detection of empty JSON array."""
@@ -183,7 +183,7 @@ class TestPortfolioFormatDetection(ConcurrencyTestCase):
         with pytest.raises(FileFormatError) as cm:
             detect_portfolio_format(json_file)
 
-        self.assertIn("must contain a non-empty array", str(cm.exception))
+        self.assertIn("must contain a non-empty array", str(cm.value))
 
 
 @pytest.mark.unit
@@ -215,7 +215,7 @@ BTC-USD,10,30"""
         with pytest.raises(ValidationError) as cm:
             validate_csv_portfolio(str(csv_file))
 
-        self.assertIn("missing required fields", str(cm.exception))
+        self.assertIn("missing required fields", str(cm.value))
 
     def test_validate_csv_portfolio_empty(self):
         """Test validation of empty CSV file."""
@@ -228,7 +228,7 @@ BTC-USD,10,30"""
         with pytest.raises(ValidationError) as cm:
             validate_csv_portfolio(str(csv_file))
 
-        self.assertIn("CSV file is empty", str(cm.exception))
+        self.assertIn("CSV file is empty", str(cm.value))
 
     def test_validate_ma_portfolio_valid(self):
         """Test validation of valid MA JSON portfolio."""
@@ -275,7 +275,7 @@ BTC-USD,10,30"""
         with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
-        self.assertIn("missing 'type' field", str(cm.exception))
+        self.assertIn("missing 'type' field", str(cm.value))
 
     def test_validate_ma_portfolio_invalid_type(self):
         """Test validation of invalid strategy type."""
@@ -295,7 +295,7 @@ BTC-USD,10,30"""
         with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
-        self.assertIn("Invalid strategy type", str(cm.exception))
+        self.assertIn("Invalid strategy type", str(cm.value))
 
     def test_validate_ma_portfolio_macd_missing_signal(self):
         """Test validation of MACD strategy missing signal period."""
@@ -316,7 +316,7 @@ BTC-USD,10,30"""
         with pytest.raises(ValidationError) as cm:
             validate_ma_portfolio(json_file)
 
-        self.assertIn("missing required fields", str(cm.exception))
+        self.assertIn("missing required fields", str(cm.value))
 
 
 @pytest.mark.unit

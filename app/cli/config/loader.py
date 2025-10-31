@@ -110,8 +110,20 @@ class ConfigLoader:
         if overrides:
             config_dict = self._merge_configs(config_dict, overrides)
 
+        # Extract config section if present (for profile YAML structure)
+        # If config_dict has a "config" key, use that; otherwise use the dict as-is
+        if "config" in config_dict:
+            config_data = config_dict["config"]
+        else:
+            # For flat YAML, remove metadata/structural fields not part of config schema
+            config_data = {
+                k: v
+                for k, v in config_dict.items()
+                if k not in ["metadata", "config_type", "inherits_from"]
+            }
+
         # Validate and return
-        return config_type(**config_dict)
+        return config_type(**config_data)
 
     def load_from_dict(
         self,

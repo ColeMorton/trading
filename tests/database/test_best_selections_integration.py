@@ -95,6 +95,11 @@ def sample_sweep_results_for_best():
 class TestBestSelectionIntegration:
     """Integration tests for best selection functionality."""
 
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
+
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_compute_and_save_best_selections(
         self,

@@ -5,6 +5,7 @@ Tests the complete flow of saving and retrieving strategy sweep results
 with metric type classifications through the repository layer.
 """
 
+from unittest.mock import Mock
 from uuid import uuid4
 
 import pytest
@@ -78,8 +79,16 @@ def sample_sweep_results():
 class TestMetricTypeIntegration:
     """Integration tests for metric type functionality."""
 
-    def test_parse_metric_type_integration(self, repository):
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
+
+    def test_parse_metric_type_integration(self):
         """Test metric type parsing with various formats."""
+        mock_db_manager = Mock()
+        repository = StrategySweepRepository(mock_db_manager)
+
         # Single metric type
         result = repository._parse_metric_type_string("Most Sharpe Ratio")
         assert result == ["Most Sharpe Ratio"]
@@ -222,6 +231,11 @@ class TestMetricTypeIntegration:
 class TestDataMigration:
     """Test data migration from old string format to new relational format."""
 
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
+
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_migration_existing_data(self, repository):
         """Test that migration correctly converts existing string data."""
@@ -246,6 +260,11 @@ class TestDataMigration:
 @pytest.mark.unit
 class TestComplexScenarios:
     """Test complex scenarios with metric types."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
 
     @pytest.mark.skip(reason="Requires live database connection")
     async def test_multiple_results_same_metric_type(self, repository):
@@ -371,6 +390,11 @@ class TestComplexScenarios:
 @pytest.mark.unit
 class TestQueryPerformance:
     """Test query performance with metric types."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
 
     @pytest.mark.skip(reason="Requires live database connection and large dataset")
     async def test_query_performance_large_dataset(self, repository):

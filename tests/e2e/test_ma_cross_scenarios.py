@@ -63,7 +63,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         """
 
         # Mock orchestrator to return success and create expected files
-        def mock_run_side_effect(config):
+        def mock_run_side_effect(config, progress_update_fn=None):
             # Create expected directory structure and files
             portfolios_dir = os.path.join(
                 config.get("BASE_DIR", self.temp_dir),
@@ -226,7 +226,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         """
 
         # Mock orchestrator to return success and create expected files
-        def mock_run_side_effect(config):
+        def mock_run_side_effect(config, progress_update_fn=None):
             # Create expected directory structure and files
             portfolios_dir = os.path.join(
                 config.get("BASE_DIR", self.temp_dir),
@@ -317,7 +317,7 @@ class TestMACrossE2EScenarios(unittest.TestCase):
         """
 
         # Mock orchestrator to return success and create expected files with SHORT suffix
-        def mock_run_side_effect(config):
+        def mock_run_side_effect(config, progress_update_fn=None):
             # Create expected directory structure and files
             portfolios_dir = os.path.join(
                 config.get("BASE_DIR", self.temp_dir),

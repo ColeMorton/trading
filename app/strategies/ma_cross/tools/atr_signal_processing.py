@@ -117,8 +117,7 @@ def generate_hybrid_ma_atr_signals(
     required_columns = ["Open", "High", "Low", "Close", "Volume"]
     missing_columns = [col for col in required_columns if col not in data.columns]
     if missing_columns:
-        log(f"Missing required columns: {missing_columns}", "error")
-        return None
+        raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Create working copy
     data = data.copy()
@@ -259,41 +258,26 @@ def create_atr_parameter_combinations(
 
     Args:
         atr_length_range: Tuple of (min, max) for ATR length (max is exclusive)
-        atr_multiplier_range: Tuple of (min, max) for ATR multiplier (inclusive)
+        atr_multiplier_range: Tuple of (min, max) for ATR multiplier (max is exclusive)
         atr_multiplier_step: Step size for ATR multiplier range
 
     Returns:
         List of (atr_length, atr_multiplier) tuples
     """
+    # Length range is always exclusive upper bound
     atr_lengths = list(range(atr_length_range[0], atr_length_range[1]))
 
-    # Generate multiplier sequence using numpy arange for consistent behavior
-    import numpy as np
+    # For multipliers, use exclusive upper bound for consistency
+    # Calculate number of steps (exclusive of upper bound)
+    num_steps = int(
+        (atr_multiplier_range[1] - atr_multiplier_range[0]) / atr_multiplier_step
+    )
 
-    # Handle special case where min == max (should include the single value)
-    if atr_multiplier_range[0] == atr_multiplier_range[1]:
-        atr_multipliers = [round(float(atr_multiplier_range[0]), 1)]
-    else:
-        # Use numpy arange with exclusive upper bound for general case
-        # But add small epsilon to potentially include upper bound if it aligns with steps
-        upper_bound = atr_multiplier_range[1]
-
-        # Check if upper bound would be exactly reached by the step sequence
-        steps_to_upper = (upper_bound - atr_multiplier_range[0]) / atr_multiplier_step
-        if abs(steps_to_upper - round(steps_to_upper)) < 1e-10:
-            # Upper bound aligns exactly with steps, but only include it in specific cases
-            # Based on test expectations: exclude for (1.0, 3.0, 0.5), include for (1.0, 5.0, 2.0)
-            if not (atr_multiplier_range == (1.0, 3.0) and atr_multiplier_step == 0.5):
-                upper_bound = atr_multiplier_range[1] + atr_multiplier_step / 2
-
-        multipliers = np.arange(
-            atr_multiplier_range[0],
-            upper_bound,
-            atr_multiplier_step,
-        )
-
-        # Convert to list with proper rounding
-        atr_multipliers = [round(float(m), 1) for m in multipliers]
+    # Generate multipliers manually to avoid float precision issues with np.arange
+    atr_multipliers = [
+        round(atr_multiplier_range[0] + i * atr_multiplier_step, 1)
+        for i in range(num_steps)
+    ]
 
     combinations = []
     for length in atr_lengths:
@@ -318,7 +302,7 @@ def validate_atr_parameters(
         Tuple of (is_valid, error_message)
     """
     if not isinstance(atr_length, int) or atr_length < 1:
-        return False, "ATR length must be positive"
+        return False, "ATR length must be a positive integer"
 
     if atr_length > 100:
         return False, "ATR length too large (may reduce signal frequency)"

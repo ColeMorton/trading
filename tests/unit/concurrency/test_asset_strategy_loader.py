@@ -51,9 +51,13 @@ TEST,D,SMA,5,30,,0.90,45.0,1.2,0.40,50.0,-35.0,5.0,40,0.0"""
 
         return data_dir, csv_file
 
-    def test_loader_initialization(self):
+    def test_loader_initialization(self, tmp_path):
         """Test AssetStrategyLoader initializes with correct defaults."""
-        loader = AssetStrategyLoader()
+        # Create temp data directory for test
+        data_dir = tmp_path / "data" / "raw" / "portfolios_metrics"
+        data_dir.mkdir(parents=True)
+
+        loader = AssetStrategyLoader(data_dir=data_dir)
 
         assert loader.data_dir.name == "portfolios_metrics"
         assert loader.data_dir.exists()

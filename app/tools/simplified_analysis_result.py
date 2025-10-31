@@ -104,6 +104,21 @@ def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> dict[str,
             # Add recommendation as an alias for exit_signal
             self.recommendation = self.exit_signal
 
+        def __getattr__(self, name):
+            """
+            Allow access to metrics from divergence_metrics dict as direct attributes.
+
+            This enables test code to access metrics like:
+            - mock_result.momentum_differential
+            - mock_result.trend_direction_20d
+            instead of having to go through divergence_metrics dict.
+            """
+            if name in self.__dict__.get("divergence_metrics", {}):
+                return self.divergence_metrics[name]
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{name}'"
+            )
+
         def _create_strategy_analysis_mock(self, simple_result: SimpleAnalysisResult):
             """Create a minimal strategy_analysis object for export compatibility."""
 
@@ -167,6 +182,7 @@ def convert_to_standard_result(simple_result: SimpleAnalysisResult) -> dict[str,
                     )  # For export compatibility
                     # Also preserve the string value for direct access
                     self.value = signal_value
+                    self.exit_signal = signal_value  # For backward compatibility
 
                 def __str__(self):
                     return self.value

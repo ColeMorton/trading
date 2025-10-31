@@ -839,7 +839,7 @@ config:
             profile_a = """
 metadata:
   name: profile_a
-  inherits_from: profile_b
+inherits_from: profile_b
 config_type: strategy
 config:
   ticker: [AAPL]
@@ -847,7 +847,7 @@ config:
             profile_b = """
 metadata:
   name: profile_b
-  inherits_from: profile_a
+inherits_from: profile_a
 config_type: strategy
 config:
   strategy_types: [SMA]

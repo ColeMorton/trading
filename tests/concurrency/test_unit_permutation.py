@@ -38,6 +38,7 @@ class TestPermutationGeneration(unittest.TestCase):
         for perm in perms:
             self.assertEqual(len(perm), 2)
 
+    @pytest.mark.error_handling
     def test_generate_strategy_permutations_minimum_validation(self):
         """Test validation of minimum strategies."""
         strategies = [{"ticker": "BTC"}]
@@ -202,6 +203,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
         self.assertEqual(best_stats["efficiency_score"], 0.85)
         self.assertIsNotNone(best_perm)
 
+    @pytest.mark.error_handling
     def test_find_optimal_permutation_error_handling(self):
         """Test error handling during permutation analysis."""
         strategies = [

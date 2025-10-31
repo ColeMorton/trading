@@ -77,7 +77,7 @@ class TestMarketDataFetching:
             },
         )
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     def test_fetch_data_success(self, mock_download, mock_price_data):
         """Test successful data fetching."""
         mock_download.return_value = mock_price_data
@@ -90,7 +90,7 @@ class TestMarketDataFetching:
         assert len(analyzer.price_data) == len(mock_price_data)
         mock_download.assert_called_once()
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     def test_fetch_data_empty_response(self, mock_download):
         """Test handling of empty data response."""
         mock_download.return_value = None
@@ -101,7 +101,7 @@ class TestMarketDataFetching:
         assert result is False
         assert analyzer.price_data is None
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     def test_fetch_data_empty_dataframe(self, mock_download):
         """Test handling of empty dataframe."""
         pl.DataFrame()
@@ -115,7 +115,7 @@ class TestMarketDataFetching:
         assert result is False
         assert analyzer.price_data is None
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     def test_fetch_data_exception_handling(self, mock_download):
         """Test exception handling during data fetching."""
         mock_download.side_effect = Exception("Network error")
@@ -150,8 +150,8 @@ class TestReturnsCalculation:
         assert analyzer.returns is not None
         assert len(analyzer.returns) == len(sample_price_data) - 1
 
-        # Check first return: (102-100)/100 = 0.02
-        expected_first_return = (102 - 100) / 100
+        # Check first return: log(102/100) ≈ 0.0198 (log returns)
+        expected_first_return = np.log(102 / 100)
         assert abs(analyzer.returns[0] - expected_first_return) < 1e-6
 
     def test_calculate_returns_no_data(self):
@@ -257,7 +257,7 @@ class TestDistributionAnalysis:
 class TestFullAnalysisWorkflow:
     """Test complete analysis workflow."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     @pytest.mark.asyncio
     async def test_analyze_complete_workflow(self, mock_download):
         """Test complete analysis from start to finish."""
@@ -315,7 +315,7 @@ class TestFullAnalysisWorkflow:
         assert 0 <= result["p_value"] <= 1
         assert abs((result["confidence_level"] + result["p_value"]) - 1.0) < 0.02
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     @pytest.mark.asyncio
     async def test_analyze_with_fetch_failure(self, mock_download):
         """Test analysis when data fetching fails."""
@@ -351,7 +351,7 @@ class TestErrorHandling:
         analyzer = MarketDataAnalyzer("BRK.A")
         assert analyzer.ticker == "BRK.A"
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     def test_malformed_data_handling(self, mock_download):
         """Test handling of malformed data."""
         # Create malformed data (missing required columns)

@@ -35,9 +35,15 @@ class MarketDataAnalyzer:
 
     def __init__(self, ticker: str, logger: logging.Logger | None = None):
         """Initialize market data analyzer."""
+        # Validate ticker input (fail-fast principle)
+        if ticker is None or not isinstance(ticker, str):
+            raise TypeError("ticker must be a non-None string")
+        if not ticker.strip():
+            raise ValueError("ticker cannot be empty")
+
         self.ticker = ticker
         self.logger = logger or logging.getLogger(__name__)
-        self.prices: pl.DataFrame | None = None
+        self.price_data: pl.DataFrame | None = None
         self.returns: np.ndarray | None = None
 
         # Initialize enhanced risk assessment components
@@ -72,7 +78,11 @@ class MarketDataAnalyzer:
             )
 
             # Use get_data for smart caching - will check cache first, only download if needed
-            result = get_data(self.ticker, config, self.logger.info)
+            # Create wrapper to handle get_data's (message, level) signature
+            def log_wrapper(msg, level="info"):
+                getattr(self.logger, level)(msg)
+
+            result = get_data(self.ticker, config, log_wrapper)
 
             # Handle both single DataFrame and tuple (DataFrame, synthetic_ticker) return types
             if isinstance(result, tuple):
@@ -85,7 +95,7 @@ class MarketDataAnalyzer:
                 self.logger.error(f"No data received for {self.ticker}")
                 return False
 
-            self.prices = data
+            self.price_data = data
             self.logger.info(
                 f"Successfully fetched {len(data)} data points for {self.ticker}",
             )
@@ -102,23 +112,25 @@ class MarketDataAnalyzer:
         Returns:
             True if returns calculated successfully, False otherwise
         """
-        if self.prices is None:
+        if self.price_data is None:
             self.logger.error("No price data available for return calculation")
             return False
 
         try:
             # Get closing prices
-            if "Close" in self.prices.columns:
-                prices = self.prices["Close"].to_numpy()
-            elif "close" in self.prices.columns:
-                prices = self.prices["close"].to_numpy()
+            if "Close" in self.price_data.columns:
+                prices = self.price_data["Close"].to_numpy()
+            elif "close" in self.price_data.columns:
+                prices = self.price_data["close"].to_numpy()
             else:
                 # Use first numeric column
-                numeric_cols = self.prices.select(pl.col(pl.Float64, pl.Int64)).columns
+                numeric_cols = self.price_data.select(
+                    pl.col(pl.Float64, pl.Int64)
+                ).columns
                 if not numeric_cols:
                     self.logger.error("No numeric price columns found")
                     return False
-                prices = self.prices[numeric_cols[0]].to_numpy()
+                prices = self.price_data[numeric_cols[0]].to_numpy()
 
             # Calculate log returns
             self.returns = np.diff(np.log(prices))
@@ -247,7 +259,16 @@ class MarketDataAnalyzer:
 
         except Exception as e:
             self.logger.exception(f"Failed to analyze distribution: {e}")
-            return {}
+            # Return minimal analysis result with default momentum metrics
+            return {
+                "sample_size": 0,
+                "momentum_differential": 0.0,
+                "trend_direction_20d": 0.0,
+                "annualized_sharpe": 0.0,
+                "annualized_volatility": 0.0,
+                "analysis_timestamp": datetime.now().isoformat(),
+                "ticker": self.ticker,
+            }
 
     def _fit_distributions(self, returns: np.ndarray) -> dict[str, Any]:
         """
@@ -367,11 +388,11 @@ class MarketDataAnalyzer:
             Dictionary with trend metrics
         """
         try:
-            if self.prices is None or len(self.prices) < 20:
+            if self.price_data is None or len(self.price_data) < 20:
                 return self._default_trend_metrics()
 
             # Convert polars dataframe to pandas for .values access
-            close_prices = self.prices.select("Close").to_pandas()["Close"].values
+            close_prices = self.price_data.select("Close").to_pandas()["Close"].values
 
             # Moving averages for trend detection
             ma_20 = (

@@ -79,7 +79,7 @@ POSITIVE_METRICS_PRIORITY = [
 class AssetStrategyLoader:
     """Loads and filters strategy data for portfolio construction."""
 
-    def __init__(self, data_dir: str = "data/raw/portfolios_metrics"):
+    def __init__(self, data_dir: str | Path = "data/raw/portfolios_metrics"):
         """Initialize the loader with data directory path."""
         self.data_dir = Path(data_dir)
 

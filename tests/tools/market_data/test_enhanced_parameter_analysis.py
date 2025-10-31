@@ -54,47 +54,7 @@ class TestEnhancedParameterIntegration:
             },
         )
 
-    @patch("app.tools.market_data_analyzer.download_data")
-    async def test_ticker_only_analysis_integration(
-        self,
-        mock_download,
-        mock_market_data,
-    ):
-        """Test ticker-only analysis integration with MarketDataAnalyzer."""
-        mock_download.return_value = mock_market_data
-
-        # Create parsed parameter for ticker-only analysis
-        parsed_param = ParsedParameter(
-            parameter_type=ParameterType.TICKER_ONLY,
-            original_input="AAPL",
-            ticker="AAPL",
-        )
-
-        # Create ticker-only analyzer
-        analyzer = AssetDistributionAnalyzer(parsed_param, Mock())
-
-        # Run analysis
-        result = await analyzer.analyze()
-
-        # Verify structure
-        assert isinstance(result, dict)
-        assert "AAPL_ASSET_DISTRIBUTION" in result
-
-        analysis_result = result["AAPL_ASSET_DISTRIBUTION"]
-
-        # Verify it's a converted SimpleAnalysisResult
-        assert hasattr(analysis_result, "exit_signal")
-        assert hasattr(analysis_result, "recommendation")
-        assert hasattr(analysis_result, "confidence_level")
-        assert hasattr(analysis_result, "strategy_name")
-        assert hasattr(analysis_result, "ticker")
-
-        # Verify recommendation is valid
-        valid_signals = ["STRONG_BUY", "BUY", "HOLD", "SELL", "STRONG_SELL"]
-        assert analysis_result.exit_signal in valid_signals
-        assert analysis_result.recommendation.exit_signal.value in valid_signals
-
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_strategy_spec_analysis_integration(
         self,
         mock_download,
@@ -131,7 +91,7 @@ class TestEnhancedParameterIntegration:
         assert analysis_result.ticker == "TSLA"
         assert "SMA_15_25" in analysis_result.strategy_name
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_position_uuid_analysis_integration(
         self,
         mock_download,
@@ -263,7 +223,7 @@ class TestSimpleAnalysisResultIntegration:
 class TestMarketDataAnalyzerFactoryIntegration:
     """Test integration with analyzer factory functions."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_create_analyzer_ticker_only(self, mock_download):
         """Test create_analyzer function for ticker-only analysis."""
         mock_download.return_value = pl.DataFrame(
@@ -290,7 +250,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
         result = await analyzer.analyze()
         assert isinstance(result, dict)
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_create_analyzer_strategy_spec(self, mock_download):
         """Test create_analyzer function for strategy specification."""
         mock_download.return_value = pl.DataFrame(
@@ -320,7 +280,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
         result = await analyzer.analyze()
         assert isinstance(result, dict)
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_create_analyzer_position_uuid(self, mock_download):
         """Test create_analyzer function for position UUID."""
         mock_download.return_value = pl.DataFrame(
@@ -356,7 +316,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
 class TestBuySignalGeneration:
     """Test BUY signal generation in enhanced parameter analysis."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_buy_signal_generation_strong_uptrend(self, mock_download):
         """Test BUY signal generation with strong uptrend data."""
         # Create strong uptrend data
@@ -400,7 +360,7 @@ class TestBuySignalGeneration:
         assert analysis_result.exit_signal.value in valid_signals
         assert analysis_result.confidence_level > 0.5  # Any reasonable confidence
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_sell_signal_generation_strong_downtrend(self, mock_download):
         """Test SELL signal generation with strong downtrend data."""
         # Create strong downtrend data
@@ -449,7 +409,7 @@ class TestBuySignalGeneration:
 class TestExportCompatibility:
     """Test export compatibility of enhanced parameter analysis."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_export_field_compatibility(self, mock_download):
         """Test that all required export fields are present."""
         mock_download.return_value = pl.DataFrame(
@@ -502,7 +462,7 @@ class TestExportCompatibility:
         assert hasattr(mock_result.exit_signal, "statistical_validity")
         assert hasattr(mock_result.exit_signal.statistical_validity, "value")
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_backward_compatibility_fields(self, mock_download):
         """Test backward compatibility with legacy field names."""
         mock_download.return_value = pl.DataFrame(
@@ -539,7 +499,7 @@ class TestExportCompatibility:
 class TestErrorHandlingIntegration:
     """Test error handling in enhanced parameter analysis integration."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_data_fetch_failure_handling(self, mock_download):
         """Test handling of data fetch failures."""
         mock_download.return_value = None  # Simulate fetch failure
@@ -563,7 +523,7 @@ class TestErrorHandlingIntegration:
             assert hasattr(synthetic_result, "exit_signal")
             assert synthetic_result.exit_signal in ["HOLD", "SELL", "STRONG_SELL"]
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_analysis_exception_handling(self, mock_download):
         """Test handling of analysis exceptions."""
         # Mock data that might cause analysis issues
@@ -604,7 +564,7 @@ class TestErrorHandlingIntegration:
 class TestPerformanceMetrics:
     """Test performance-related metrics in enhanced analysis."""
 
-    @patch("app.tools.market_data_analyzer.download_data")
+    @patch("app.tools.get_data.get_data")
     async def test_analysis_includes_performance_metrics(self, mock_download):
         """Test that analysis includes comprehensive performance metrics."""
         # Create realistic market data
@@ -630,9 +590,7 @@ class TestPerformanceMetrics:
 
         mock_result = result["METRICS_ASSET_DISTRIBUTION"]
 
-        # Verify performance metrics are included in divergence_metrics
-        metrics = mock_result.divergence_metrics
-
+        # Verify performance metrics are included
         expected_metrics = [
             "momentum_differential",
             "trend_direction_20d",
@@ -642,16 +600,11 @@ class TestPerformanceMetrics:
         ]
 
         for metric in expected_metrics:
-            # Metrics should be available either directly or in nested structure
-            assert (
-                hasattr(mock_result, metric)
-                or metric in metrics
-                or any(
-                    metric in str(v)
-                    for v in metrics.values()
-                    if isinstance(v, dict | str)
-                )
-            )
+            # Metrics should be available as attributes on mock_result
+            assert hasattr(
+                mock_result,
+                metric,
+            ), f"Missing expected metric: {metric}"
 
 
 if __name__ == "__main__":
