@@ -147,11 +147,19 @@ def configure_stdlib_logging() -> None:
                 encoding="utf8",
             )
             file_handler.setLevel(log_level)
-            file_handler.setFormatter(formatter)
+            # Create formatter locally for file handler
+            file_formatter = structlog.stdlib.ProcessorFormatter(
+                processor=JSONRenderer(),
+                foreign_pre_chain=[
+                    structlog.stdlib.add_log_level,
+                    structlog.processors.TimeStamper(fmt="iso"),
+                ],
+            )
+            file_handler.setFormatter(file_formatter)
             root_logger.addHandler(file_handler)
         except Exception as e:
             # Don't crash if file logging fails
-            console_handler.stream.write(
+            sys.stderr.write(
                 f"Warning: Failed to create file handler: {e}\n",
             )
 
