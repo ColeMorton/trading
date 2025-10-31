@@ -20,7 +20,7 @@ def api_key():
 @pytest.fixture
 def api_client(api_base_url, api_key):
     """Create an API client for testing."""
-    from tests.integration.test_webhook_e2e import SweepTestClient
+    from tests.e2e.test_webhook_e2e import SweepTestClient
 
     return SweepTestClient(base_url=api_base_url, api_key=api_key)
 

@@ -188,7 +188,7 @@ class SweepTestClient:
 
 
 @pytest.mark.asyncio
-@pytest.mark.integration
+@pytest.mark.e2e
 async def test_complete_webhook_flow():
     """
     E2E test for webhook flow.
@@ -325,7 +325,7 @@ async def test_complete_webhook_flow():
 
 
 @pytest.mark.asyncio
-@pytest.mark.integration
+@pytest.mark.e2e
 async def test_webhook_timeout_handling():
     """Test that webhook timeout is handled gracefully."""
     receiver = WebhookReceiver()
