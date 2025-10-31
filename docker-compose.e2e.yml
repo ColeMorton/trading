@@ -31,13 +31,17 @@ services:
       - trading-network
 
   trading-api:
-    extends:
-      file: docker-compose.yml
-      service: trading-api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: production
+    container_name: trading-api-e2e
+    ports:
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
       - REDIS_URL=redis://redis:6379/0
-      - ENVIRONMENT=development
+      - ENVIRONMENT=test
       - DEBUG=true
       - API_KEY_SECRET=dev-secret-key-change-in-production
       - RUN_MIGRATIONS=true
@@ -48,15 +52,24 @@ services:
         condition: service_healthy
     networks:
       - trading-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
 
   arq-worker:
-    extends:
-      file: docker-compose.yml
-      service: arq-worker
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: production
+    container_name: arq-worker-e2e
     environment:
       - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
       - REDIS_URL=redis://redis:6379/0
-      - ENVIRONMENT=development
+      - ENVIRONMENT=test
       - DEBUG=true
     depends_on:
       postgres:
@@ -65,6 +78,7 @@ services:
         condition: service_healthy
     networks:
       - trading-network
+    command: arq app.api.jobs.worker.WorkerSettings
 
 networks:
   trading-network:
