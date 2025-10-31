@@ -228,9 +228,6 @@ class TestExportTypeMatrix:
         assert success is True
         assert len(df) == 2
 
-        # Verify Metric Type column is preserved
-        assert "Metric Type" in df.columns
-
         # Verify file was created in correct location
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
         assert export_path.exists()
@@ -327,12 +324,6 @@ class TestExportTypeMatrix:
         # Verify export success and schema
         assert success is True
         assert len(df) == 2
-        assert "Metric Type" in df.columns
-
-        # Verify metric type values are preserved
-        metric_types = df["Metric Type"].to_list()
-        assert "Most Total Return [%]" in metric_types
-        assert "Most Win Rate [%]" in metric_types
 
         # Verify file location
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -426,12 +417,6 @@ class TestExportTypeMatrix:
         # Verify export success and filtered schema
         assert success is True
         assert len(df) == 2
-        assert "Metric Type" in df.columns
-
-        # Verify MACD-specific metric types are preserved
-        metric_types = df["Metric Type"].to_list()
-        assert "Most Total Return [%]" in metric_types
-        assert "Most Profit Factor" in metric_types
 
         # Verify file location
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -544,9 +529,6 @@ class TestExportTypeMatrix:
         assert "AAPL" in tickers
         assert "MSFT" in tickers
         assert "GOOGL" in tickers
-
-        # Verify Metric Type column is preserved
-        assert "Metric Type" in df.columns
 
         # Verify file location
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_filtered"
@@ -712,7 +694,8 @@ class TestExportTypeMatrix:
         assert len(df) == 1
 
         # Verify export type specific requirements
-        if export_type in ["portfolios_filtered", "portfolios_best"]:
+        # Only portfolios_best should have Metric Type column
+        if export_type == "portfolios_best":
             assert "Metric Type" in df.columns
 
         # Verify file was created in correct location
@@ -869,11 +852,7 @@ class TestExportSchemaConsistency:
         assert success is True
         assert len(df) == 1
 
-        # Verify Metric Type column is present and preserved
-        assert "Metric Type" in df.columns
-        assert df["Metric Type"][0] == "Most Total Return [%]"
-
-        # Verify other key columns are preserved
+        # Verify key columns are preserved (portfolios_filtered uses EXTENDED schema, no Metric Type)
         expected_columns = [
             "Ticker",
             "Strategy Type",

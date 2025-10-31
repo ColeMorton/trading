@@ -157,19 +157,19 @@ class ExportTypeRouter:
         },
         "portfolios_best": {
             "schema": SchemaType.FILTERED,
-            "description": "63 columns, Metric Type + Extended for best portfolios with aggregated metrics",
+            "description": "65 columns, Metric Type + Extended for best portfolios with aggregated metrics",
             "allocation_handling": "none",  # No allocation values for analysis
             "validation_level": "strict",
         },
         "portfolios_metrics": {
             "schema": SchemaType.FILTERED,
-            "description": "63 columns, Metric Type + Extended for extreme metric analysis",
+            "description": "65 columns, Metric Type + Extended for extreme metric analysis",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
         "portfolios_filtered": {
-            "schema": SchemaType.FILTERED,
-            "description": "65 columns, Metric Type + Extended for minimums-filtered results",
+            "schema": SchemaType.EXTENDED,
+            "description": "62 columns, canonical format for minimums-filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
@@ -422,10 +422,11 @@ def export_portfolios(
             and len(df.select("Strategy Type").unique()) > 1
         )
 
-        # Apply minimum filtering for portfolios_best AND portfolios before any aggregation
+        # Apply minimum filtering for portfolios_best only (before any aggregation)
+        # Note: portfolios should export ALL portfolios without filtering
         # Note: portfolios_filtered should already have minimums applied, so it's excluded
         # Note: portfolios_metrics should preserve all metric rows without additional filtering
-        if export_type in ["portfolios_best", "portfolios"]:
+        if export_type == "portfolios_best":
             from app.tools.portfolio.filtering_service import PortfolioFilterService
 
             # Apply MinimumsFilter to ensure YAML config criteria are enforced
@@ -434,18 +435,10 @@ def export_portfolios(
 
             if filtered_df is None or len(filtered_df) == 0:
                 # Skip export for portfolios_best when all portfolios are filtered out
-                if export_type == "portfolios_best":
-                    if log:
-                        log(
-                            f"Skipping {export_type} export - no portfolios remain after applying MINIMUMS filtering",
-                            "info",
-                        )
-                    return pl.DataFrame(), False
-
                 if log:
                     log(
-                        f"No portfolios remain after applying MINIMUMS filtering for {export_type}",
-                        "warning",
+                        f"Skipping {export_type} export - no portfolios remain after applying MINIMUMS filtering",
+                        "info",
                     )
                 return pl.DataFrame(), False
 
