@@ -11,6 +11,7 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock
 
+import pytest
 from hypothesis import given, strategies as st
 
 from app.tools.position_calculator import (
@@ -28,6 +29,7 @@ from app.tools.position_calculator import (
 )
 
 
+@pytest.mark.unit
 class TestPositionCalculator(unittest.TestCase):
     """Unit tests for PositionCalculator class."""
 
@@ -463,6 +465,7 @@ class TestPositionCalculator(unittest.TestCase):
         self.assertEqual(result["data"]["PnL"], 13.17)
 
 
+@pytest.mark.unit
 class TestPositionCalculatorRegression(unittest.TestCase):
     """Regression tests for specific bugs and edge cases."""
 
@@ -532,6 +535,7 @@ class TestPositionCalculatorRegression(unittest.TestCase):
         )  # 6 decimal places
 
 
+@pytest.mark.unit
 class TestPositionCalculatorPropertyBased(unittest.TestCase):
     """Property-based tests using Hypothesis to validate calculation consistency."""
 
@@ -714,6 +718,7 @@ class TestPositionCalculatorPropertyBased(unittest.TestCase):
             self.assertGreater(better_efficiency, efficiency)
 
 
+@pytest.mark.unit
 class TestPositionCalculatorPerformance(unittest.TestCase):
     """Performance tests for PositionCalculator operations."""
 

@@ -24,6 +24,7 @@ from app.tools.processing import (
 )
 
 
+@pytest.mark.unit
 class TestMemoryOptimizer:
     """Test MemoryOptimizer functionality."""
 
@@ -139,6 +140,7 @@ class TestMemoryOptimizer:
         assert memory_info["operation_count"] > 0
 
 
+@pytest.mark.unit
 class TestDataConverter:
     """Test DataConverter functionality."""
 
@@ -207,6 +209,7 @@ class TestDataConverter:
         assert stats["cache"]["hits"] > 0
 
 
+@pytest.mark.unit
 class TestStreamingProcessor:
     """Test StreamingProcessor functionality."""
 
@@ -283,6 +286,7 @@ class TestStreamingProcessor:
             Path(temp_path).unlink()
 
 
+@pytest.mark.unit
 class TestMMapAccessor:
     """Test memory-mapped file access."""
 
@@ -349,6 +353,7 @@ class TestMMapAccessor:
             Path(temp_path).unlink()
 
 
+@pytest.mark.unit
 class TestMemoryEfficientParameterSweep:
     """Test memory-efficient parameter sweep."""
 
@@ -428,6 +433,7 @@ class TestMemoryEfficientParameterSweep:
             assert len(results["output_files"]) > 0
 
 
+@pytest.mark.unit
 class TestIntegration:
     """Integration tests for memory optimization components."""
 

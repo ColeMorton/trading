@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 def get_service_class():
@@ -24,6 +25,7 @@ def get_config_class():
     return SeasonalityConfig
 
 
+@pytest.mark.unit
 class TestAutoDownloadTriggers:
     """Test that auto-download is triggered in correct scenarios."""
 
@@ -85,6 +87,7 @@ class TestAutoDownloadTriggers:
             assert mock_download.call_count == 1
 
 
+@pytest.mark.unit
 class TestRetryMechanism:
     """Test that retry mechanism prevents infinite loops."""
 
@@ -165,6 +168,7 @@ class TestRetryMechanism:
             assert result is None
 
 
+@pytest.mark.unit
 class TestDownloadSuccess:
     """Test successful download scenarios."""
 
@@ -243,6 +247,7 @@ class TestDownloadSuccess:
             assert len(loaded_data) == 1260
 
 
+@pytest.mark.unit
 class TestDownloadFailure:
     """Test download failure scenarios."""
 
@@ -316,6 +321,7 @@ class TestDownloadFailure:
             assert result is None
 
 
+@pytest.mark.unit
 class TestMultiIndexHandling:
     """Test handling of MultiIndex columns from yfinance."""
 
@@ -364,6 +370,7 @@ class TestMultiIndexHandling:
             assert result is not None
 
 
+@pytest.mark.unit
 class TestDateFormatPreservation:
     """Test that date formats are preserved correctly."""
 

@@ -5,6 +5,7 @@ Tests for the expectancy calculation module.
 import unittest
 
 import pandas as pd
+import pytest
 
 from app.tools.expectancy import (
     calculate_expectancy,
@@ -15,6 +16,7 @@ from app.tools.expectancy import (
 )
 
 
+@pytest.mark.unit
 class TestExpectancy(unittest.TestCase):
     """Test cases for expectancy calculation functions."""
 

@@ -21,6 +21,7 @@ from app.tools.error_handling import (
 )
 
 
+@pytest.mark.unit
 class TestErrorHandling(unittest.TestCase):
     """Test cases for the error handling module."""
 

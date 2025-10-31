@@ -20,6 +20,7 @@ from app.cli.config.loader import ConfigLoader
 from app.cli.models.strategy import StrategyConfig, StrategyType
 
 
+@pytest.mark.unit
 class TestConfigLoader:
     """Test cases for ConfigLoader with strategy profiles."""
 
@@ -327,6 +328,7 @@ config:
             config_loader.load_from_profile("wrong_type", StrategyConfig)
 
 
+@pytest.mark.unit
 class TestParameterValidation:
     """Test parameter validation for strategy configurations."""
 
@@ -452,6 +454,7 @@ class TestParameterValidation:
         assert config.slow_period == 26
 
 
+@pytest.mark.unit
 class TestProfileInheritance:
     """Test profile inheritance and template functionality."""
 
@@ -641,6 +644,7 @@ config:
         assert config.strategy_types == [StrategyType.SMA]  # From final
 
 
+@pytest.mark.unit
 class TestStrategyConfigModelDefaults:
     """Test StrategyConfig model default values and behavior."""
 
@@ -721,6 +725,7 @@ class TestStrategyConfigModelDefaults:
         assert config.strategy_types == []
 
 
+@pytest.mark.unit
 class TestConfigurationEdgeCases:
     """Test edge cases and error scenarios for configuration loading."""
 

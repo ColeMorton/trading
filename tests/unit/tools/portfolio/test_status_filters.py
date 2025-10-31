@@ -1,11 +1,14 @@
 """Tests for portfolio status filtering functions."""
 
+import pytest
+
 from app.tools.portfolio.status_filters import (
     determine_portfolio_status,
     filter_entry_strategies,
 )
 
 
+@pytest.mark.unit
 class TestDeterminePortfolioStatus:
     """Test suite for determine_portfolio_status function."""
 
@@ -115,6 +118,7 @@ class TestDeterminePortfolioStatus:
         assert determine_portfolio_status(portfolio) == "Entry"
 
 
+@pytest.mark.unit
 class TestFilterEntryStrategies:
     """Test suite for filter_entry_strategies function."""
 

@@ -1,8 +1,11 @@
 """Tests for CSV generation functions."""
 
+import pytest
+
 from app.tools.portfolio.csv_generators import generate_csv_output_for_portfolios
 
 
+@pytest.mark.unit
 class TestGenerateCsvOutputForPortfolios:
     """Test suite for generate_csv_output_for_portfolios function."""
 

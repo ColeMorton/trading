@@ -20,6 +20,7 @@ from app.tools.synthetic_ticker import (
 )
 
 
+@pytest.mark.unit
 class TestSyntheticTickerExports:
     """Test synthetic ticker export functionality."""
 
@@ -265,6 +266,7 @@ class TestSyntheticTickerExports:
                 assert any("BTC_USD" in call for call in all_calls)
 
 
+@pytest.mark.unit
 class TestSyntheticTickerDetection:
     """Test synthetic ticker detection and processing."""
 
@@ -302,6 +304,7 @@ class TestSyntheticTickerDetection:
         assert "MSTR" in synthetic_ticker
 
 
+@pytest.mark.unit
 class TestSyntheticTickerEdgeCases:
     """Test edge cases for synthetic ticker exports."""
 

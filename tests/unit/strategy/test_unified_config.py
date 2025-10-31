@@ -21,6 +21,7 @@ from app.tools.strategy.unified_config import (
 )
 
 
+@pytest.mark.unit
 class TestBasePortfolioConfig:
     """Test cases for BasePortfolioConfig."""
 
@@ -54,6 +55,7 @@ class TestBasePortfolioConfig:
         assert config["USE_RSI"] is False
 
 
+@pytest.mark.unit
 class TestStrategySpecificConfigs:
     """Test cases for strategy-specific configuration classes."""
 
@@ -109,6 +111,7 @@ class TestStrategySpecificConfigs:
         assert config["MIN_TRADES"] == 10
 
 
+@pytest.mark.unit
 class TestConfigValidator:
     """Test cases for ConfigValidator."""
 
@@ -229,6 +232,7 @@ class TestConfigValidator:
         assert "Years must be between 0.1 and 50" in result["errors"]
 
 
+@pytest.mark.unit
 class TestConfigFactory:
     """Test cases for ConfigFactory."""
 
@@ -293,6 +297,7 @@ class TestConfigFactory:
         assert "MEAN_REVERSION" in strategies
 
 
+@pytest.mark.unit
 class TestConvenienceFunctions:
     """Test cases for module-level convenience functions."""
 
@@ -330,6 +335,7 @@ class TestConvenienceFunctions:
         assert defaults["DIRECTION"] == "Long"
 
 
+@pytest.mark.unit
 class TestConfigurationMigration:
     """Test cases for configuration migration scenarios."""
 
@@ -381,6 +387,7 @@ class TestConfigurationMigration:
         )
 
 
+@pytest.mark.unit
 class TestConfigurationDeduplication:
     """Test cases verifying elimination of configuration duplication."""
 

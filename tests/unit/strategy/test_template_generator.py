@@ -20,6 +20,7 @@ from app.tools.strategy.template import (
 )
 
 
+@pytest.mark.unit
 class TestTemplateConfig:
     """Test template configuration system."""
 
@@ -118,6 +119,7 @@ class TestTemplateConfig:
         assert "from ta.trend import SMAIndicator" in imports
 
 
+@pytest.mark.unit
 class TestExecutionTemplate:
     """Test execution template generation."""
 
@@ -235,6 +237,7 @@ class TestExecutionTemplate:
         assert "if config.get('DIRECTION') not in ['Long', 'Short']:" in validation_code
 
 
+@pytest.mark.unit
 class TestValidationTemplate:
     """Test validation template generation."""
 
@@ -280,6 +283,7 @@ class TestValidationTemplate:
         assert "def test_multiple_ticker_performance(" in content
 
 
+@pytest.mark.unit
 class TestStrategyTemplateGenerator:
     """Test the main strategy template generator."""
 
@@ -471,6 +475,7 @@ class TestStrategyTemplateGenerator:
         assert files["__init__.py"]["exists"] is True
 
 
+@pytest.mark.unit
 class TestIntegration:
     """Integration tests for the complete template system."""
 

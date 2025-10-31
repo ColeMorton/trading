@@ -5,6 +5,7 @@ Incorrect calculations could lead to wrong investment decisions.
 """
 
 import numpy as np
+import pytest
 from scipy import stats as scipy_stats
 
 
@@ -23,6 +24,7 @@ def get_pattern_type():
     return PatternType
 
 
+@pytest.mark.unit
 class TestSeasonalityAnalyzerInitialization:
     """Test analyzer initialization."""
 
@@ -52,6 +54,7 @@ class TestSeasonalityAnalyzerInitialization:
         assert analyzer.time_period_days == 5
 
 
+@pytest.mark.unit
 class TestSharpeRatioCalculation:
     """CRITICAL: Test Sharpe ratio calculation accuracy."""
 
@@ -137,6 +140,7 @@ class TestSharpeRatioCalculation:
         assert pattern.sharpe_ratio == 0
 
 
+@pytest.mark.unit
 class TestSortinoRatioCalculation:
     """CRITICAL: Test Sortino ratio calculation accuracy."""
 
@@ -214,6 +218,7 @@ class TestSortinoRatioCalculation:
         assert pattern.sharpe_ratio != pattern.sortino_ratio
 
 
+@pytest.mark.unit
 class TestMaximumDrawdown:
     """CRITICAL: Test maximum drawdown calculation."""
 
@@ -275,6 +280,7 @@ class TestMaximumDrawdown:
         assert pattern.max_drawdown == -2.0
 
 
+@pytest.mark.unit
 class TestSkewnessCalculation:
     """CRITICAL: Test skewness calculation."""
 
@@ -344,6 +350,7 @@ class TestSkewnessCalculation:
         assert abs(pattern.skewness - expected_skew) < 0.01
 
 
+@pytest.mark.unit
 class TestKurtosisCalculation:
     """CRITICAL: Test kurtosis calculation."""
 
@@ -390,6 +397,7 @@ class TestKurtosisCalculation:
         assert abs(pattern.kurtosis - expected_kurt) < 0.01
 
 
+@pytest.mark.unit
 class TestStatisticalSignificance:
     """CRITICAL: Test statistical significance calculations."""
 
@@ -459,6 +467,7 @@ class TestStatisticalSignificance:
             assert pattern.statistical_significance == 0
 
 
+@pytest.mark.unit
 class TestConfidenceIntervals:
     """CRITICAL: Test confidence interval calculations."""
 
@@ -550,6 +559,7 @@ class TestConfidenceIntervals:
         assert width_high > width_low
 
 
+@pytest.mark.unit
 class TestConsistencyScore:
     """Test consistency score calculation."""
 
@@ -617,6 +627,7 @@ class TestConsistencyScore:
         assert pattern.win_rate == 0.0
 
 
+@pytest.mark.unit
 class TestEdgeCases:
     """Test edge cases and error handling."""
 

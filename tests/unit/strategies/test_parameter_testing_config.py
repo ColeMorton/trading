@@ -15,6 +15,7 @@ from app.strategies.ma_cross.config.parameter_testing import (
 )
 
 
+@pytest.mark.unit
 class TestParameterTestingConfig:
     """Test suite for ParameterTestingConfig."""
 
@@ -157,6 +158,7 @@ class TestParameterTestingConfig:
         assert "export_formats" in summary
 
 
+@pytest.mark.unit
 class TestFilterCriteria:
     """Test suite for FilterCriteria."""
 
@@ -196,6 +198,7 @@ class TestFilterCriteria:
         assert any("drawdown" in msg["message"].lower() for msg in result.messages)
 
 
+@pytest.mark.unit
 class TestExportOptions:
     """Test suite for ExportOptions."""
 
@@ -237,6 +240,7 @@ class TestExportOptions:
         assert any("performance" in msg.lower() for msg in warning_messages)
 
 
+@pytest.mark.unit
 class TestExecutionOptions:
     """Test suite for ExecutionOptions."""
 
@@ -278,6 +282,7 @@ class TestExecutionOptions:
         assert any("worker" in msg.lower() for msg in warning_messages)
 
 
+@pytest.mark.unit
 class TestValidationResult:
     """Test suite for ValidationResult."""
 

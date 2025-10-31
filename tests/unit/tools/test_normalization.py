@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.tools.normalization import (
     Normalizer,
@@ -16,6 +17,7 @@ from app.tools.normalization import (
 )
 
 
+@pytest.mark.unit
 class TestNormalization(unittest.TestCase):
     """Test cases for the normalization module."""
 

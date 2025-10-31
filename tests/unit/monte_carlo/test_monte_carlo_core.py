@@ -27,6 +27,7 @@ from app.concurrency.tools.monte_carlo.core import (
 )
 
 
+@pytest.mark.unit
 class TestMonteCarloConfig:
     """Test Monte Carlo configuration."""
 
@@ -61,6 +62,7 @@ class TestMonteCarloConfig:
         assert "MC_CONFIDENCE_LEVEL" in config_dict
 
 
+@pytest.mark.unit
 class TestParameterStabilityResult:
     """Test parameter stability result data class."""
 
@@ -98,6 +100,7 @@ class TestParameterStabilityResult:
         assert stable_result.is_stable
 
 
+@pytest.mark.unit
 class TestMonteCarloAnalyzer:
     """Test Monte Carlo analyzer functionality."""
 
@@ -374,6 +377,7 @@ class TestMonteCarloAnalyzer:
         assert best_params is None
 
 
+@pytest.mark.unit
 class TestMonteCarloIntegration:
     """Test Monte Carlo integration scenarios."""
 

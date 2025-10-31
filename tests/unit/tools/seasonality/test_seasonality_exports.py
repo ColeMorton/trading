@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 
 import pandas as pd
+import pytest
 
 
 def get_service_class():
@@ -45,6 +46,7 @@ def get_pattern_type():
     return PatternType
 
 
+@pytest.mark.unit
 class TestJSONExportStructure:
     """Test JSON export structure and content."""
 
@@ -231,6 +233,7 @@ class TestJSONExportStructure:
         assert len(data["quarterly_patterns"]) == 4
 
 
+@pytest.mark.unit
 class TestJSONPatternFields:
     """Test that individual pattern fields are correctly exported."""
 
@@ -358,6 +361,7 @@ class TestJSONPatternFields:
                 assert period_numbers[i] < period_numbers[i + 1]
 
 
+@pytest.mark.unit
 class TestCSVExportStructure:
     """Test CSV export structure and content."""
 
@@ -508,6 +512,7 @@ class TestCSVExportStructure:
         assert all(count == 1 for count in month_counts.values)
 
 
+@pytest.mark.unit
 class TestJSONvsCSVConsistency:
     """Test that JSON and CSV exports contain the same data."""
 
@@ -606,6 +611,7 @@ class TestJSONvsCSVConsistency:
             assert json_jan["sample_size"] == csv_row["Sample_Size"]
 
 
+@pytest.mark.unit
 class TestExportEdgeCases:
     """Test export handling of edge cases."""
 

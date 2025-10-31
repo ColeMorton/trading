@@ -22,6 +22,7 @@ def get_models():
     return PatternType, SeasonalityPattern, SeasonalityResult, SeasonalityConfig
 
 
+@pytest.mark.unit
 class TestPatternTypeEnum:
     """Test PatternType enum."""
 
@@ -46,6 +47,7 @@ class TestPatternTypeEnum:
         assert pattern_type_cls.WEEK_OF_YEAR.value == "WeekOfYear"
 
 
+@pytest.mark.unit
 class TestSeasonalityPatternModel:
     """Test SeasonalityPattern model validation."""
 
@@ -147,6 +149,7 @@ class TestSeasonalityPatternModel:
         assert "Monthly" in json_str
 
 
+@pytest.mark.unit
 class TestSeasonalityConfigModel:
     """Test SeasonalityConfig model validation."""
 
@@ -284,6 +287,7 @@ class TestSeasonalityConfigModel:
         assert config_365.time_period_days == 365
 
 
+@pytest.mark.unit
 class TestSeasonalityResultModel:
     """Test SeasonalityResult model."""
 

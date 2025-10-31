@@ -21,6 +21,7 @@ from app.tools.equity_data_extractor import (
 from app.tools.exceptions import TradingSystemError
 
 
+@pytest.mark.unit
 class TestEquityData:
     """Test EquityData dataclass functionality."""
 
@@ -98,6 +99,7 @@ class TestEquityData:
         assert "equity" in df.columns
 
 
+@pytest.mark.unit
 class TestMetricType:
     """Test MetricType enum functionality."""
 
@@ -116,6 +118,7 @@ class TestMetricType:
         assert MetricType("worst") == MetricType.WORST
 
 
+@pytest.mark.unit
 class TestEquityDataExtractor:
     """Test EquityDataExtractor class functionality."""
 
@@ -391,6 +394,7 @@ class TestEquityDataExtractor:
         assert "Failed to extract equity data" in str(exc_info.value)
 
 
+@pytest.mark.unit
 class TestConvenienceFunctions:
     """Test convenience functions."""
 

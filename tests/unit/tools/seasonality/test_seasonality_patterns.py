@@ -8,6 +8,7 @@ import contextlib
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 def get_analyzer_class():
@@ -25,6 +26,7 @@ def get_pattern_type():
     return PatternType
 
 
+@pytest.mark.unit
 class TestMonthlyPatterns:
     """Test monthly pattern generation."""
 
@@ -154,6 +156,7 @@ class TestMonthlyPatterns:
             assert pattern.sample_size >= 10
 
 
+@pytest.mark.unit
 class TestWeeklyPatterns:
     """Test weekly (day of week) pattern generation."""
 
@@ -234,6 +237,7 @@ class TestWeeklyPatterns:
         assert len(day_names) == len(set(day_names))  # No duplicates
 
 
+@pytest.mark.unit
 class TestQuarterlyPatterns:
     """Test quarterly pattern generation."""
 
@@ -312,6 +316,7 @@ class TestQuarterlyPatterns:
         assert len(quarter_names) == len(set(quarter_names))  # No duplicates
 
 
+@pytest.mark.unit
 class TestWeekOfYearPatterns:
     """Test week-of-year pattern generation."""
 
@@ -418,6 +423,7 @@ class TestWeekOfYearPatterns:
         assert len(week_numbers) == len(set(week_numbers))  # No duplicates
 
 
+@pytest.mark.unit
 class TestPatternAnalysisIntegration:
     """Test complete pattern analysis."""
 
@@ -527,6 +533,7 @@ class TestPatternAnalysisIntegration:
             assert pattern.sample_size >= 5
 
 
+@pytest.mark.unit
 class TestSeasonalStrengthCalculation:
     """Test overall seasonal strength calculation."""
 

@@ -12,6 +12,7 @@ import pytest
 from app.tools.market_data_analyzer import MarketDataAnalyzer
 
 
+@pytest.mark.unit
 class TestRecommendationGeneration:
     """Test recommendation generation functionality."""
 
@@ -193,6 +194,7 @@ class TestRecommendationGeneration:
         assert 0.70 <= confidence <= 0.80
 
 
+@pytest.mark.unit
 class TestScoringAlgorithms:
     """Test individual scoring algorithms."""
 
@@ -314,6 +316,7 @@ class TestScoringAlgorithms:
         assert score == 0  # Should be zero for normal conditions
 
 
+@pytest.mark.unit
 class TestScoreBoundaries:
     """Test score boundary conditions and edge cases."""
 
@@ -385,6 +388,7 @@ class TestScoreBoundaries:
         assert isinstance(reasoning, str)
 
 
+@pytest.mark.unit
 class TestSignalThresholds:
     """Test signal threshold logic."""
 
@@ -487,6 +491,7 @@ class TestSignalThresholds:
         assert strong_confidence >= weak_confidence
 
 
+@pytest.mark.unit
 class TestErrorHandling:
     """Test error handling in recommendation generation."""
 
@@ -549,6 +554,7 @@ class TestErrorHandling:
         analyzer.logger.error.assert_called_once()
 
 
+@pytest.mark.unit
 class TestBackwardCompatibility:
     """Test backward compatibility with legacy exit signal method."""
 

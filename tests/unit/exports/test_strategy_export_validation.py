@@ -14,6 +14,7 @@ import pytest
 from app.tools.export_csv import export_csv
 
 
+@pytest.mark.unit
 class TestSMAExportValidation:
     """Test SMA strategy export validation."""
 
@@ -116,6 +117,7 @@ class TestSMAExportValidation:
                 assert "AAPL_D_SMA.csv" in call_args
 
 
+@pytest.mark.unit
 class TestEMAExportValidation:
     """Test EMA strategy export validation."""
 
@@ -223,6 +225,7 @@ class TestEMAExportValidation:
                 assert "MSFT_D_EMA.csv" in call_args
 
 
+@pytest.mark.unit
 class TestMACDExportValidation:
     """Test MACD strategy export validation."""
 
@@ -331,6 +334,7 @@ class TestMACDExportValidation:
                 assert "GOOGL_D_MACD.csv" in call_args
 
 
+@pytest.mark.unit
 class TestMultiStrategyExportValidation:
     """Test validation across multiple strategy types."""
 
