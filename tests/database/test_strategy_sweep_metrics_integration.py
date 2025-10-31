@@ -19,12 +19,10 @@ pytestmark = pytest.mark.asyncio
 
 @pytest.fixture
 def db_manager():
-    """Create a test database manager (mocked for unit tests)."""
-    # In real integration tests, this would connect to a test database
-    # For now, this is a placeholder showing the structure
-    return DatabaseManager(
-        connection_string="postgresql://test:test@localhost:5432/test_trading",
-    )
+    """Create a test database manager."""
+    # DatabaseManager reads connection info from environment variables
+    # No arguments needed
+    return DatabaseManager()
 
 
 @pytest.fixture

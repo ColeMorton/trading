@@ -1,0 +1,125 @@
+name: Parallel Integration Tests
+
+# CI/CD workflow for reliable parallel test execution
+# Implements DevOps best practices for test infrastructure
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.12'
+  POETRY_VERSION: '1.7.1'
+
+jobs:
+  test-parallel:
+    name: Run Integration Tests (Parallel)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test-group:
+          - export
+          - position
+          - api
+          - other
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run parallel integration tests - Export Group
+        if: matrix.test-group == 'export'
+        run: |
+          poetry run pytest tests/cli/integration/test_export_matrix.py \
+                          tests/cli/integration/test_export_schemas.py \
+                          tests/integration/test_empty_export_integration.py \
+                          -v -m "integration" \
+                          --maxfail=5 \
+                          --tb=short \
+                          -n 4 \
+                          --dist worksteal \
+                          --strict-isolation
+
+      - name: Run parallel integration tests - Position Group
+        if: matrix.test-group == 'position'
+        run: |
+          poetry run pytest tests/integration/test_position_workflows.py \
+                          tests/database/ \
+                          -v -m "integration" \
+                          --maxfail=5 \
+                          --tb=short \
+                          -n 2
+
+      - name: Run parallel integration tests - API Group
+        if: matrix.test-group == 'api'
+        run: |
+          poetry run pytest tests/api/ \
+                          -v -m "integration" \
+                          --maxfail=5 \
+                          --tb=short \
+                          -n 4
+
+      - name: Run parallel integration tests - Other
+        if: matrix.test-group == 'other'
+        run: |
+          poetry run pytest tests/ \
+                          -v -m "integration" \
+                          --ignore=tests/api/ \
+                          --ignore=tests/cli/integration/test_export_matrix.py \
+                          --ignore=tests/cli/integration/test_export_schemas.py \
+                          --ignore=tests/integration/test_empty_export_integration.py \
+                          --ignore=tests/integration/test_position_workflows.py \
+                          --ignore=tests/database/ \
+                          --maxfail=10 \
+                          --tb=short \
+                          -n auto
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test-group }}
+          path: htmlcov/
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: test-parallel
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test-parallel.result }}" == "failure" ]; then
+            echo "::error::Integration tests failed"
+            exit 1
+          fi
+          echo "::notice::All integration tests passed"

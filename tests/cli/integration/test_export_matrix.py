@@ -12,6 +12,7 @@ This prevents regression of export issues like directory paths, metric type colu
 filename generation, and ensures consistent behavior across all combinations.
 """
 
+import copy
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -22,6 +23,7 @@ import pytest
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
+@pytest.mark.xdist_group(name="export_matrix")
 class TestExportTypeMatrix:
     """Test matrix of all strategy type × export type combinations."""
 
@@ -46,7 +48,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
                 "Metric Type": "Most Total Return [%]",
-                "Expectancy Per Trade": 0.02,
+                "Expectancy per Trade": 0.02,  # Lowercase p - matches canonical schema
                 "Profit Factor": 1.5,
                 "Sortino Ratio": 1.3,
                 "Beats BNH [%]": 10.0,
@@ -63,7 +65,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.5,
                 "Score": 9.2,
                 "Metric Type": "Most Sharpe Ratio",
-                "Expectancy Per Trade": 0.03,
+                "Expectancy per Trade": 0.03,  # Lowercase p - matches canonical schema
                 "Profit Factor": 1.8,
                 "Sortino Ratio": 1.6,
                 "Beats BNH [%]": 15.0,
@@ -86,7 +88,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.3,
                 "Score": 8.8,
                 "Metric Type": "Most Total Return [%]",
-                "Expectancy Per Trade": 0.025,
+                "Expectancy per Trade": 0.025,  # Lowercase p - matches canonical schema
                 "Profit Factor": 1.6,
                 "Sortino Ratio": 1.4,
                 "Beats BNH [%]": 12.0,
@@ -103,7 +105,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.4,
                 "Score": 9.0,
                 "Metric Type": "Most Win Rate [%]",
-                "Expectancy Per Trade": 0.028,
+                "Expectancy per Trade": 0.028,  # Lowercase p - matches canonical schema
                 "Profit Factor": 1.7,
                 "Sortino Ratio": 1.5,
                 "Beats BNH [%]": 14.0,
@@ -127,7 +129,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.6,
                 "Score": 9.5,
                 "Metric Type": "Most Total Return [%]",
-                "Expectancy Per Trade": 0.035,
+                "Expectancy per Trade": 0.035,  # Lowercase p - matches canonical schema
                 "Profit Factor": 2.0,
                 "Sortino Ratio": 1.7,
                 "Beats BNH [%]": 20.0,
@@ -145,7 +147,7 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.35,
                 "Score": 8.7,
                 "Metric Type": "Most Profit Factor",
-                "Expectancy Per Trade": 0.027,
+                "Expectancy per Trade": 0.027,  # Lowercase p - matches canonical schema
                 "Profit Factor": 1.9,
                 "Sortino Ratio": 1.45,
                 "Beats BNH [%]": 16.0,
@@ -179,7 +181,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test SMA strategy with portfolios export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)  # Deep copy to avoid mutation
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
@@ -213,7 +215,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test SMA strategy with portfolios_filtered export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
@@ -243,7 +245,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test SMA strategy with portfolios_best export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
@@ -276,7 +278,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test EMA strategy with portfolios export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["MSFT"]
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
@@ -309,7 +311,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test EMA strategy with portfolios_filtered export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["MSFT"]
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
@@ -336,7 +338,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test EMA strategy with portfolios_best export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["MSFT"]
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
@@ -364,7 +366,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test MACD strategy with portfolios export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["GOOGL"]
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
@@ -402,7 +404,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test MACD strategy with portfolios_filtered export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["GOOGL"]
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
@@ -429,7 +431,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test MACD strategy with portfolios_best export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["GOOGL"]
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
@@ -463,7 +465,7 @@ class TestExportTypeMatrix:
         """Test mixed SMA/EMA strategies with portfolios export type."""
         mixed_portfolios = sample_portfolios_sma + sample_portfolios_ema
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["AAPL", "MSFT"]
         config["STRATEGY_TYPES"] = ["SMA", "EMA"]
         config["STRATEGY_TYPE"] = "Multi"
@@ -508,7 +510,7 @@ class TestExportTypeMatrix:
                 portfolio_copy["Ticker"] = ticker
                 multi_ticker_portfolios.append(portfolio_copy)
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["AAPL", "MSFT", "GOOGL"]
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
@@ -547,7 +549,7 @@ class TestExportTypeMatrix:
             portfolio_copy["Ticker"] = "STRK/MSTR"
             synthetic_portfolios.append(portfolio_copy)
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["STRK/MSTR"]
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
@@ -579,7 +581,7 @@ class TestExportTypeMatrix:
 
     def test_empty_portfolios_export(self, base_config, temp_export_dir):
         """Test export behavior with empty portfolio list - should create headers-only CSV."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         # Empty portfolios should now succeed and create headers-only CSV
         df, success = export_portfolios(
@@ -602,7 +604,7 @@ class TestExportTypeMatrix:
         temp_export_dir,
     ):
         """Test export with invalid export type."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         with pytest.raises(Exception):  # Should raise PortfolioExportError
             export_portfolios(
@@ -649,7 +651,7 @@ class TestExportTypeMatrix:
                     "Sharpe Ratio": 1.4,
                     "Score": 8.5,
                     "Metric Type": "Most Total Return [%]",
-                    "Expectancy Per Trade": 0.03,
+                    "Expectancy per Trade": 0.03,  # Lowercase p - matches canonical schema
                     "Profit Factor": 1.7,
                     "Sortino Ratio": 1.5,
                     "Beats BNH [%]": 15.0,
@@ -669,7 +671,7 @@ class TestExportTypeMatrix:
                     "Sharpe Ratio": 1.2,
                     "Score": 8.0,
                     "Metric Type": "Most Total Return [%]",
-                    "Expectancy Per Trade": 0.025,
+                    "Expectancy per Trade": 0.025,  # Lowercase p - matches canonical schema
                     "Profit Factor": 1.6,
                     "Sortino Ratio": 1.3,
                     "Beats BNH [%]": 12.0,
@@ -677,7 +679,7 @@ class TestExportTypeMatrix:
                 },
             ]
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["TEST"]
         config["STRATEGY_TYPES"] = [strategy_type]
         config["STRATEGY_TYPE"] = strategy_type
@@ -706,6 +708,7 @@ class TestExportTypeMatrix:
         assert len(csv_files) > 0
 
 
+@pytest.mark.xdist_group(name="export_schema")
 class TestExportSchemaConsistency:
     """Test schema consistency across different export types."""
 
@@ -731,7 +734,7 @@ class TestExportSchemaConsistency:
             "Total Trades": 50,
             "Win Rate [%]": 55.0,
             "Profit Factor": 1.5,
-            "Expectancy Per Trade": 0.02,
+            "Expectancy per Trade": 0.02,
             "Sortino Ratio": 1.3,
             "Beats BNH [%]": 10.0,
             "Avg Trade Duration": "5 days 12:00:00",
@@ -806,7 +809,7 @@ class TestExportSchemaConsistency:
         temp_export_dir,
     ):
         """Test that portfolios export maintains schema consistency."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         df, success = export_portfolios(
             portfolios=[comprehensive_portfolio],
@@ -840,7 +843,7 @@ class TestExportSchemaConsistency:
         temp_export_dir,
     ):
         """Test that portfolios_filtered export maintains schema consistency."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         df, success = export_portfolios(
             portfolios=[comprehensive_portfolio],
@@ -874,7 +877,7 @@ class TestExportSchemaConsistency:
         temp_export_dir,
     ):
         """Test that portfolios_best export maintains schema consistency."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         df, success = export_portfolios(
             portfolios=[comprehensive_portfolio],
@@ -916,7 +919,7 @@ class TestExportSchemaConsistency:
         temp_export_dir,
     ):
         """Test that column ordering is consistent across export types."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         # Export to all three types
         export_types = ["portfolios", "portfolios_filtered", "portfolios_best"]
@@ -962,7 +965,7 @@ class TestExportSchemaConsistency:
         temp_export_dir,
     ):
         """Test that data types are consistent across export types."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
         export_types = ["portfolios", "portfolios_filtered", "portfolios_best"]
         dataframes = {}

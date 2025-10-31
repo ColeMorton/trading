@@ -160,7 +160,7 @@ profit_factor = Σ(positive returns) / |Σ(negative returns)|
 
 **Typical Range**: 0.8 to 2.5
 
-### Expectancy Per Trade (`expectancy_per_trade`)
+### Expectancy per Trade (`expectancy_per_trade`)
 
 **Definition**: The expected return per trade, accounting for win rate, average win, and average loss.
 

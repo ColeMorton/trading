@@ -131,7 +131,7 @@ class TestMACrossAnalyzer:
             "Win Rate": 60.0,
             "Total Trades": 10,
             "Profit Factor": 2.0,
-            "Expectancy Per Trade": 0.03,
+            "Expectancy per Trade": 0.03,
             "Sortino Ratio": 1.2,
             "Beats BnH %": 15.0,
         }
@@ -158,7 +158,7 @@ class TestMACrossAnalyzer:
             "Win Rate": 55.0,
             "Total Trades": 8,
             "Profit Factor": 1.8,
-            "Expectancy Per Trade": 0.025,
+            "Expectancy per Trade": 0.025,
             "Sortino Ratio": 1.0,
             "Beats BnH %": 10.0,
         }
@@ -193,7 +193,7 @@ class TestMACrossAnalyzer:
             "Win Rate": 58.0,
             "Total Trades": 12,
             "Profit Factor": 1.9,
-            "Expectancy Per Trade": 0.028,
+            "Expectancy per Trade": 0.028,
             "Sortino Ratio": 1.1,
             "Beats BnH %": 12.0,
         }
@@ -228,7 +228,7 @@ class TestMACrossAnalyzer:
             "Win Rate": 65.0,
             "Total Trades": 15,
             "Profit Factor": 2.2,
-            "Expectancy Per Trade": 0.04,
+            "Expectancy per Trade": 0.04,
             "Sortino Ratio": 1.5,
             "Beats BnH %": 20.0,
         }
@@ -260,7 +260,7 @@ class TestMACrossAnalyzer:
             "Win Rate": 52.0,
             "Total Trades": 6,
             "Profit Factor": 1.6,
-            "Expectancy Per Trade": 0.02,
+            "Expectancy per Trade": 0.02,
             "Sortino Ratio": 0.9,
             "Beats BnH %": 8.0,
         }
@@ -302,7 +302,7 @@ class TestMACrossAnalyzer:
                 "Win Rate": 60.0,
                 "Total Trades": 10,
                 "Profit Factor": 2.0,
-                "Expectancy Per Trade": 0.03,
+                "Expectancy per Trade": 0.03,
                 "Sortino Ratio": 1.2,
                 "Beats BnH %": 15.0,
             },
@@ -313,7 +313,7 @@ class TestMACrossAnalyzer:
                 "Win Rate": 65.0,
                 "Total Trades": 12,
                 "Profit Factor": 2.2,
-                "Expectancy Per Trade": 0.035,
+                "Expectancy per Trade": 0.035,
                 "Sortino Ratio": 1.4,
                 "Beats BnH %": 18.0,
             },

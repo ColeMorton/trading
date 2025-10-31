@@ -10,6 +10,7 @@ This test suite validates that exported CSV files match expected schemas:
 - Regression prevention for schema issues
 """
 
+import copy
 import csv
 import tempfile
 from pathlib import Path
@@ -22,6 +23,7 @@ import pytest
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
+@pytest.mark.xdist_group(name="csv_schema")
 class TestExportedCSVSchemaValidation:
     """Test actual CSV file schema validation."""
 
@@ -147,15 +149,14 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that portfolios CSV export matches extended schema."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolio_data,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolio_data,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -205,15 +206,14 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that portfolios_filtered CSV export matches filtered schema."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolio_data,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolio_data,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -229,17 +229,10 @@ class TestExportedCSVSchemaValidation:
         # Verify file has correct number of rows
         assert len(df_pandas) == 3
 
-        # Verify Metric Type column is present and first
-        assert "Metric Type" in df_pandas.columns
-        assert df_pandas.columns[0] == "Metric Type"
+        # portfolios_filtered uses EXTENDED schema (62 columns, NO Metric Type)
+        # Only portfolios_best uses FILTERED schema (with Metric Type)
 
-        # Verify metric type values are preserved correctly
-        metric_types = df_pandas["Metric Type"].unique()
-        assert "Most Total Return [%]" in metric_types
-        assert "Most Sharpe Ratio" in metric_types
-        assert "Most Win Rate [%]" in metric_types
-
-        # Verify other required columns are present
+        # Verify required columns are present
         expected_columns = [
             "Ticker",
             "Strategy Type",
@@ -254,8 +247,8 @@ class TestExportedCSVSchemaValidation:
         for col in expected_columns:
             assert col in df_pandas.columns
 
-        # Verify the CSV has more columns than basic portfolios (filtered schema)
-        assert len(df_pandas.columns) > 50  # Filtered schema should have 63 columns
+        # Verify the CSV has Extended schema column count (62 columns)
+        assert len(df_pandas.columns) >= 60  # Extended schema should have 62 columns
 
     def test_portfolios_best_csv_schema_validation(
         self,
@@ -264,15 +257,14 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that portfolios_best CSV export matches best schema with timestamp."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolio_data,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolio_data,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -328,18 +320,17 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that CSV column ordering is consistent and follows canonical order."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         export_types = ["portfolios", "portfolios_filtered", "portfolios_best"]
         csv_column_orders = {}
 
         for export_type in export_types:
-            with patch("app.tools.strategy.export_portfolios.logging_context"):
-                _df, success = export_portfolios(
-                    portfolios=sample_portfolio_data,
-                    config=config,
-                    export_type=export_type,
-                    log=Mock(),
-                )
+            _df, success = export_portfolios(
+                portfolios=sample_portfolio_data,
+                config=config,
+                export_type=export_type,
+                log=Mock(),
+            )
 
             assert success is True
 
@@ -351,9 +342,11 @@ class TestExportedCSVSchemaValidation:
             df_pandas, _ = self.read_csv_file(csv_files[0])
             csv_column_orders[export_type] = df_pandas.columns.tolist()
 
-        # Verify filtered and best exports have Metric Type as first column
-        assert csv_column_orders["portfolios_filtered"][0] == "Metric Type"
+        # Verify only portfolios_best has Metric Type as first column
+        # portfolios_filtered uses EXTENDED schema (no Metric Type)
         assert csv_column_orders["portfolios_best"][0] == "Metric Type"
+        assert csv_column_orders["portfolios"][0] != "Metric Type"
+        assert csv_column_orders["portfolios_filtered"][0] != "Metric Type"
 
         # Verify common columns appear in consistent relative order
         common_columns = [
@@ -384,15 +377,14 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that data types are preserved correctly in CSV export."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolio_data,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolio_data,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -403,8 +395,8 @@ class TestExportedCSVSchemaValidation:
 
         df_pandas, _df_polars = self.read_csv_file(csv_files[0])
 
-        # Test string columns
-        string_columns = ["Ticker", "Strategy Type", "Metric Type"]
+        # Test string columns (Metric Type not in portfolios_filtered)
+        string_columns = ["Ticker", "Strategy Type"]
         for col in string_columns:
             if col in df_pandas.columns:
                 assert df_pandas[col].dtype == "object"
@@ -422,8 +414,15 @@ class TestExportedCSVSchemaValidation:
                 assert df_pandas[col].dtype in ["float64", "Float64"]
 
         # Test that numeric values are actually numeric (not strings)
-        assert isinstance(df_pandas["Total Trades"].iloc[0], int | float)
-        assert isinstance(df_pandas["Win Rate [%]"].iloc[0], int | float)
+        # Use pd.api.types.is_number to handle numpy types
+        import numpy as np
+
+        assert isinstance(
+            df_pandas["Total Trades"].iloc[0], (int, float, np.integer, np.floating)
+        )
+        assert isinstance(
+            df_pandas["Win Rate [%]"].iloc[0], (int, float, np.integer, np.floating)
+        )
 
     def test_csv_special_values_handling(self, base_config, temp_export_dir):
         """Test that special values (None, NaN, inf) are handled correctly in CSV."""
@@ -447,16 +446,15 @@ class TestExportedCSVSchemaValidation:
             },
         ]
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["TEST"]
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=special_portfolio,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=special_portfolio,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -515,16 +513,15 @@ class TestExportedCSVSchemaValidation:
             },
         ]
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = ["AAPL", "MSFT"]
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=aggregated_portfolios,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=aggregated_portfolios,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -571,16 +568,15 @@ class TestExportedCSVSchemaValidation:
             }
             large_portfolios.append(portfolio)
 
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
         config["TICKER"] = tickers[:5]  # First 5 unique tickers
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=large_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=large_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -595,9 +591,10 @@ class TestExportedCSVSchemaValidation:
         assert len(df_pandas) == 100
         assert len(df_polars) == 100
 
+        # portfolios_filtered uses EXTENDED schema (no Metric Type)
         # Verify schema is maintained for large dataset
-        assert "Metric Type" in df_pandas.columns
-        assert df_pandas.columns[0] == "Metric Type"
+        assert "Ticker" in df_pandas.columns
+        assert "Strategy Type" in df_pandas.columns
 
         # Verify data integrity
         assert len(df_pandas["Ticker"].unique()) <= 5  # Max 5 unique tickers
@@ -611,15 +608,14 @@ class TestExportedCSVSchemaValidation:
         temp_export_dir,
     ):
         """Test that CSV files are properly encoded and formatted."""
-        config = base_config.copy()
+        config = copy.deepcopy(base_config)
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolio_data,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolio_data,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 

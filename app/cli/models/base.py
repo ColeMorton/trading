@@ -25,7 +25,7 @@ class SortField(str, Enum):
     TOTAL_RETURN = "Total Return [%]"
     WIN_RATE = "Win Rate [%]"
     TRADES = "Total Trades"
-    EXPECTANCY = "Expectancy Per Trade [%]"
+    EXPECTANCY = "Expectancy per Trade [%]"
     PROFIT_FACTOR = "Profit Factor"
     SORTINO_RATIO = "Sortino Ratio"
 

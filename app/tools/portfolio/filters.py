@@ -19,7 +19,7 @@ def filter_invalid_metrics(
     Removes portfolios where any of the following is true:
     - Score = NaN
     - Profit Factor = inf
-    - Expectancy per Trade = NaN
+    - Expectancy per Trade = NaN (lowercase 'p')
     - Avg Losing Trade [%] = NaN
 
     Args:
@@ -86,10 +86,10 @@ def filter_invalid_metrics(
                 .notna()
             ]
 
-        if "Expectancy Per Trade" in pandas_df.columns:
+        if "Expectancy per Trade" in pandas_df.columns:
             pandas_df = pandas_df[
-                pandas_df["Expectancy Per Trade"].notna()
-                & pandas_df["Expectancy Per Trade"]
+                pandas_df["Expectancy per Trade"].notna()
+                & pandas_df["Expectancy per Trade"]
                 .replace([float("inf"), float("-inf")], float("nan"))
                 .notna()
             ]
@@ -150,7 +150,7 @@ def check_invalid_metrics(stats: dict[str, Any], log=None) -> dict[str, Any] | N
     Checks if any of the following is true:
     - Score = NaN
     - Profit Factor = inf
-    - Expectancy per Trade = NaN
+    - Expectancy per Trade = NaN (lowercase 'p')
     - Avg Losing Trade [%] = NaN
 
     Args:
@@ -180,16 +180,16 @@ def check_invalid_metrics(stats: dict[str, Any], log=None) -> dict[str, Any] | N
             log("Invalid metric: Profit Factor is inf", "info")
         return None
 
-    # Check for NaN Expectancy Per Trade
-    if "Expectancy Per Trade" in stats and (
-        stats["Expectancy Per Trade"] == "NaN"
+    # Check for NaN Expectancy per Trade (lowercase 'p' - matches canonical schema)
+    if "Expectancy per Trade" in stats and (
+        stats["Expectancy per Trade"] == "NaN"
         or (
-            isinstance(stats["Expectancy Per Trade"], float)
-            and math.isnan(stats["Expectancy Per Trade"])
+            isinstance(stats["Expectancy per Trade"], float)
+            and math.isnan(stats["Expectancy per Trade"])
         )
     ):
         if log:
-            log("Invalid metric: Expectancy Per Trade is NaN", "info")
+            log("Invalid metric: Expectancy per Trade is NaN", "info")
         return None
 
     # Check for NaN Avg Losing Trade [%]

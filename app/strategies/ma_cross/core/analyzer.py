@@ -94,7 +94,7 @@ class MACrossAnalyzer:
                         win_rate_pct=float(portfolio_stats.get("Win Rate", 0)),
                         profit_factor=float(portfolio_stats.get("Profit Factor", 0)),
                         expectancy_per_trade=float(
-                            portfolio_stats.get("Expectancy Per Trade", 0),
+                            portfolio_stats.get("Expectancy per Trade", 0),
                         ),
                         sortino_ratio=float(portfolio_stats.get("Sortino Ratio", 0)),
                         beats_bnh_pct=float(portfolio_stats.get("Beats BnH %", 0)),

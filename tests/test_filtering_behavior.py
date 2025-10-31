@@ -29,7 +29,7 @@ class TestExistingFilteringBehavior:
             {
                 "Win Rate [%]": [45.5, 55.2, 65.8, 35.1, 75.3],
                 "Total Trades": [10, 25, 30, 8, 40],
-                "Expectancy Per Trade": [0.5, 1.2, 2.1, 0.1, 3.2],
+                "Expectancy per Trade": [0.5, 1.2, 2.1, 0.1, 3.2],
                 "Profit Factor": [1.1, 1.5, 2.2, 0.8, 2.8],
                 "Score": [0.6, 1.1, 1.8, 0.3, 2.1],
                 "Sortino Ratio": [0.4, 0.8, 1.2, 0.2, 1.5],
@@ -157,7 +157,7 @@ class TestExistingFilteringBehavior:
             ),
             (
                 "EXPECTANCY_PER_TRADE",
-                "Expectancy Per Trade",
+                "Expectancy per Trade",
                 pl.Float64,
                 1,
                 "Filtered portfolios with expectancy per trade",
@@ -379,7 +379,7 @@ class TestExistingFilteringBehavior:
         )
 
     def test_column_name_normalization(self, mock_log):
-        """Test that both 'Expectancy per Trade' and 'Expectancy Per Trade' variations work."""
+        """Test that both 'Expectancy per Trade' and 'Expectancy per Trade' variations work."""
 
         # Test data with different column name variations
         test_data_1 = pl.DataFrame(
@@ -387,7 +387,7 @@ class TestExistingFilteringBehavior:
         )
 
         test_data_2 = pl.DataFrame(
-            {"Expectancy Per Trade": [0.5, 1.5, 2.1], "Ticker": ["A", "B", "C"]},
+            {"Expectancy per Trade": [0.5, 1.5, 2.1], "Ticker": ["A", "B", "C"]},
         )
 
         def apply_filter(
@@ -405,7 +405,7 @@ class TestExistingFilteringBehavior:
 
         # Both should work with appropriate column names
         result_1 = apply_filter(test_data_1, "Expectancy per Trade", 1.0, pl.Float64)
-        result_2 = apply_filter(test_data_2, "Expectancy Per Trade", 1.0, pl.Float64)
+        result_2 = apply_filter(test_data_2, "Expectancy per Trade", 1.0, pl.Float64)
 
         assert len(result_1) == 2  # Values 1.5 and 2.1
         assert len(result_2) == 2  # Values 1.5 and 2.1

@@ -107,7 +107,7 @@ class MinimumsFilter(PortfolioFilter):
         ),
         FilterConfig(
             "EXPECTANCY_PER_TRADE",
-            "Expectancy Per Trade",
+            "Expectancy per Trade",
             pl.Float64(),
             1,
             "Filtered portfolios with expectancy per trade",

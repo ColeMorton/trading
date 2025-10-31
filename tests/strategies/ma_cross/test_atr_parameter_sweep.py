@@ -102,7 +102,7 @@ def sample_portfolio_stats():
         "Win Rate": 58.2,
         "Total Trades": 45,
         "Profit Factor": 1.85,
-        "Expectancy Per Trade": 0.035,
+        "Expectancy per Trade": 0.035,
         "Sortino Ratio": 1.22,
         "Ticker": "TEST",
         # Add missing fields that stats converter expects
@@ -384,7 +384,7 @@ class TestATRParameterSweepEngine:
             "Win Rate": 58.2,
             "Total Trades": 45,
             "Profit Factor": 1.85,
-            "Expectancy Per Trade": 0.035,
+            "Expectancy per Trade": 0.035,
             "Sortino Ratio": 1.22,
         }
 
@@ -729,7 +729,7 @@ class TestATRPortfolioExport:
             "Win Rate": 60.0,
             "Total Trades": 45,
             "Profit Factor": 1.8,
-            "Expectancy Per Trade": 0.03,
+            "Expectancy per Trade": 0.03,
             "Sortino Ratio": 1.2,
         }
 
@@ -792,7 +792,7 @@ class TestATRAnalysisIntegration:
             "Win Rate": 60.0,
             "Total Trades": 45,
             "Profit Factor": 1.8,
-            "Expectancy Per Trade": 0.03,
+            "Expectancy per Trade": 0.03,
             "Sortino Ratio": 1.2,
         }
         mock_backtest.return_value = mock_portfolio

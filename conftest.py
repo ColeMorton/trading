@@ -413,4 +413,5 @@ pytest_plugins = [
     "tests.shared.fixtures",
     "tests.shared.factories",
     "tests.shared.assertions",
+    "tests.pytest_worker_isolation",  # Worker isolation for parallel execution
 ]

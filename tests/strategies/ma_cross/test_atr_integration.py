@@ -137,7 +137,7 @@ def sample_atr_portfolios():
             "Win Rate": 55.0 + i,
             "Total Trades": 30 + i * 2,
             "Profit Factor": 1.5 + i * 0.1,
-            "Expectancy Per Trade": 0.025 + i * 0.005,
+            "Expectancy per Trade": 0.025 + i * 0.005,
             "Sortino Ratio": 1.0 + i * 0.1,
             "Score": 70.0 + i * 2,
             # Additional fields for filtering

@@ -32,7 +32,7 @@ class TestSMAExportValidation:
                 "Win Rate [%]": [65.0, 58.0, 72.0, 51.0, 78.0],
                 "Total Trades": [45, 38, 52, 31, 58],
                 "Profit Factor": [1.8, 1.4, 2.1, 1.2, 2.3],
-                "Expectancy Per Trade": [0.85, 0.62, 1.15, 0.43, 1.32],
+                "Expectancy per Trade": [0.85, 0.62, 1.15, 0.43, 1.32],
                 "Sortino Ratio": [1.5, 1.1, 1.8, 0.9, 2.1],
             }
         )
@@ -134,7 +134,7 @@ class TestEMAExportValidation:
                 "Win Rate [%]": [62.0, 69.0, 55.0, 74.0],
                 "Total Trades": [42, 48, 36, 54],
                 "Profit Factor": [1.7, 1.9, 1.3, 2.1],
-                "Expectancy Per Trade": [0.78, 0.96, 0.55, 1.18],
+                "Expectancy per Trade": [0.78, 0.96, 0.55, 1.18],
                 "Sortino Ratio": [1.3, 1.6, 1.0, 1.9],
             }
         )
@@ -242,7 +242,7 @@ class TestMACDExportValidation:
                 "Win Rate [%]": [59.0, 66.0, 53.0, 71.0, 48.0, 76.0],
                 "Total Trades": [39, 45, 33, 51, 27, 57],
                 "Profit Factor": [1.6, 1.8, 1.1, 2.0, 0.9, 2.3],
-                "Expectancy Per Trade": [0.71, 0.89, 0.48, 1.05, 0.34, 1.24],
+                "Expectancy per Trade": [0.71, 0.89, 0.48, 1.05, 0.34, 1.24],
                 "Sortino Ratio": [1.2, 1.5, 1.0, 1.8, 0.8, 2.0],
             }
         )

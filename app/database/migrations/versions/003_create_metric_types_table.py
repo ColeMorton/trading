@@ -60,9 +60,9 @@ METRIC_TYPES_SEED_DATA = [
     ("Median Profit Factor", "trade", "Median profit factor"),
     ("Mean Profit Factor", "trade", "Average profit factor"),
     # Expectancy Metrics
-    ("Most Expectancy Per Trade", "trade", "Highest expected profit per trade"),
-    ("Median Expectancy Per Trade", "trade", "Median expected profit per trade"),
-    ("Mean Expectancy Per Trade", "trade", "Average expected profit per trade"),
+    ("Most Expectancy per Trade", "trade", "Highest expected profit per trade"),
+    ("Median Expectancy per Trade", "trade", "Median expected profit per trade"),
+    ("Mean Expectancy per Trade", "trade", "Average expected profit per trade"),
     ("Most Expectancy Per Month", "timing", "Highest expected profit per month"),
     ("Median Expectancy Per Month", "timing", "Median expected profit per month"),
     ("Mean Expectancy Per Month", "timing", "Average expected profit per month"),
