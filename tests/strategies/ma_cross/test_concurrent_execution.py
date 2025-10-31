@@ -61,6 +61,8 @@ class TestConcurrentExecution:
             "BASE_DIR": "/Users/colemorton/Projects/trading",
         }
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_create_ticker_batches_small_list(self):
         """Test batch creation for small ticker lists."""
         tickers = ["AAPL", "GOOGL"]
@@ -71,6 +73,8 @@ class TestConcurrentExecution:
         assert batches[0] == ["AAPL"]
         assert batches[1] == ["GOOGL"]
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_create_ticker_batches_medium_list(self):
         """Test batch creation for medium ticker lists."""
         tickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]
@@ -82,6 +86,8 @@ class TestConcurrentExecution:
         assert len(batches[1]) == 2
         assert len(batches[2]) == 1
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_create_ticker_batches_large_list(self):
         """Test batch creation for large ticker lists."""
         tickers = [f"TICK{i:02d}" for i in range(25)]  # 25 tickers
@@ -94,6 +100,8 @@ class TestConcurrentExecution:
         total_tickers = sum(len(batch) for batch in batches)
         assert total_tickers == 25
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_create_ticker_batches_custom_size(self):
         """Test batch creation with custom batch size."""
         tickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA"]
@@ -103,6 +111,8 @@ class TestConcurrentExecution:
         assert len(batches[0]) == 3
         assert len(batches[1]) == 2
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_single_ticker")
     def test_process_ticker_batch(
         self,
@@ -132,6 +142,8 @@ class TestConcurrentExecution:
         assert calls[0][0][0] == "AAPL"  # First ticker
         assert calls[1][0][0] == "GOOGL"  # Second ticker
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_single_ticker")
     def test_process_ticker_batch_with_errors(
         self,
@@ -153,6 +165,8 @@ class TestConcurrentExecution:
         assert len(results) == 1
         assert results[0]["Ticker"] == "AAPL"
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_execute_strategy_concurrent_performance(
         self,
@@ -188,6 +202,8 @@ class TestConcurrentExecution:
             concurrent_time < 1.0
         )  # Should be much faster than 5 * 0.1 = 0.5s sequential
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.execute_strategy")
     def test_execute_strategy_concurrent_falls_back_to_sequential(
         self,
@@ -206,6 +222,8 @@ class TestConcurrentExecution:
         mock_execute_strategy.assert_called_once()
         assert len(results) == 1
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_execute_strategy_concurrent_error_handling(
         self,
@@ -239,6 +257,8 @@ class TestConcurrentExecution:
         ]
         assert len(error_logs) > 0
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_concurrent_execution_thread_safety(self, mock_log):
         """Test that concurrent execution is thread-safe."""
         config = {
@@ -276,6 +296,8 @@ class TestConcurrentExecution:
             # Note: This test might be flaky due to the nature of race conditions
             # In production, we ensure thread safety by not sharing mutable state
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.strategy_execution.process_ticker_batch")
     def test_concurrent_execution_progress_tracking(
         self,
@@ -303,6 +325,8 @@ class TestConcurrentExecution:
         assert mock_progress_tracker.update.called
         assert mock_progress_tracker.complete.called
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_empty_ticker_list_handling(self, mock_log):
         """Test handling of empty ticker lists."""
         config = {"TICKER": [], "STRATEGY_TYPES": ["SMA"]}
@@ -312,6 +336,8 @@ class TestConcurrentExecution:
         # Should return empty results gracefully
         assert results == []
 
+    @pytest.mark.integration
+    @pytest.mark.performance
     def test_invalid_config_handling(self, mock_log):
         """Test handling of invalid configuration."""
         config = {}  # Missing TICKER key

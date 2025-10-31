@@ -83,7 +83,7 @@ jobs:
           if [ "${{ matrix.test-suite }}" = "smoke" ]; then
             poetry run pytest tests/strategies/ma_cross/ -v -m "smoke" --tb=short
           elif [ "${{ matrix.test-suite }}" = "unit" ]; then
-            poetry run pytest tests/strategies/ma_cross/ -v -m "unit" --cov=app/strategies/ma_cross --cov-report=xml --cov-report=term-missing -n auto
+            poetry run pytest tests/strategies/ma_cross/ -v -m "unit" --cov=app/ma_cross --cov-report=xml --cov-report=term-missing -n auto
           elif [ "${{ matrix.test-suite }}" = "integration" ]; then
             poetry run pytest tests/strategies/ma_cross/ -v -m "integration" --tb=short
           elif [ "${{ matrix.test-suite }}" = "regression" ]; then

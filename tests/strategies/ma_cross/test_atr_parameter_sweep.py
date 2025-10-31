@@ -117,6 +117,7 @@ def sample_portfolio_stats():
 class TestATRParameterCombinations:
     """Test ATR parameter combination generation."""
 
+    @pytest.mark.performance
     def test_create_atr_parameter_combinations_basic(self):
         """Test basic ATR parameter combination creation."""
         combinations = create_atr_parameter_combinations(
@@ -137,6 +138,7 @@ class TestATRParameterCombinations:
         assert (3, 1.5) in combinations
         assert (3, 2.0) in combinations
 
+    @pytest.mark.performance
     def test_create_atr_parameter_combinations_edge_cases(self):
         """Test edge cases for parameter combination creation."""
         # Single length, single multiplier
@@ -159,6 +161,7 @@ class TestATRParameterCombinations:
         )
         assert len(combinations) == 2 * 2  # 2 lengths × 2 multipliers
 
+    @pytest.mark.performance
     def test_validate_atr_parameters(self):
         """Test ATR parameter validation."""
         # Valid parameters
@@ -186,9 +189,11 @@ class TestATRParameterCombinations:
 class TestATRSignalProcessing:
     """Test ATR signal processing functionality."""
 
+    @pytest.mark.performance
     @patch(
         "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals",
     )
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_ma_atr_signals(
         self,
@@ -233,9 +238,11 @@ class TestATRSignalProcessing:
         mock_sma.assert_called_once()
         mock_atr.assert_called_once()
 
+    @pytest.mark.performance
     @patch(
         "app.strategies.ma_cross.tools.atr_signal_processing.calculate_ma_and_signals",
     )
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_signals_with_atr_exits(
         self,
@@ -274,6 +281,7 @@ class TestATRSignalProcessing:
         # Should have at least the original entry signal
         assert result["Signal"].sum() >= 1
 
+    @pytest.mark.performance
     def test_generate_signals_error_handling(self, sample_ma_config, mock_logger):
         """Test error handling in signal generation."""
         # Test with invalid data (missing required OHLCV columns)
@@ -295,6 +303,7 @@ class TestATRSignalProcessing:
 class TestATRParameterSweepEngine:
     """Test the ATR Parameter Sweep Engine."""
 
+    @pytest.mark.performance
     def test_engine_initialization(self, sample_atr_config):
         """Test engine initialization with configuration."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -308,6 +317,7 @@ class TestATRParameterSweepEngine:
         assert engine.atr_multiplier_max == 3.0
         assert engine.atr_multiplier_step == 0.5
 
+    @pytest.mark.performance
     def test_engine_initialization_defaults(self):
         """Test engine initialization with default values."""
         engine = create_atr_sweep_engine({})
@@ -320,6 +330,7 @@ class TestATRParameterSweepEngine:
         assert engine.atr_multiplier_max == 10.0  # Default
         assert engine.atr_multiplier_step == 0.2  # Default
 
+    @pytest.mark.performance
     def test_generate_atr_parameter_combinations(self, sample_atr_config):
         """Test parameter combination generation."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -339,10 +350,13 @@ class TestATRParameterSweepEngine:
         ) in combinations  # Changed from 3.0 to 2.5 (max actual multiplier)
 
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.convert_stats")
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.backtest_strategy")
+    @pytest.mark.performance
     @patch(
         "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
+    @pytest.mark.performance
     def test_process_single_atr_combination_success(
         self,
         mock_signals,
@@ -412,9 +426,11 @@ class TestATRParameterSweepEngine:
         mock_backtest.assert_called_once()
         mock_portfolio.stats.assert_called_once()
 
+    @pytest.mark.performance
     @patch(
         "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
+    @pytest.mark.performance
     def test_process_single_atr_combination_signal_failure(
         self,
         mock_signals,
@@ -443,10 +459,13 @@ class TestATRParameterSweepEngine:
         # Verify that signal generation was attempted
         assert mock_signals.called
 
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.backtest_strategy")
+    @pytest.mark.performance
     @patch(
         "app.strategies.ma_cross.tools.atr_parameter_sweep.generate_hybrid_ma_atr_signals",
     )
+    @pytest.mark.performance
     def test_process_single_atr_combination_backtest_failure(
         self,
         mock_signals,
@@ -480,6 +499,7 @@ class TestATRParameterSweepEngine:
         assert result is None
         assert engine.sweep_stats["failed_combinations"] == 1
 
+    @pytest.mark.performance
     def test_process_single_atr_combination_invalid_parameters(
         self,
         sample_atr_config,
@@ -504,6 +524,7 @@ class TestATRParameterSweepEngine:
         # Should log error about invalid parameters
         mock_logger.assert_called()
 
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.get_data")
     def test_execute_atr_parameter_sweep_success(
         self,
@@ -553,6 +574,7 @@ class TestATRParameterSweepEngine:
 
         mock_get_data.assert_called_once_with("TEST", sample_ma_config, mock_logger)
 
+    @pytest.mark.performance
     @patch("app.strategies.ma_cross.tools.atr_parameter_sweep.get_data")
     def test_execute_atr_parameter_sweep_data_failure(
         self,
@@ -578,6 +600,7 @@ class TestATRParameterSweepEngine:
         assert isinstance(stats, dict)
         mock_get_data.assert_called_once()
 
+    @pytest.mark.performance
     def test_validate_sweep_results_valid(self, sample_atr_config, mock_logger):
         """Test validation of successful sweep results."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -671,6 +694,7 @@ class TestATRParameterSweepEngine:
         assert is_valid is True
         assert len(errors) == 0
 
+    @pytest.mark.performance
     def test_validate_sweep_results_empty(self, sample_atr_config, mock_logger):
         """Test validation of empty results."""
         engine = create_atr_sweep_engine(sample_atr_config)
@@ -681,6 +705,7 @@ class TestATRParameterSweepEngine:
         assert len(errors) > 0
         assert "No results generated" in errors[0]
 
+    @pytest.mark.performance
     def test_validate_sweep_results_missing_atr_fields(
         self,
         sample_atr_config,
@@ -708,12 +733,14 @@ class TestATRParameterSweepEngine:
 class TestATRPortfolioExport:
     """Test ATR portfolio export functionality."""
 
+    @pytest.mark.performance
     def test_export_atr_portfolios_success(self):
         """Test successful ATR portfolio export."""
         # This test was problematic due to numbered module import
         # The functionality is already tested in integration tests
         # Skip this test as it's redundant with other export tests
 
+    @pytest.mark.performance
     def test_atr_portfolio_schema_compliance(self):
         """Test that ATR portfolios comply with extended schema."""
         schema_transformer = SchemaTransformer()
@@ -759,9 +786,13 @@ class TestATRPortfolioExport:
 class TestATRAnalysisIntegration:
     """Integration tests for the complete ATR analysis workflow."""
 
+    @pytest.mark.performance
     @patch("app.tools.calculate_ma_and_signals.calculate_ma_and_signals")
+    @pytest.mark.performance
     @patch("app.tools.calculate_atr.calculate_atr")
+    @pytest.mark.performance
     @patch("app.tools.backtest_strategy.backtest_strategy")
+    @pytest.mark.performance
     @patch("app.tools.get_data.get_data")
     def test_complete_atr_analysis_workflow(
         self,
@@ -849,6 +880,7 @@ class TestATRAnalysisIntegration:
             else:
                 raise
 
+    @pytest.mark.performance
     def test_atr_analysis_memory_efficiency(self, mock_logger):
         """Test that ATR analysis handles memory efficiently."""
         # This is more of a performance test, but we can verify
@@ -875,6 +907,7 @@ class TestATRAnalysisIntegration:
         assert len(combinations) > chunk_size  # Should require chunking
         assert expected_chunks > 1
 
+    @pytest.mark.performance
     @patch("polars.DataFrame.write_csv")
     def test_atr_portfolio_export_csv_format(self, mock_write_csv, mock_logger):
         """Test that ATR portfolios are exported in correct CSV format."""
@@ -947,6 +980,7 @@ class TestATRAnalysisIntegration:
 class TestATRConfigurationHandling:
     """Test ATR configuration handling and validation."""
 
+    @pytest.mark.performance
     def test_atr_config_parameter_ranges(self):
         """Test ATR configuration parameter validation."""
         # Test with updated config parameters (from system reminder)
@@ -975,6 +1009,7 @@ class TestATRConfigurationHandling:
         # Max multiplier is 9.7 since 10.0 is exclusive in range
         assert (21, 9.7) in combinations  # Max values
 
+    @pytest.mark.performance
     def test_atr_config_minimums_validation(self):
         """Test MINIMUMS configuration validation."""
         minimums = {
@@ -1013,6 +1048,7 @@ class TestATRConfigurationHandling:
         for key, min_value in minimums.items():
             assert failing_portfolio[key] < min_value, f"{key} should not meet minimum"
 
+    @pytest.mark.performance
     def test_atr_config_sorting_options(self):
         """Test sorting configuration options."""
         portfolios = [
