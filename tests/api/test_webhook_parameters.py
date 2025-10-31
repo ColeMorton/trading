@@ -7,6 +7,8 @@ across different API endpoints.
 
 from unittest.mock import Mock, patch
 
+import pytest
+
 from app.api.models.schemas import (
     ConcurrencyAnalyzeRequest,
     SeasonalityRunRequest,

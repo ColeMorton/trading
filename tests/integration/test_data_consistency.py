@@ -1,5 +1,4 @@
 """
-import pytest
 Data Consistency Validation Tests
 
 Comprehensive tests to ensure data integrity across all position
@@ -18,6 +17,7 @@ import tempfile
 import unittest
 
 import pandas as pd
+import pytest
 
 from app.exceptions import DataNotFoundError, ValidationError
 from app.services import PositionService

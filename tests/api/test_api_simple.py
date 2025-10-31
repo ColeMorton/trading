@@ -5,6 +5,7 @@ These tests verify the API structure and responses without requiring
 complex async database setup.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.api.main import app

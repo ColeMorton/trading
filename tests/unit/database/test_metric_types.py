@@ -106,7 +106,7 @@ class TestStrategySweepResultModel:
         result = StrategySweepResult(
             sweep_run_id=sweep_run_id,
             ticker_id=1,  # Changed from ticker string to ticker_id integer
-            strategy_type="SMA",
+            strategy_type_id=1,  # Use strategy_type_id instead of strategy_type
             fast_period=20,
             slow_period=50,
             score=8.5,
@@ -116,7 +116,7 @@ class TestStrategySweepResultModel:
 
         assert result.sweep_run_id == sweep_run_id
         assert result.ticker_id == 1  # Changed from ticker to ticker_id
-        assert result.strategy_type == "SMA"
+        assert result.strategy_type_id == 1
         assert result.fast_period == 20
         assert result.slow_period == 50
         assert float(result.score) == 8.5
@@ -132,7 +132,7 @@ class TestStrategySweepResultModel:
             id=result_id,
             sweep_run_id=sweep_run_id,
             ticker_id=2,  # Changed from ticker string to ticker_id integer
-            strategy_type="EMA",
+            strategy_type_id=2,  # Use strategy_type_id instead of strategy_type
             score=7.2,
         )
 
@@ -140,12 +140,16 @@ class TestStrategySweepResultModel:
 
         assert "StrategySweepResult" in repr_str
         assert str(result_id) in repr_str
-        assert "EMA" in repr_str
 
 
 @pytest.mark.unit
 class TestMetricTypeRepository:
     """Test repository methods for metric types."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database_url(self, monkeypatch):
+        """Set up DATABASE_URL environment variable for tests."""
+        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
     def test_parse_metric_type_string_single(self):
         """Test parsing single metric type."""

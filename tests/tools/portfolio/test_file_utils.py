@@ -3,6 +3,8 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from app.tools.portfolio.file_utils import extract_file_metadata, save_aggregation_csv
 
 

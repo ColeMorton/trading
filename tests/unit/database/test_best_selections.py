@@ -64,7 +64,7 @@ class TestSweepBestSelectionModel:
         selection = SweepBestSelection(
             sweep_run_id=sweep_run_id,
             ticker_id=1,
-            strategy_type="SMA",
+            strategy_type_id=1,  # Use strategy_type_id instead of strategy_type
             best_result_id=best_result_id,
             selection_algorithm="parameter_consistency",
             selection_criteria="top_3_all_match",
@@ -78,7 +78,7 @@ class TestSweepBestSelectionModel:
 
         assert selection.sweep_run_id == sweep_run_id
         assert selection.ticker_id == 1
-        assert selection.strategy_type == "SMA"
+        assert selection.strategy_type_id == 1
         assert selection.best_result_id == best_result_id
         assert selection.selection_criteria == "top_3_all_match"
         assert float(selection.confidence_score) == 100.00
@@ -96,7 +96,7 @@ class TestSweepBestSelectionModel:
             id=1,
             sweep_run_id=sweep_run_id,
             ticker_id=5,
-            strategy_type="EMA",
+            strategy_type_id=2,  # Use strategy_type_id instead of strategy_type
             best_result_id=best_result_id,
             selection_algorithm="parameter_consistency",
             selection_criteria="top_5_3_of_5",
@@ -116,7 +116,7 @@ class TestSweepBestSelectionModel:
 
         assert result["id"] == 1
         assert result["ticker_id"] == 5
-        assert result["strategy_type"] == "EMA"
+        assert result["strategy_type_id"] == 2
         assert result["selection_criteria"] == "top_5_3_of_5"
         assert result["confidence_score"] == 60.00
         assert result["winning_fast_period"] == 15
@@ -306,13 +306,18 @@ class TestSelectionAlgorithmSeedData:
         """Test that seed data has correct structure."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        migration_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "app/database/migrations/versions/004_create_best_selections_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
-            "migration_005",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/005_create_best_selections_table.py",
+            "migration_004",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
-        sys.modules["migration_005"] = migration_module
+        sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
         selection_algorithms = migration_module.selection_algorithms
@@ -335,13 +340,18 @@ class TestSelectionAlgorithmSeedData:
         """Test that all algorithm codes are unique."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        migration_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "app/database/migrations/versions/004_create_best_selections_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
-            "migration_005",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/005_create_best_selections_table.py",
+            "migration_004",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
-        sys.modules["migration_005"] = migration_module
+        sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
         selection_algorithms = migration_module.selection_algorithms
@@ -355,13 +365,18 @@ class TestSelectionAlgorithmSeedData:
         """Test that expected algorithms are present."""
         import importlib.util
         import sys
+        from pathlib import Path
 
+        migration_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "app/database/migrations/versions/004_create_best_selections_table.py"
+        )
         spec = importlib.util.spec_from_file_location(
-            "migration_005",
-            "/Users/colemorton/Projects/trading/app/database/migrations/versions/005_create_best_selections_table.py",
+            "migration_004",
+            str(migration_path),
         )
         migration_module = importlib.util.module_from_spec(spec)
-        sys.modules["migration_005"] = migration_module
+        sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
         selection_algorithms = migration_module.selection_algorithms

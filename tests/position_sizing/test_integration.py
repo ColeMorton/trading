@@ -7,6 +7,8 @@ and risk allocation systems with realistic data.
 
 from unittest.mock import patch
 
+import pytest
+
 from app.tools.allocation.efficient_frontier_integration import AllocationOptimizer
 from app.tools.position_sizing.kelly_criterion import KellyCriterionSizer
 from app.tools.position_sizing.risk_allocation import RiskAllocationCalculator

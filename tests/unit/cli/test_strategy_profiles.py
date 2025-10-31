@@ -146,9 +146,9 @@ config:
         profile_file.write_text(sample_sma_profile)
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            return_value=profile_file,
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile("test_sma", StrategyConfig)
 
@@ -161,8 +161,8 @@ config:
         assert config.minimums.win_rate == 0.55
         assert config.minimums.trades == 30
         assert config.filter.use_current is True
-        assert config.fast_period_range == [5, 50]
-        assert config.slow_period_range == [20, 200]
+        assert config.fast_period_range == (5, 50)
+        assert config.slow_period_range == (20, 200)
 
     def test_load_macd_profile_success(
         self,
@@ -176,9 +176,9 @@ config:
         profile_file.write_text(sample_macd_profile)
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            return_value=profile_file,
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile("test_macd", StrategyConfig)
 
@@ -210,9 +210,9 @@ config:
         profile_file.write_text(sample_mixed_profile)
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            return_value=profile_file,
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile("test_mixed", StrategyConfig)
 
@@ -240,9 +240,9 @@ config:
         }
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            return_value=profile_file,
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile(
                 "test_sma",
@@ -263,14 +263,7 @@ config:
 
     def test_load_profile_nonexistent_file(self, config_loader):
         """Test loading nonexistent profile file."""
-        with (
-            patch.object(
-                config_loader,
-                "_get_profile_path",
-                return_value=Path("/nonexistent/profile.yaml"),
-            ),
-            pytest.raises(FileNotFoundError),
-        ):
+        with pytest.raises(FileNotFoundError):
             config_loader.load_from_profile("nonexistent", StrategyConfig)
 
     def test_load_profile_invalid_yaml(self, config_loader, temp_profile_dir):
@@ -280,7 +273,9 @@ config:
         profile_file.write_text("invalid: yaml: content: [unclosed")
 
         with (
-            patch.object(config_loader, "_get_profile_path", return_value=profile_file),
+            patch.object(
+                config_loader.profile_manager, "profiles_dir", temp_profile_dir
+            ),
             pytest.raises(Exception),
         ):  # YAML parsing error
             config_loader.load_from_profile("invalid", StrategyConfig)
@@ -303,7 +298,9 @@ config:
         profile_file.write_text(incomplete_profile)
 
         with (
-            patch.object(config_loader, "_get_profile_path", return_value=profile_file),
+            patch.object(
+                config_loader.profile_manager, "profiles_dir", temp_profile_dir
+            ),
             pytest.raises(Exception),
         ):  # Validation error
             config_loader.load_from_profile("incomplete", StrategyConfig)
@@ -322,7 +319,9 @@ config:
         profile_file.write_text(wrong_type_profile)
 
         with (
-            patch.object(config_loader, "_get_profile_path", return_value=profile_file),
+            patch.object(
+                config_loader.profile_manager, "profiles_dir", temp_profile_dir
+            ),
             pytest.raises(Exception),
         ):  # Type validation error
             config_loader.load_from_profile("wrong_type", StrategyConfig)
@@ -448,8 +447,8 @@ class TestParameterValidation:
             "slow_period": 26,
         }
         config = StrategyConfig(**config_data)
-        assert config.fast_period_range == [5, 50]
-        assert config.slow_period_range == [20, 200]
+        assert config.fast_period_range == (5, 50)
+        assert config.slow_period_range == (20, 200)
         assert config.fast_period == 12
         assert config.slow_period == 26
 
@@ -536,9 +535,9 @@ config:
         derived_file.write_text(derived_profile)
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile(
                 "derived_sma_strategy",
@@ -574,9 +573,9 @@ config:
 
         with (
             patch.object(
-                config_loader,
-                "_get_profile_path",
-                side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+                config_loader.profile_manager,
+                "profiles_dir",
+                temp_profile_dir,
             ),
             pytest.raises(FileNotFoundError),
         ):
@@ -629,9 +628,9 @@ config:
         (temp_profile_dir / "final_profile.yaml").write_text(final_profile)
 
         with patch.object(
-            config_loader,
-            "_get_profile_path",
-            side_effect=lambda name: temp_profile_dir / f"{name}.yaml",
+            config_loader.profile_manager,
+            "profiles_dir",
+            temp_profile_dir,
         ):
             config = config_loader.load_from_profile("final_profile", StrategyConfig)
 
@@ -741,15 +740,8 @@ class TestConfigurationEdgeCases:
             empty_file = Path(f.name)
 
         try:
-            with (
-                patch.object(
-                    config_loader,
-                    "_get_profile_path",
-                    return_value=empty_file,
-                ),
-                pytest.raises(Exception),
-            ):
-                config_loader.load_from_profile("empty", StrategyConfig)
+            with pytest.raises(Exception):
+                config_loader.load_from_yaml(empty_file, StrategyConfig)
         finally:
             empty_file.unlink()
 
@@ -771,13 +763,8 @@ config:
             special_file = Path(f.name)
 
         try:
-            with patch.object(
-                config_loader,
-                "_get_profile_path",
-                return_value=special_file,
-            ):
-                config = config_loader.load_from_profile("special", StrategyConfig)
-                assert config.ticker == ["AAPL"]
+            config = config_loader.load_from_yaml(special_file, StrategyConfig)
+            assert config.ticker == ["AAPL"]
         finally:
             special_file.unlink()
 
@@ -801,15 +788,10 @@ config:
             large_file = Path(f.name)
 
         try:
-            with patch.object(
-                config_loader,
-                "_get_profile_path",
-                return_value=large_file,
-            ):
-                config = config_loader.load_from_profile("large", StrategyConfig)
-                assert len(config.ticker) == 1000
-                assert config.ticker[0] == "TICKER0000"
-                assert config.ticker[-1] == "TICKER0999"
+            config = config_loader.load_from_yaml(large_file, StrategyConfig)
+            assert len(config.ticker) == 1000
+            assert config.ticker[0] == "TICKER0000"
+            assert config.ticker[-1] == "TICKER0999"
         finally:
             large_file.unlink()
 
@@ -837,13 +819,8 @@ config:
             unicode_file = Path(f.name)
 
         try:
-            with patch.object(
-                config_loader,
-                "_get_profile_path",
-                return_value=unicode_file,
-            ):
-                config = config_loader.load_from_profile("unicode", StrategyConfig)
-                assert config.ticker == ["AAPL"]
+            config = config_loader.load_from_yaml(unicode_file, StrategyConfig)
+            assert config.ticker == ["AAPL"]
         finally:
             unicode_file.unlink()
 
@@ -875,9 +852,9 @@ config:
 
             with (
                 patch.object(
-                    config_loader,
-                    "_get_profile_path",
-                    side_effect=lambda name: profile_dir / f"{name}.yaml",
+                    config_loader.profile_manager,
+                    "profiles_dir",
+                    profile_dir,
                 ),
                 pytest.raises(Exception),
             ):  # Should detect circular inheritance
@@ -906,21 +883,16 @@ config:
             os.environ["TICKER_SYMBOL"] = "TSLA"
             os.environ["MIN_WIN_RATE"] = "0.7"
 
-            with patch.object(
-                config_loader,
-                "_get_profile_path",
-                return_value=env_file,
-            ):
-                # Note: This test depends on whether the config loader supports env var substitution
-                # If not supported, it should handle gracefully
-                try:
-                    config = config_loader.load_from_profile("env", StrategyConfig)
-                    # If env vars are supported, check substitution
-                    if isinstance(config.ticker, list) and len(config.ticker) > 0:
-                        assert config.ticker[0] in ["TSLA", "${TICKER_SYMBOL:-AAPL}"]
-                except Exception:
-                    # If env var substitution not supported, that's acceptable
-                    pass
+            # Note: This test depends on whether the config loader supports env var substitution
+            # If not supported, it should handle gracefully
+            try:
+                config = config_loader.load_from_yaml(env_file, StrategyConfig)
+                # If env vars are supported, check substitution
+                if isinstance(config.ticker, list) and len(config.ticker) > 0:
+                    assert config.ticker[0] in ["TSLA", "${TICKER_SYMBOL:-AAPL}"]
+            except Exception:
+                # If env var substitution not supported, that's acceptable
+                pass
         finally:
             env_file.unlink()
             # Clean up environment
