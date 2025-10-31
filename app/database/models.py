@@ -479,6 +479,7 @@ class SweepBestSelection(Base):
             "id": self.id,
             "sweep_run_id": str(self.sweep_run_id),
             "ticker_id": self.ticker_id,
+            "strategy_type_id": self.strategy_type_id,
             "strategy_type": self.strategy_type,
             "best_result_id": str(self.best_result_id),
             "selection_algorithm": self.selection_algorithm,

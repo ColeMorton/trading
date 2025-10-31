@@ -49,7 +49,11 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app
-RUN chown -R app:app /app
+
+# Create data directory with proper ownership
+RUN mkdir -p /app/data/api_results && \
+    chown -R app:app /app
+
 USER app
 
 # Add /app to PYTHONPATH
@@ -121,7 +125,10 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create non-root user with specific UID/GID for security
 RUN groupadd -g 1001 app && \
-    useradd -r -u 1001 -g app -s /bin/false app && \
+    useradd -r -u 1001 -g app -s /bin/false app
+
+# Create data directory with proper ownership
+RUN mkdir -p /app/data/api_results && \
     chown -R app:app /app
 
 # Switch to non-root user

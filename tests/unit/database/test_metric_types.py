@@ -149,7 +149,7 @@ class TestMetricTypeRepository:
     @pytest.fixture(autouse=True)
     def setup_database_url(self, monkeypatch):
         """Set up DATABASE_URL environment variable for tests."""
-        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        monkeypatch.setenv("DATABASE_URL", "postgresql://test:test@localhost/test")
 
     def test_parse_metric_type_string_single(self):
         """Test parsing single metric type."""

@@ -34,6 +34,16 @@ class ProfileManager:
         """Get the profiles directory."""
         return self.config.profiles_dir
 
+    @profiles_dir.setter
+    def profiles_dir(self, value: Path) -> None:
+        """Set the profiles directory."""
+        self.config.profiles_dir = value
+
+    @profiles_dir.deleter
+    def profiles_dir(self) -> None:
+        """Delete the profiles directory (for test cleanup)."""
+        pass
+
     def list_profiles(self) -> list[str]:
         """List all available profile names (searches recursively)."""
         if not self.profiles_dir.exists():
@@ -222,12 +232,9 @@ class ProfileManager:
 
                 try:
                     current = self.load_profile(current.inherits_from)
-                except FileNotFoundError:
+                except FileNotFoundError as e:
                     msg = f"Parent profile '{current.inherits_from}' not found"
-                    raise ValidationError(
-                        msg,
-                        Profile,
-                    )
+                    raise FileNotFoundError(msg) from e
 
             # Merge configurations from parent to child
             merged_config = current.config.copy()

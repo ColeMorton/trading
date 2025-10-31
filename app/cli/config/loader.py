@@ -56,6 +56,13 @@ class ConfigLoader:
         # Load profile
         profile = self.profile_manager.load_profile(profile_name)
 
+        # Validate config type matches if explicitly provided
+        if config_type is not None:
+            expected_model = profile.get_config_model()
+            if config_type != expected_model:
+                msg = f"Profile config_type '{profile.config_type}' does not match requested type"
+                raise ValueError(msg)
+
         # Resolve inheritance
         config_dict = self.profile_manager.resolve_inheritance(profile)
 

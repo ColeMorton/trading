@@ -529,5 +529,30 @@ from tests.fixtures.api_fixtures import e2e_client
 
 ---
 
+## Module-Specific Notes
+
+### MA Cross Strategy Module
+
+**Test Coverage Status:**
+
+- Unit Tests: 31 tests (comprehensive coverage of core components)
+- Integration Tests: 39 tests (ATR integration, parameter sweeps, concurrent execution)
+- E2E Tests: 0 tests (not currently required)
+
+**E2E Test Rationale:**
+
+The MA Cross module does not currently have E2E tests because:
+
+1. The module has comprehensive unit and integration test coverage (70 tests total)
+2. E2E tests would require full-stack Docker environment with real market data
+3. Integration tests adequately cover multi-component workflows without Docker overhead
+4. The module's functionality is well-validated through unit + integration tests
+
+**CI Configuration:**
+
+The E2E job in `.github/workflows/ma_cross_tests.yml` is disabled (`if: false`) to prevent test collection failures. If E2E tests are added in the future, update the condition to re-enable the job.
+
+---
+
 **Last Updated:** 2025-10-31
 **Maintainer:** QA Engineering Team

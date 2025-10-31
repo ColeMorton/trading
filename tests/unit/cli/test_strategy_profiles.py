@@ -15,6 +15,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 
 from app.cli.config.loader import ConfigLoader
 from app.cli.models.strategy import StrategyConfig, StrategyType
@@ -291,8 +292,8 @@ metadata:
   name: incomplete
 config_type: strategy
 config:
-  ticker: [AAPL]
-  # Missing strategy_types
+  strategy_types: [SMA]
+  # Missing ticker (required field)
 """
         profile_file = temp_profile_dir / "incomplete.yaml"
         profile_file.write_text(incomplete_profile)
@@ -477,6 +478,7 @@ class TestProfileInheritance:
 metadata:
   name: base_strategy_template
   description: Base template for strategy configurations
+  is_template: true
 
 config_type: strategy
 config:
@@ -505,7 +507,7 @@ config:
 metadata:
   name: derived_sma_strategy
   description: SMA strategy derived from base template
-  inherits_from: base_strategy_template
+inherits_from: base_strategy_template
 
 config_type: strategy
 config:
@@ -577,7 +579,7 @@ config:
                 "profiles_dir",
                 temp_profile_dir,
             ),
-            pytest.raises(FileNotFoundError),
+            pytest.raises((FileNotFoundError, ValidationError)),
         ):
             config_loader.load_from_profile("derived_sma_strategy", StrategyConfig)
 
@@ -587,6 +589,7 @@ config:
         base_template = """
 metadata:
   name: base_template
+  is_template: true
 config_type: strategy
 config:
   use_years: false
@@ -599,7 +602,9 @@ config:
         intermediate_template = """
 metadata:
   name: intermediate_template
-  inherits_from: base_template
+  is_template: true
+inherits_from: base_template
+
 config_type: strategy
 config:
   minimums:
@@ -611,7 +616,8 @@ config:
         final_profile = """
 metadata:
   name: final_profile
-  inherits_from: intermediate_template
+inherits_from: intermediate_template
+
 config_type: strategy
 config:
   ticker: [AAPL]

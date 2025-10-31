@@ -320,7 +320,7 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        selection_algorithms = migration_module.selection_algorithms
+        selection_algorithms = migration_module.SELECTION_ALGORITHMS
 
         assert len(selection_algorithms) > 0
 
@@ -354,7 +354,7 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        selection_algorithms = migration_module.selection_algorithms
+        selection_algorithms = migration_module.SELECTION_ALGORITHMS
 
         codes = [item[0] for item in selection_algorithms]
         unique_codes = set(codes)
@@ -379,7 +379,7 @@ class TestSelectionAlgorithmSeedData:
         sys.modules["migration_004"] = migration_module
         spec.loader.exec_module(migration_module)
 
-        selection_algorithms = migration_module.selection_algorithms
+        selection_algorithms = migration_module.SELECTION_ALGORITHMS
 
         codes = [item[0] for item in selection_algorithms]
 
