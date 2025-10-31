@@ -13,6 +13,7 @@ import pytest
 
 
 @pytest.mark.phase4
+@pytest.mark.integration
 class TestSimpleValidation:
     """Simple validation tests for Phase 4 concepts."""
 

@@ -11,6 +11,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
@@ -28,6 +30,7 @@ get_portfolios_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(get_portfolios_module)
 
 
+@pytest.mark.integration
 class TestOrchestratorSmoke(unittest.TestCase):
     """Smoke tests for refactored MA Cross functionality."""
 

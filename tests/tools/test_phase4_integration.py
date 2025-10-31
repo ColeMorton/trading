@@ -24,6 +24,7 @@ from app.tools.processing import (
 )
 
 
+@pytest.mark.integration
 class TestPhase4Integration:
     """Test Phase 4 advanced optimization integration."""
 

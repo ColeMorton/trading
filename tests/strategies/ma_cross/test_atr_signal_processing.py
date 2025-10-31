@@ -69,6 +69,8 @@ def mock_logger():
 class TestATRParameterCombinations:
     """Test ATR parameter combination generation and validation."""
 
+    @pytest.mark.unit
+    @pytest.mark.smoke
     def test_create_atr_parameter_combinations_comprehensive(self):
         """Test comprehensive ATR parameter combination generation."""
         combinations = create_atr_parameter_combinations(
@@ -94,6 +96,7 @@ class TestATRParameterCombinations:
         # Verify all combinations are unique
         assert len(set(combinations)) == len(combinations)
 
+    @pytest.mark.unit
     def test_create_atr_parameter_combinations_step_sizes(self):
         """Test different step sizes for ATR multipliers."""
         # Test large step size
@@ -120,6 +123,7 @@ class TestATRParameterCombinations:
         for mult in expected_multipliers:
             assert (5, mult) in combinations_small
 
+    @pytest.mark.unit
     def test_create_atr_parameter_combinations_edge_cases(self):
         """Test edge cases in parameter combination generation."""
         # Single value ranges
@@ -140,6 +144,8 @@ class TestATRParameterCombinations:
         expected_multipliers = [1.0, 1.3, 1.6, 1.9]
         assert len(uneven_combo) == 2 * len(expected_multipliers)
 
+    @pytest.mark.unit
+    @pytest.mark.smoke
     def test_validate_atr_parameters_comprehensive(self):
         """Test comprehensive ATR parameter validation."""
         # Valid parameters
@@ -183,6 +189,7 @@ class TestATRParameterCombinations:
 class TestHybridSignalGeneration:
     """Test hybrid MA+ATR signal generation functionality."""
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_ma_atr_signals_basic(
@@ -245,6 +252,7 @@ class TestHybridSignalGeneration:
             col in result.columns for col in ["Signal", "Position", "ATR", "ATR_Signal"]
         )
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_hybrid_signals_with_atr_exits(
@@ -302,6 +310,7 @@ class TestHybridSignalGeneration:
         assert (result["Signal"] == 1).sum() > 0  # At least one entry
         assert (result["Signal"] == -1).sum() > 0  # At least one exit
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.tools.calculate_atr.calculate_atr")
     def test_generate_signals_error_handling(
@@ -347,6 +356,7 @@ class TestHybridSignalGeneration:
         # Verify error logging
         assert mock_logger.call_count > 0
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.tools.calculate_atr.calculate_atr")
     def test_generate_signals_sma_failure(
@@ -375,6 +385,7 @@ class TestHybridSignalGeneration:
         # ATR should not be called if SMA fails
         mock_atr.assert_not_called()
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_sma_signals")
     @patch("app.strategies.ma_cross.tools.atr_signal_processing.calculate_atr")
     def test_generate_signals_atr_failure(
@@ -416,6 +427,7 @@ class TestHybridSignalGeneration:
 class TestSignalValidation:
     """Test signal validation and quality checks."""
 
+    @pytest.mark.unit
     def test_signal_data_validation(self):
         """Test validation of signal data structure."""
         # Valid signal data
@@ -441,6 +453,7 @@ class TestSignalValidation:
         valid_positions = {0, 1}
         assert set(valid_data["Position"].unique()).issubset(valid_positions)
 
+    @pytest.mark.unit
     def test_signal_consistency_checks(self):
         """Test signal consistency validation."""
         # Create data with consistent signals and positions
@@ -465,6 +478,7 @@ class TestSignalValidation:
                 # Position can stay the same or change due to other factors
                 pass
 
+    @pytest.mark.unit
     def test_signal_quality_metrics(self):
         """Test signal quality metrics calculation."""
         # Create sample signal data

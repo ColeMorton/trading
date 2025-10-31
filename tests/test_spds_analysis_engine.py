@@ -25,6 +25,7 @@ from app.tools.models.spds_models import (
 from app.tools.spds_analysis_engine import AnalysisRequest, SPDSAnalysisEngine
 
 
+@pytest.mark.integration
 class TestSPDSAnalysisEngine:
     """Integration tests for the new SPDS analysis engine."""
 
@@ -274,6 +275,7 @@ class TestSPDSAnalysisEngine:
                 # Allow some failures for missing data, but ensure no crashes
 
 
+@pytest.mark.integration
 class TestSPDSAnalysisEnginePerformance:
     """Performance-focused integration tests."""
 

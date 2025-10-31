@@ -8,6 +8,7 @@ from app.cli.models.portfolio import Direction, ReviewStrategyConfig, StrategyTy
 from app.tools.portfolio.data_loaders import load_strategies_from_raw_csv
 
 
+@pytest.mark.integration
 class TestLoadStrategiesFromRawCsv:
     """Test suite for load_strategies_from_raw_csv function."""
 

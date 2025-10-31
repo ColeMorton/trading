@@ -12,6 +12,7 @@ import pytest
 from app.portfolio_synthesis.review import run
 
 
+@pytest.mark.integration
 class TestParameterConversionSimple:
     """Test parameter conversion logic in a simplified way."""
 

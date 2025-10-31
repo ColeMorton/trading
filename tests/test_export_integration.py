@@ -16,6 +16,7 @@ from app.tools.export.adapters import export_csv_adapter, migrate_to_export_mana
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 
 
+@pytest.mark.integration
 class TestExportIntegration:
     """Test suite for export system integration."""
 
@@ -265,6 +266,7 @@ class TestExportIntegration:
             assert len(batch_logs) >= 2
 
 
+@pytest.mark.integration
 class TestExportSystemRealFiles:
     """Test suite for export system with real file operations."""
 

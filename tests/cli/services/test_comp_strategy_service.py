@@ -20,6 +20,7 @@ from app.cli.models.strategy import (
 from app.cli.services.strategy_services import COMPStrategyService
 
 
+@pytest.mark.integration
 class TestCOMPStrategyService:
     """Test cases for COMPStrategyService."""
 
@@ -191,6 +192,7 @@ class TestCOMPStrategyService:
         assert "Error executing COMP strategy" in first_call
 
 
+@pytest.mark.integration
 class TestCOMPConfigConversion:
     """Test COMP-specific configuration conversion logic."""
 
@@ -244,6 +246,7 @@ class TestCOMPConfigConversion:
         assert legacy_config.get("USE_2DAY") in [False, None]
 
 
+@pytest.mark.integration
 class TestCOMPStrategyIntegration:
     """Integration tests for COMP strategy service."""
 

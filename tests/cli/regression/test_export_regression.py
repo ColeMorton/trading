@@ -22,6 +22,7 @@ import pytest
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
+@pytest.mark.integration
 class TestExportDirectoryRegression:
     """Test regression of directory path issues."""
 
@@ -165,6 +166,7 @@ class TestExportDirectoryRegression:
         assert len(csv_files) > 0
 
 
+@pytest.mark.integration
 class TestMetricTypeColumnRegression:
     """Test regression of Metric Type column issues."""
 
@@ -378,6 +380,7 @@ class TestMetricTypeColumnRegression:
         )
 
 
+@pytest.mark.integration
 class TestFilenameGenerationRegression:
     """Test regression of filename generation issues."""
 
@@ -588,6 +591,7 @@ class TestFilenameGenerationRegression:
         assert len(csv_files) > 0
 
 
+@pytest.mark.integration
 class TestSortingConsistencyRegression:
     """Test regression of sorting consistency issues."""
 
@@ -803,6 +807,7 @@ class TestSortingConsistencyRegression:
         assert tickers == expected_order
 
 
+@pytest.mark.integration
 class TestCBREAggregationRegression:
     """Test regression of CBRE aggregation scenarios that previously failed."""
 

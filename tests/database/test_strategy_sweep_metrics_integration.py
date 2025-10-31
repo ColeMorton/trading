@@ -74,6 +74,7 @@ def sample_sweep_results():
     ]
 
 
+@pytest.mark.unit
 class TestMetricTypeIntegration:
     """Integration tests for metric type functionality."""
 
@@ -217,6 +218,7 @@ class TestMetricTypeIntegration:
         assert len(result["metric_types"]) == 2
 
 
+@pytest.mark.unit
 class TestDataMigration:
     """Test data migration from old string format to new relational format."""
 
@@ -241,6 +243,7 @@ class TestDataMigration:
                 assert len(result["metric_types"]) > 0
 
 
+@pytest.mark.unit
 class TestComplexScenarios:
     """Test complex scenarios with metric types."""
 
@@ -365,6 +368,7 @@ class TestComplexScenarios:
         assert metric_names.count("Most Sharpe Ratio") == 1
 
 
+@pytest.mark.unit
 class TestQueryPerformance:
     """Test query performance with metric types."""
 

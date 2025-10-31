@@ -24,6 +24,7 @@ from app.tools.strategy.sensitivity_analysis import (
 )
 
 
+@pytest.mark.integration
 class TestSensitivityAnalyzerBase:
     """Test cases for SensitivityAnalyzerBase abstract class."""
 
@@ -42,6 +43,7 @@ class TestSensitivityAnalyzerBase:
             IncompleteAnalyzer("TEST")
 
 
+@pytest.mark.integration
 class TestMASensitivityAnalyzer:
     """Test cases for MASensitivityAnalyzer."""
 
@@ -208,6 +210,7 @@ class TestMASensitivityAnalyzer:
         assert result is False
 
 
+@pytest.mark.integration
 class TestMACDSensitivityAnalyzer:
     """Test cases for MACDSensitivityAnalyzer."""
 
@@ -341,6 +344,7 @@ class TestMACDSensitivityAnalyzer:
         assert result is None
 
 
+@pytest.mark.integration
 class TestMeanReversionSensitivityAnalyzer:
     """Test cases for MeanReversionSensitivityAnalyzer."""
 
@@ -409,6 +413,7 @@ class TestMeanReversionSensitivityAnalyzer:
         assert result is None
 
 
+@pytest.mark.integration
 class TestSensitivityAnalyzerFactory:
     """Test cases for SensitivityAnalyzerFactory."""
 
@@ -471,6 +476,7 @@ class TestSensitivityAnalyzerFactory:
         assert len(strategies) == len(expected)
 
 
+@pytest.mark.integration
 class TestAnalyzeParameterCombination:
     """Test cases for analyze_parameter_combination function."""
 
@@ -564,6 +570,7 @@ class TestAnalyzeParameterCombination:
         assert result["Signal Period"] == 9
 
 
+@pytest.mark.integration
 class TestAnalyzeParameterCombinations:
     """Test cases for analyze_parameter_combinations function."""
 
@@ -611,6 +618,7 @@ class TestAnalyzeParameterCombinations:
         assert results == []
 
 
+@pytest.mark.integration
 class TestBackwardCompatibilityFunctions:
     """Test cases for backward compatibility functions."""
 
@@ -702,6 +710,7 @@ class TestBackwardCompatibilityFunctions:
         )
 
 
+@pytest.mark.integration
 class TestAnalyzeParameterCombinationIntegration:
     """Integration test cases for the unified analyze_parameter_combination function."""
 

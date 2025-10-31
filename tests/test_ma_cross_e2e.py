@@ -17,6 +17,7 @@ from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.orchestration.ticker_processor import TickerProcessor
 
 
+@pytest.mark.integration
 class TestMACrossWorkflowE2E:
     """End-to-end tests for complete MA Cross workflow."""
 
@@ -125,6 +126,7 @@ class TestMACrossWorkflowE2E:
         ]
 
 
+@pytest.mark.integration
 class TestCompleteWorkflow(TestMACrossWorkflowE2E):
     """Test complete MA Cross workflow from start to finish."""
 
@@ -270,6 +272,7 @@ class TestCompleteWorkflow(TestMACrossWorkflowE2E):
             assert result is not None
 
 
+@pytest.mark.integration
 class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
     """Test workflow behavior under error conditions."""
 
@@ -342,6 +345,7 @@ class TestWorkflowErrorScenarios(TestMACrossWorkflowE2E):
                 orchestrator.run(sample_config)
 
 
+@pytest.mark.integration
 class TestWorkflowDataValidation(TestMACrossWorkflowE2E):
     """Test data validation throughout the workflow."""
 
@@ -382,6 +386,7 @@ class TestWorkflowDataValidation(TestMACrossWorkflowE2E):
             ticker_processor._extract_synthetic_components("BTC_", {})
 
 
+@pytest.mark.integration
 class TestWorkflowPerformance(TestMACrossWorkflowE2E):
     """Performance tests for workflow operations."""
 
@@ -473,6 +478,7 @@ class TestWorkflowPerformance(TestMACrossWorkflowE2E):
             assert result is not None
 
 
+@pytest.mark.integration
 class TestWorkflowIntegration(TestMACrossWorkflowE2E):
     """Integration tests with real components."""
 

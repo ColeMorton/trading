@@ -11,6 +11,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 
+@pytest.mark.integration
 class TestPhase1Integration:
     """Integration tests for all Phase 1 optimizations."""
 

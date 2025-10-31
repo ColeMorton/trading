@@ -24,6 +24,7 @@ def clean_client():
     return TestClient(app)
 
 
+@pytest.mark.unit
 class TestAuthEndpoints:
     """Test cases for authentication endpoints."""
 

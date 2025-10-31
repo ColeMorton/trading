@@ -20,6 +20,7 @@ from app.tools.orchestration.ticker_processor import TickerProcessor
 from app.tools.strategy.factory import StrategyFactory
 
 
+@pytest.mark.integration
 class TestMACrossRegression:
     """Regression tests for MA Cross functionality."""
 
@@ -136,6 +137,7 @@ class TestMACrossRegression:
         }
 
 
+@pytest.mark.integration
 class TestConfigurationRegression(TestMACrossRegression):
     """Test configuration processing regression."""
 
@@ -188,6 +190,7 @@ class TestConfigurationRegression(TestMACrossRegression):
         assert "TICKER" in processed
 
 
+@pytest.mark.integration
 class TestStrategyRegression(TestMACrossRegression):
     """Test strategy implementation regression."""
 
@@ -232,6 +235,7 @@ class TestStrategyRegression(TestMACrossRegression):
             assert first_result.equals(result)
 
 
+@pytest.mark.integration
 class TestWorkflowRegression(TestMACrossRegression):
     """Test complete workflow regression."""
 
@@ -372,6 +376,7 @@ class TestWorkflowRegression(TestMACrossRegression):
             assert mock_process.call_count == expected_calls
 
 
+@pytest.mark.integration
 class TestDataValidationRegression(TestMACrossRegression):
     """Test data validation and schema compliance."""
 
@@ -483,6 +488,7 @@ class TestDataValidationRegression(TestMACrossRegression):
                 assert abs(actual_sma_10 - expected_sma_10) < 0.01
 
 
+@pytest.mark.integration
 class TestErrorHandlingRegression(TestMACrossRegression):
     """Test error handling regression."""
 
@@ -524,6 +530,7 @@ class TestErrorHandlingRegression(TestMACrossRegression):
                 )
 
 
+@pytest.mark.integration
 class TestPerformanceRegression(TestMACrossRegression):
     """Test performance regression."""
 

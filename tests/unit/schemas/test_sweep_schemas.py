@@ -24,6 +24,7 @@ from app.api.models.schemas import (
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_sweep_result_detail_with_all_fields():
     """Test SweepResultDetail with all fields populated."""
     data = {
@@ -60,6 +61,7 @@ def test_sweep_result_detail_with_all_fields():
     assert result.total_trades == 45
 
 
+@pytest.mark.unit
 def test_sweep_result_detail_with_minimal_fields():
     """Test SweepResultDetail with only required fields."""
     data = {
@@ -78,6 +80,7 @@ def test_sweep_result_detail_with_minimal_fields():
     assert result.sharpe_ratio is None
 
 
+@pytest.mark.unit
 def test_sweep_result_detail_allows_none_for_optional():
     """Test that optional fields accept None."""
     data = {
@@ -98,6 +101,7 @@ def test_sweep_result_detail_allows_none_for_optional():
     assert result.total_trades is None
 
 
+@pytest.mark.unit
 def test_sweep_result_detail_rejects_invalid_types():
     """Test that invalid types are rejected."""
     data = {
@@ -114,6 +118,7 @@ def test_sweep_result_detail_rejects_invalid_types():
     assert "fast_period" in str(exc_info.value)
 
 
+@pytest.mark.unit
 def test_sweep_result_detail_requires_mandatory_fields():
     """Test that mandatory fields are required."""
     data = {
@@ -136,6 +141,7 @@ def test_sweep_result_detail_requires_mandatory_fields():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_sweep_results_response_structure():
     """Test SweepResultsResponse structure."""
     data = {
@@ -163,6 +169,7 @@ def test_sweep_results_response_structure():
     assert len(response.results) == 1
 
 
+@pytest.mark.unit
 def test_sweep_results_response_pagination_fields():
     """Test that pagination fields are present."""
     data = {
@@ -182,6 +189,7 @@ def test_sweep_results_response_pagination_fields():
     assert response.returned_count == 50
 
 
+@pytest.mark.unit
 def test_sweep_results_response_empty_results():
     """Test response with empty results list."""
     data = {
@@ -204,6 +212,7 @@ def test_sweep_results_response_empty_results():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_best_results_response_structure():
     """Test BestResultsResponse structure."""
     data = {
@@ -229,6 +238,7 @@ def test_best_results_response_structure():
     assert len(response.results) == 1
 
 
+@pytest.mark.unit
 def test_best_results_response_multiple_results():
     """Test BestResultsResponse with multiple results (best per ticker)."""
     data = {
@@ -271,6 +281,7 @@ def test_best_results_response_multiple_results():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_sweep_summary_response_structure():
     """Test SweepSummaryResponse structure."""
     data = {
@@ -299,6 +310,7 @@ def test_sweep_summary_response_structure():
     assert response.best_score == 1.65
 
 
+@pytest.mark.unit
 def test_sweep_summary_allows_none_for_optional():
     """Test that optional summary fields can be None."""
     data = {
@@ -324,6 +336,7 @@ def test_sweep_summary_allows_none_for_optional():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_models_serialize_to_json():
     """Test that all models serialize to JSON correctly."""
     # SweepResultDetail
@@ -351,6 +364,7 @@ def test_models_serialize_to_json():
     assert len(json_data["results"]) == 1
 
 
+@pytest.mark.unit
 def test_models_handle_decimal_types():
     """Test that Decimal types from database convert correctly."""
     detail = SweepResultDetail(
@@ -367,6 +381,7 @@ def test_models_handle_decimal_types():
     assert isinstance(detail.sharpe_ratio, float)
 
 
+@pytest.mark.unit
 def test_models_handle_none_serialization():
     """Test that None values serialize correctly."""
     detail = SweepResultDetail(

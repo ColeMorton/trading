@@ -15,6 +15,7 @@ from app.api.models.schemas import (
 )
 
 
+@pytest.mark.e2e
 class TestWebhookParameters:
     """Test cases for webhook parameters in request schemas."""
 
@@ -107,6 +108,7 @@ class TestWebhookParameters:
         assert request_without_headers.webhook_headers is None
 
 
+@pytest.mark.e2e
 class TestWebhookParameterValidation:
     """Test validation of webhook parameters."""
 
@@ -150,6 +152,7 @@ class TestWebhookParameterValidation:
         assert request.webhook_headers["Authorization"] == "Bearer token"
 
 
+@pytest.mark.e2e
 class TestWebhookEndToEndIntegration:
     """Test that webhook parameters flow through to job creation."""
 

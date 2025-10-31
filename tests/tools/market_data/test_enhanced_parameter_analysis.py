@@ -25,6 +25,7 @@ from app.tools.specialized_analyzers import (
 )
 
 
+@pytest.mark.integration
 class TestEnhancedParameterIntegration:
     """Test integration with enhanced parameter analysis system."""
 
@@ -169,6 +170,7 @@ class TestEnhancedParameterIntegration:
         assert "2025-07-12" in analysis_result.strategy_name
 
 
+@pytest.mark.integration
 class TestSimpleAnalysisResultIntegration:
     """Test SimpleAnalysisResult integration with MarketDataAnalyzer."""
 
@@ -257,6 +259,7 @@ class TestSimpleAnalysisResultIntegration:
         assert hasattr(mock_result, "performance_metrics")
 
 
+@pytest.mark.integration
 class TestMarketDataAnalyzerFactoryIntegration:
     """Test integration with analyzer factory functions."""
 
@@ -349,6 +352,7 @@ class TestMarketDataAnalyzerFactoryIntegration:
         assert isinstance(result, dict)
 
 
+@pytest.mark.integration
 class TestBuySignalGeneration:
     """Test BUY signal generation in enhanced parameter analysis."""
 
@@ -441,6 +445,7 @@ class TestBuySignalGeneration:
         assert analysis_result.confidence_level > 0.5  # Any reasonable confidence
 
 
+@pytest.mark.integration
 class TestExportCompatibility:
     """Test export compatibility of enhanced parameter analysis."""
 
@@ -530,6 +535,7 @@ class TestExportCompatibility:
         assert mock_result.exit_signal == mock_result.recommendation
 
 
+@pytest.mark.integration
 class TestErrorHandlingIntegration:
     """Test error handling in enhanced parameter analysis integration."""
 
@@ -594,6 +600,7 @@ class TestErrorHandlingIntegration:
             pytest.fail(f"Analysis should handle exceptions gracefully: {e}")
 
 
+@pytest.mark.integration
 class TestPerformanceMetrics:
     """Test performance-related metrics in enhanced analysis."""
 

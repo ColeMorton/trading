@@ -32,6 +32,7 @@ from tests.fixtures.schema_validation_fixtures import (
 )
 
 
+@pytest.mark.integration
 class TestCanonicalSchema:
     """Test the canonical schema definition."""
 
@@ -67,6 +68,7 @@ class TestCanonicalSchema:
         assert len(non_empty_descriptions) > 50
 
 
+@pytest.mark.integration
 class TestSchemaValidator:
     """Test the schema validator functionality."""
 
@@ -149,6 +151,7 @@ class TestSchemaValidator:
             assert "null_count" in analysis
 
 
+@pytest.mark.integration
 class TestConvenienceFunctions:
     """Test convenience functions for validation."""
 
@@ -178,6 +181,7 @@ class TestConvenienceFunctions:
             assert all("is_valid" in result for result in results.values())
 
 
+@pytest.mark.integration
 class TestComplianceReporting:
     """Test compliance report generation."""
 
@@ -204,6 +208,7 @@ class TestComplianceReporting:
         assert "✅" in report
 
 
+@pytest.mark.integration
 class TestRealDataValidation:
     """Test validation against real portfolio CSV files."""
 
@@ -250,6 +255,7 @@ class TestRealDataValidation:
             pytest.fail(f"Failed to validate reference file {file_path}: {e!s}")
 
 
+@pytest.mark.integration
 class TestEdgeCases:
     """Test edge cases and error conditions."""
 
@@ -292,6 +298,7 @@ class TestEdgeCases:
         assert any(v["type"] == "required_column_empty" for v in result["violations"])
 
 
+@pytest.mark.integration
 class TestPerformance:
     """Test performance of validation functions."""
 

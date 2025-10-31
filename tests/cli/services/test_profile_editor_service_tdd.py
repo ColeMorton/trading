@@ -14,6 +14,7 @@ import pytest
 from app.cli.services.profile_editor_service import ProfileEditorService
 
 
+@pytest.mark.integration
 class TestProfileEditorServiceTDD:
     """Unit tests for ProfileEditorService following TDD principles."""
 

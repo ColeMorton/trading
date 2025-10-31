@@ -3,9 +3,12 @@
 import tempfile
 from unittest.mock import Mock, patch
 
+import pytest
+
 from app.tools.portfolio import PositionSizingPortfolioIntegration
 
 
+@pytest.mark.integration
 class TestPositionSizingPortfolioIntegration:
     """Test cases for PositionSizingPortfolioIntegration."""
 

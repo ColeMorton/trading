@@ -46,6 +46,7 @@ from app.cli.services.strategy_dispatcher import StrategyDispatcher
 from app.tools.console_logging import ConsoleLogger
 
 
+@pytest.mark.integration
 class TestBatchSizeFixRegression:
     """Regression tests for the batch size fix."""
 
@@ -356,6 +357,7 @@ class TestBatchSizeFixRegression:
         assert "AAPL" in result or "GOOGL" in result  # Others should be included
 
 
+@pytest.mark.integration
 class TestBatchSizeFixIntegrationRegression:
     """Integration regression tests for batch size fix with StrategyDispatcher."""
 

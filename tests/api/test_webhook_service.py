@@ -20,6 +20,7 @@ from app.api.models.tables import Job, JobStatus
 from app.api.services.webhook_service import WebhookService
 
 
+@pytest.mark.e2e
 class TestWebhookService:
     """Test cases for WebhookService."""
 

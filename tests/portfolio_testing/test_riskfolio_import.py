@@ -1,5 +1,7 @@
 import sys
 
+import pytest
+
 
 print(f"Python version: {sys.version}")
 print(f"Python executable: {sys.executable}")

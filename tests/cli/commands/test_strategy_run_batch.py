@@ -101,6 +101,7 @@ def create_mock_strategy_config_batch(ticker=None, strategy_types=None, **kwargs
     return mock_config
 
 
+@pytest.mark.integration
 class TestStrategySweepBatchCommand:
     """Test cases for strategy sweep command batch functionality."""
 
@@ -556,6 +557,7 @@ config:
         # Batch file path should be used from config
 
 
+@pytest.mark.integration
 class TestStrategySweepBatchResumeIntegration:
     """Test cases for batch processing integration with resume analysis."""
 
@@ -746,6 +748,7 @@ class TestStrategySweepBatchResumeIntegration:
         )
 
 
+@pytest.mark.integration
 class TestStrategySweepBatchEdgeCases:
     """Test edge cases and boundary conditions for batch functionality."""
 

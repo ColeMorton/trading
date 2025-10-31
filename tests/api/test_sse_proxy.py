@@ -17,6 +17,7 @@ TEST_API_KEY = "dev-key-000000000000000000000000"
 client = TestClient(app)
 
 
+@pytest.mark.unit
 class TestSSEProxy:
     """Test cases for SSE proxy functionality."""
 
@@ -171,6 +172,7 @@ class TestSSEProxy:
         assert response.status_code in [403, 404, 500]
 
 
+@pytest.mark.unit
 class TestRateLimiting:
     """Test rate limiting for SSE connections."""
 

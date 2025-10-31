@@ -26,6 +26,7 @@ from app.tools.export.unified_export import (
 )
 
 
+@pytest.mark.integration
 class TestAdvancedCache:
     """Test the advanced caching system with TTL and content-based invalidation."""
 
@@ -135,6 +136,7 @@ class TestAdvancedCache:
         assert stats["miss_count"] == 0
 
 
+@pytest.mark.integration
 class TestPerformanceMonitor:
     """Test the performance monitoring system with alerting."""
 
@@ -218,6 +220,7 @@ class TestPerformanceMonitor:
         assert summary["p95_total_time_ms"] == 50.0  # 95th percentile
 
 
+@pytest.mark.integration
 class TestUnifiedExportProcessorPhase4:
     """Test Phase 4 enhancements to the UnifiedExportProcessor."""
 
@@ -448,6 +451,7 @@ class TestUnifiedExportProcessorPhase4:
         assert result.success is True
 
 
+@pytest.mark.integration
 class TestPhase4Integration:
     """Integration tests for Phase 4 features."""
 

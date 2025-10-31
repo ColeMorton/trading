@@ -20,6 +20,7 @@ TEST_API_KEY = "dev-key-000000000000000000000000"
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_sweeps_endpoints_registered():
     """Verify all sweep endpoints are registered in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -36,6 +37,7 @@ def test_sweeps_endpoints_registered():
     assert "/api/v1/sweeps/{sweep_run_id}/best-per-ticker" in paths
 
 
+@pytest.mark.unit
 def test_sweeps_router_has_correct_tags():
     """Verify Sweeps endpoints have correct tags for documentation."""
     response = client.get("/api/openapi.json")
@@ -50,6 +52,7 @@ def test_sweeps_router_has_correct_tags():
     assert "Sweeps" in latest_endpoint["tags"]
 
 
+@pytest.mark.unit
 def test_sweeps_endpoints_have_descriptions():
     """Verify all endpoints have documentation."""
     response = client.get("/api/openapi.json")
@@ -66,18 +69,21 @@ def test_sweeps_endpoints_have_descriptions():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_list_sweeps_requires_auth():
     """Test that list sweeps requires authentication."""
     response = client.get("/api/v1/sweeps/")
     assert response.status_code == 401
 
 
+@pytest.mark.unit
 def test_get_latest_requires_auth():
     """Test that get latest requires authentication."""
     response = client.get("/api/v1/sweeps/latest")
     assert response.status_code == 401
 
 
+@pytest.mark.unit
 def test_get_sweep_results_requires_auth():
     """Test that get sweep results requires authentication."""
     sweep_id = "fbecc235-07c9-4ae3-b5df-9df1017b2b1d"
@@ -85,6 +91,7 @@ def test_get_sweep_results_requires_auth():
     assert response.status_code == 401
 
 
+@pytest.mark.unit
 def test_get_best_results_requires_auth():
     """Test that get best results requires authentication."""
     sweep_id = "fbecc235-07c9-4ae3-b5df-9df1017b2b1d"
@@ -92,6 +99,7 @@ def test_get_best_results_requires_auth():
     assert response.status_code == 401
 
 
+@pytest.mark.unit
 def test_get_best_per_ticker_requires_auth():
     """Test that get best per ticker requires authentication."""
     sweep_id = "fbecc235-07c9-4ae3-b5df-9df1017b2b1d"
@@ -99,6 +107,7 @@ def test_get_best_per_ticker_requires_auth():
     assert response.status_code == 401
 
 
+@pytest.mark.unit
 def test_invalid_api_key_rejected():
     """Test that invalid API key is rejected."""
     headers = {"X-API-Key": "invalid-key-123"}
@@ -111,6 +120,7 @@ def test_invalid_api_key_rejected():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_list_sweeps_validates_limit_range():
     """Test that limit parameter is validated."""
     headers = {"X-API-Key": TEST_API_KEY}
@@ -128,6 +138,7 @@ def test_list_sweeps_validates_limit_range():
     assert response.status_code == 422
 
 
+@pytest.mark.unit
 def test_get_sweep_results_validates_limit_range():
     """Test that sweep results limit is validated."""
     headers = {"X-API-Key": TEST_API_KEY}
@@ -142,6 +153,7 @@ def test_get_sweep_results_validates_limit_range():
     assert response.status_code == 422
 
 
+@pytest.mark.unit
 def test_get_sweep_results_validates_offset():
     """Test that offset parameter is validated."""
     headers = {"X-API-Key": TEST_API_KEY}
@@ -152,6 +164,7 @@ def test_get_sweep_results_validates_offset():
     assert response.status_code == 422
 
 
+@pytest.mark.unit
 def test_get_latest_validates_limit_range():
     """Test that latest results limit is validated."""
     headers = {"X-API-Key": TEST_API_KEY}
@@ -166,6 +179,7 @@ def test_get_latest_validates_limit_range():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_openapi_defines_sweep_summary_schema():
     """Verify SweepSummaryResponse schema is in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -181,6 +195,7 @@ def test_openapi_defines_sweep_summary_schema():
         assert field in schema["properties"]
 
 
+@pytest.mark.unit
 def test_openapi_defines_sweep_results_schema():
     """Verify SweepResultsResponse schema is in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -196,6 +211,7 @@ def test_openapi_defines_sweep_results_schema():
         assert field in schema["properties"]
 
 
+@pytest.mark.unit
 def test_openapi_defines_best_results_schema():
     """Verify BestResultsResponse schema is in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -211,6 +227,7 @@ def test_openapi_defines_best_results_schema():
         assert field in schema["properties"]
 
 
+@pytest.mark.unit
 def test_openapi_defines_sweep_result_detail_schema():
     """Verify SweepResultDetail schema is in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -237,6 +254,7 @@ def test_openapi_defines_sweep_result_detail_schema():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_list_sweeps_accepts_limit_parameter():
     """Verify limit parameter is documented."""
     response = client.get("/api/openapi.json")
@@ -251,6 +269,7 @@ def test_list_sweeps_accepts_limit_parameter():
     assert limit_param["schema"]["type"] == "integer"
 
 
+@pytest.mark.unit
 def test_get_sweep_results_accepts_pagination():
     """Verify pagination parameters are documented."""
     response = client.get("/api/openapi.json")
@@ -265,6 +284,7 @@ def test_get_sweep_results_accepts_pagination():
     assert "ticker" in param_names
 
 
+@pytest.mark.unit
 def test_get_best_accepts_ticker_filter():
     """Verify ticker filter parameter is documented."""
     response = client.get("/api/openapi.json")
@@ -284,6 +304,7 @@ def test_get_best_accepts_ticker_filter():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_sweeps_endpoints_require_api_key_security():
     """Verify all sweep endpoints require API key in OpenAPI spec."""
     response = client.get("/api/openapi.json")
@@ -305,6 +326,7 @@ def test_sweeps_endpoints_require_api_key_security():
 # =============================================================================
 
 
+@pytest.mark.unit
 def test_endpoints_document_response_codes():
     """Verify endpoints document appropriate response codes."""
     response = client.get("/api/openapi.json")

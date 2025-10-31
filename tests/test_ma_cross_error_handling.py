@@ -21,6 +21,7 @@ from app.strategies.ma_cross.exceptions import (
 )
 
 
+@pytest.mark.integration
 class TestMACrossExceptions:
     """Test MA Cross specific exception types."""
 
@@ -104,6 +105,7 @@ class TestMACrossExceptions:
         assert error.details["error_type"] == "synthetic_ticker"
 
 
+@pytest.mark.integration
 class TestPortfolioOrchestratorErrorHandling:
     """Test error handling in PortfolioOrchestrator."""
 
@@ -159,6 +161,7 @@ class TestPortfolioOrchestratorErrorHandling:
             assert "Schema detection failed" in str(exc_info.value)
 
 
+@pytest.mark.integration
 class TestTickerProcessorErrorHandling:
     """Test error handling in TickerProcessor."""
 
@@ -239,6 +242,7 @@ class TestTickerProcessorErrorHandling:
         assert "Invalid synthetic ticker format" in str(exc_info.value)
 
 
+@pytest.mark.integration
 class TestMainScriptErrorHandling:
     """Test error handling in main script functions."""
 
@@ -330,6 +334,7 @@ class TestMainScriptErrorHandling:
             module.run_strategies({"TICKER": ["BTC-USD"]})
 
 
+@pytest.mark.integration
 class TestErrorContextIntegration:
     """Test integration with error context management."""
 
@@ -356,6 +361,7 @@ class TestErrorContextIntegration:
         assert "MACrossExecutionError" in source
 
 
+@pytest.mark.integration
 class TestErrorDetailEnrichment:
     """Test that errors include rich contextual information."""
 

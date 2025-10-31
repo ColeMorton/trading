@@ -8,6 +8,8 @@ on the full report generation system.
 import unittest
 from unittest.mock import Mock
 
+import pytest
+
 
 # Test the enhancement logic in isolation
 def enhance_recommended_parameters(strategy_data, parameter_variations, log_func):
@@ -68,6 +70,7 @@ def enhance_recommended_parameters(strategy_data, parameter_variations, log_func
     return strategy_data
 
 
+@pytest.mark.integration
 class TestMonteCarloEnhancementFocused(unittest.TestCase):
     """Focused test for Monte Carlo enhancement logic."""
 

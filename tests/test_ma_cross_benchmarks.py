@@ -19,6 +19,7 @@ import pytest
 from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 
 
+@pytest.mark.integration
 class TestMACrossPerformanceBenchmarks:
     """Performance benchmarks for MA Cross operations."""
 
@@ -110,6 +111,7 @@ class TestMACrossPerformanceBenchmarks:
         return strategies
 
 
+@pytest.mark.integration
 class TestSingleOperationBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark individual operations."""
 
@@ -175,6 +177,7 @@ class TestSingleOperationBenchmarks(TestMACrossPerformanceBenchmarks):
         assert filtered_df is not None
 
 
+@pytest.mark.integration
 class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark complete workflow operations."""
 
@@ -307,6 +310,7 @@ class TestWorkflowBenchmarks(TestMACrossPerformanceBenchmarks):
             assert result is not None
 
 
+@pytest.mark.integration
 class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark memory usage patterns."""
 
@@ -401,6 +405,7 @@ class TestMemoryBenchmarks(TestMACrossPerformanceBenchmarks):
             assert memory_increase < 50 * 1024 * 1024  # 50MB
 
 
+@pytest.mark.integration
 class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
     """Benchmark concurrency and parallelization."""
 
@@ -463,6 +468,7 @@ class TestConcurrencyBenchmarks(TestMACrossPerformanceBenchmarks):
             assert concurrent_time < sequential_time * 1.5
 
 
+@pytest.mark.integration
 class TestScalabilityBenchmarks(TestMACrossPerformanceBenchmarks):
     """Test scalability with increasing data sizes."""
 

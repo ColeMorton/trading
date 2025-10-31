@@ -32,6 +32,7 @@ from typer.testing import CliRunner
 from app.cli.commands.strategy import app as strategy_app
 
 
+@pytest.mark.integration
 class TestStrategyReviewCommand:
     """Test cases for strategy review command basic functionality."""
 
@@ -427,6 +428,7 @@ config:
         mock_service_instance.aggregate_portfolios_best.assert_called_once()
 
 
+@pytest.mark.integration
 class TestStrategyReviewBatchMode:
     """Test cases for strategy review command batch functionality."""
 
@@ -679,6 +681,7 @@ class TestStrategyReviewBatchMode:
         assert "error" in result.stdout.lower()
 
 
+@pytest.mark.integration
 class TestStrategyReviewEdgeCases:
     """Test edge cases and boundary conditions for review command."""
 

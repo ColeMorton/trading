@@ -27,6 +27,7 @@ from typer.testing import CliRunner
 from app.cli.commands.strategy import app as strategy_app
 
 
+@pytest.mark.integration
 class TestInvalidTickerHandling:
     """Test handling of invalid ticker symbols and data fetch failures."""
 
@@ -189,6 +190,7 @@ class TestInvalidTickerHandling:
         assert mock_get_data.call_count == 3  # Attempted all tickers
 
 
+@pytest.mark.integration
 class TestNetworkErrorHandling:
     """Test handling of network connectivity issues and timeouts."""
 
@@ -317,6 +319,7 @@ class TestNetworkErrorHandling:
         )
 
 
+@pytest.mark.integration
 class TestParameterValidationErrors:
     """Test handling of invalid parameter combinations and validation errors."""
 
@@ -455,6 +458,7 @@ class TestParameterValidationErrors:
         assert result2.exit_code != 0 or "error" in result2.stdout.lower()
 
 
+@pytest.mark.integration
 class TestFileSystemErrorHandling:
     """Test handling of file system permission and access issues."""
 
@@ -576,6 +580,7 @@ class TestFileSystemErrorHandling:
         assert result.exit_code == 0  # Should not crash completely
 
 
+@pytest.mark.integration
 class TestCorruptedConfigurationHandling:
     """Test handling of corrupted configuration files and parsing errors."""
 
@@ -699,6 +704,7 @@ config:
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
 
+@pytest.mark.integration
 class TestMemoryAndResourceConstraints:
     """Test handling of memory constraints and resource limitations."""
 
@@ -820,6 +826,7 @@ class TestMemoryAndResourceConstraints:
             )
 
 
+@pytest.mark.integration
 class TestServiceFailureHandling:
     """Test handling of service failures and graceful degradation."""
 
@@ -977,6 +984,7 @@ class TestServiceFailureHandling:
         )
 
 
+@pytest.mark.integration
 class TestRecoveryAndRetryMechanisms:
     """Test recovery mechanisms and retry logic for transient failures."""
 

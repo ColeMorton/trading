@@ -25,6 +25,7 @@ from app.concurrency.tools.monte_carlo.core import MonteCarloAnalyzer
 from app.tools.strategy.factory import StrategyFactory
 
 
+@pytest.mark.integration
 class TestMonteCarloStrategies:
     """Test Monte Carlo analysis with different strategy types."""
 
@@ -365,6 +366,7 @@ class TestMonteCarloStrategies:
             assert abs(noisy_long - original_params[1]) <= 5
 
 
+@pytest.mark.integration
 class TestStrategySpecificBehavior:
     """Test strategy-specific behavior in Monte Carlo analysis."""
 

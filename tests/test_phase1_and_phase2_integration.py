@@ -19,6 +19,7 @@ pytestmark = pytest.mark.skip(
 )
 
 
+@pytest.mark.integration
 class TestPhase1And2Integration:
     """Integration tests for combined Phase 1 and Phase 2 optimizations."""
 
@@ -255,6 +256,7 @@ class TestPhase1And2Integration:
         assert len(error_warnings) == 0  # No breaking changes
 
 
+@pytest.mark.integration
 class TestPhase1And2PerformanceRegression:
     """Performance regression tests for combined optimizations."""
 

@@ -9,6 +9,8 @@ import time
 import unittest
 from io import StringIO
 
+import pytest
+
 
 def run_comprehensive_tests():
     """Run all trade history export tests with detailed reporting."""

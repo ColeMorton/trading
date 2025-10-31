@@ -21,6 +21,7 @@ from app.tools.performance_profiler import (
 )
 
 
+@pytest.mark.integration
 class TestPerformanceMetrics:
     """Test PerformanceMetrics dataclass."""
 
@@ -50,6 +51,7 @@ class TestPerformanceMetrics:
         assert metrics.error_message is None
 
 
+@pytest.mark.integration
 class TestBenchmarkResult:
     """Test BenchmarkResult dataclass."""
 
@@ -78,6 +80,7 @@ class TestBenchmarkResult:
         assert result.meets_requirements is True
 
 
+@pytest.mark.integration
 class TestPerformanceProfiler:
     """Test PerformanceProfiler functionality."""
 
@@ -249,6 +252,7 @@ class TestPerformanceProfiler:
             assert metric["export_count"] == 4
 
 
+@pytest.mark.integration
 class TestTestDataGeneration:
     """Test test data generation functions."""
 
@@ -289,6 +293,7 @@ class TestTestDataGeneration:
             assert len(set(tickers)) == size  # All tickers should be unique
 
 
+@pytest.mark.integration
 class TestBenchmarking:
     """Test benchmarking functionality."""
 

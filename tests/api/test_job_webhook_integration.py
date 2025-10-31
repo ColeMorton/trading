@@ -15,6 +15,7 @@ from app.api.models.tables import Job, JobStatus
 from app.api.services.job_service import JobService
 
 
+@pytest.mark.integration
 class TestJobWebhookIntegration:
     """Test cases for job service webhook integration."""
 
@@ -195,6 +196,7 @@ class TestJobWebhookIntegration:
             # The actual update statement would include webhook_response_status=200
 
 
+@pytest.mark.integration
 class TestJobWebhookErrorHandling:
     """Test error handling in webhook integration."""
 

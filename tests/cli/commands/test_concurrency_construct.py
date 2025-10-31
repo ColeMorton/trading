@@ -25,6 +25,7 @@ from typer.testing import CliRunner
 from app.cli.commands.concurrency import app as concurrency_app
 
 
+@pytest.mark.integration
 class TestConcurrencyConstructCommand:
     """Test suite for concurrency construct CLI command."""
 
@@ -422,6 +423,7 @@ class TestConcurrencyConstructCommand:
                     pass
 
 
+@pytest.mark.integration
 class TestConstructPortfolioSizeComparison:
     """Tests specifically for portfolio size comparison logic."""
 
@@ -546,6 +548,7 @@ class TestConstructPortfolioSizeComparison:
                 assert call_count["count"] == 1
 
 
+@pytest.mark.integration
 class TestConstructDiversificationSorting:
     """Tests for diversification-weighted strategy sorting."""
 
@@ -614,6 +617,7 @@ class TestConstructDiversificationSorting:
             assert "diversification" in result.stdout.lower() or "Div" in result.stdout
 
 
+@pytest.mark.integration
 class TestConstructErrorScenarios:
     """Test error handling in construct command."""
 

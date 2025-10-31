@@ -19,6 +19,7 @@ sys.modules["app.tools.portfolio.filters"] = MagicMock()
 sys.modules["app.tools.portfolio.results"] = MagicMock()
 
 
+@pytest.mark.integration
 class TestExistingFilteringBehavior:
     """Test class for existing filtering behavior validation."""
 

@@ -16,10 +16,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
 from app.cli.services.portfolio_analysis_service import PortfolioAnalysisService
 
 
+@pytest.mark.integration
 class TestPortfolioAnalysisService(unittest.TestCase):
     """Test class for PortfolioAnalysisService."""
 
@@ -495,6 +497,7 @@ class TestPortfolioAnalysisService(unittest.TestCase):
             self.assertIn(expected_file, file_names)
 
 
+@pytest.mark.integration
 class TestPortfolioAnalysisServiceIntegration(unittest.TestCase):
     """Integration tests for PortfolioAnalysisService with realistic data."""
 

@@ -61,6 +61,8 @@ def sample_price_data():
 class TestMACrossConfig:
     """Test MA Cross configuration model."""
 
+    @pytest.mark.unit
+    @pytest.mark.smoke
     def test_config_creation(self, sample_config):
         """Test configuration creation."""
         assert sample_config.ticker == "AAPL"
@@ -70,6 +72,7 @@ class TestMACrossConfig:
         assert sample_config.direction == "Long"
         assert sample_config.windows == 89
 
+    @pytest.mark.unit
     def test_config_validation(self):
         """Test configuration creation with different parameters."""
         # Test that config accepts valid MA periods
@@ -90,6 +93,7 @@ class TestMACrossConfig:
         config3 = AnalysisConfig(ticker="MSFT", strategy_type="SMA")
         assert config3.ticker == "MSFT"
 
+    @pytest.mark.unit
     def test_config_defaults(self):
         """Test default configuration values."""
         config = AnalysisConfig(ticker="AAPL")
@@ -105,6 +109,8 @@ class TestMACrossConfig:
 class TestMACrossAnalyzer:
     """Test MA Cross analyzer functionality."""
 
+    @pytest.mark.unit
+    @pytest.mark.smoke
     def test_analyzer_initialization(self):
         """Test analyzer initialization."""
 
@@ -115,6 +121,7 @@ class TestMACrossAnalyzer:
         assert analyzer is not None
         # Analyzer doesn't store config, it takes config per analysis
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_analyze_single_ticker(
         self,
@@ -148,6 +155,7 @@ class TestMACrossAnalyzer:
         assert result.sharpe_ratio == 1.5
         mock_execute.assert_called_once()
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_sma_analysis_behavior(self, mock_execute, sample_price_data):
         """Test SMA analysis produces valid results."""
@@ -183,6 +191,7 @@ class TestMACrossAnalyzer:
         assert result.fast_period == 20
         assert result.slow_period == 50
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_ema_analysis_behavior(self, mock_execute, sample_price_data):
         """Test EMA analysis produces valid results."""
@@ -218,6 +227,7 @@ class TestMACrossAnalyzer:
         assert result.fast_period == 12
         assert result.slow_period == 26
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_signal_generation_behavior(self, mock_execute, sample_price_data):
         """Test signal generation through complete analysis."""
@@ -250,6 +260,7 @@ class TestMACrossAnalyzer:
         assert isinstance(result, TickerResult)
         assert result.total_trades >= 0  # Should have some trades with trend data
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_portfolio_metrics_calculation(self, mock_execute, sample_price_data):
         """Test portfolio metrics are calculated correctly."""
@@ -290,6 +301,7 @@ class TestMACrossAnalyzer:
         assert 0 <= result.win_rate_pct <= 100  # Win rate percentage
         assert result.max_drawdown_pct <= 0  # Drawdown should be negative
 
+    @pytest.mark.unit
     @patch("app.strategies.ma_cross.core.analyzer.execute_single_strategy")
     def test_multiple_ticker_analysis(self, mock_execute, sample_price_data):
         """Test analysis of multiple tickers."""
@@ -340,6 +352,7 @@ class TestMACrossAnalyzer:
         assert result.tickers[0].ticker == "AAPL"
         assert result.tickers[1].ticker == "MSFT"
 
+    @pytest.mark.unit
     def test_analyzer_cleanup(self):
         """Test analyzer cleanup functionality."""
 
@@ -354,6 +367,7 @@ class TestMACrossAnalyzer:
         # Should be able to call close multiple times
         analyzer.close()
 
+    @pytest.mark.unit
     def test_config_to_dict_behavior(self):
         """Test configuration dictionary conversion."""
         config = AnalysisConfig(
@@ -377,11 +391,14 @@ class TestMACrossAnalyzer:
 class TestScannerAdapter:
     """Test scanner adapter for CLI compatibility."""
 
+    @pytest.mark.unit
+    @pytest.mark.smoke
     def test_adapter_initialization(self):
         """Test adapter initialization."""
         adapter = ScannerAdapter()
         assert adapter is not None
 
+    @pytest.mark.unit
     def test_json_to_config_conversion(self):
         """Test JSON portfolio to config conversion."""
         json_portfolio = {
@@ -403,6 +420,7 @@ class TestScannerAdapter:
         assert config.fast_period == 20
         assert config.slow_period == 50
 
+    @pytest.mark.unit
     @patch("app.tools.download_data.download_data")
     def test_scan_portfolio(self, mock_download, sample_price_data):
         """Test portfolio scanning."""
@@ -426,6 +444,7 @@ class TestScannerAdapter:
         assert all("symbol" in r for r in results)
         assert all("total_return" in r for r in results)
 
+    @pytest.mark.unit
     def test_timeframe_conversion(self):
         """Test timeframe conversion."""
         adapter = ScannerAdapter()
@@ -438,6 +457,7 @@ class TestScannerAdapter:
         with pytest.raises(ValueError):
             adapter._convert_timeframe("X")  # Invalid timeframe
 
+    @pytest.mark.unit
     def test_result_formatting(self):
         """Test result formatting for CLI output."""
         portfolio_result = TickerResult(
@@ -469,6 +489,7 @@ class TestScannerAdapter:
 class TestSignalInfo:
     """Test signal info model."""
 
+    @pytest.mark.unit
     def test_signal_creation(self):
         """Test signal creation."""
         signal = SignalInfo(
@@ -484,6 +505,7 @@ class TestSignalInfo:
         assert signal.current_position == 1
         assert signal.price == 100.0
 
+    @pytest.mark.unit
     def test_signal_validation(self):
         """Test signal validation."""
         # Test valid signal creation

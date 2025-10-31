@@ -40,6 +40,7 @@ from app.concurrency.error_handling import (  # Exceptions; Context managers; De
 )
 
 
+@pytest.mark.integration
 class TestCustomExceptions:
     """Test custom exception classes."""
 
@@ -81,6 +82,7 @@ class TestCustomExceptions:
         assert error.context["actual_value"] == "123"
 
 
+@pytest.mark.integration
 class TestContextManagers:
     """Test error context managers."""
 
@@ -205,6 +207,7 @@ class TestContextManagers:
             tracker.record_error(ValueError("Error 3"))  # Should trigger exception
 
 
+@pytest.mark.integration
 class TestDecorators:
     """Test error handling decorators."""
 
@@ -344,6 +347,7 @@ class TestDecorators:
             test_func(data)
 
 
+@pytest.mark.integration
 class TestErrorRecovery:
     """Test error recovery mechanisms."""
 
@@ -453,6 +457,7 @@ class TestErrorRecovery:
         assert result == "fallback_value"
 
 
+@pytest.mark.integration
 class TestErrorRegistry:
     """Test error registry functionality."""
 
@@ -601,6 +606,7 @@ class TestErrorRegistry:
         assert registry.errors[0].operation == "new_op"
 
 
+@pytest.mark.integration
 class TestGlobalRegistry:
     """Test global registry functions."""
 
@@ -637,6 +643,7 @@ class TestGlobalRegistry:
             Path(export_path).unlink(missing_ok=True)
 
 
+@pytest.mark.integration
 class TestIntegration:
     """Integration tests combining multiple components."""
 

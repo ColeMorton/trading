@@ -8,6 +8,7 @@ import pytest
 from app.tools.accounts import DualPortfolioManager, PortfolioType
 
 
+@pytest.mark.integration
 class TestDualPortfolioManager:
     """Test cases for DualPortfolioManager."""
 

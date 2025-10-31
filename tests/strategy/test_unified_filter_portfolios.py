@@ -24,6 +24,7 @@ from app.tools.strategy.filter_portfolios import (
 )
 
 
+@pytest.mark.integration
 class TestPortfolioFilterConfig:
     """Test cases for PortfolioFilterConfig."""
 
@@ -72,6 +73,7 @@ class TestPortfolioFilterConfig:
         assert config.get_window_parameters() == ["Fast Period", "Slow Period"]
 
 
+@pytest.mark.integration
 class TestCreateMetricResult:
     """Test cases for create_metric_result function."""
 
@@ -142,6 +144,7 @@ class TestCreateMetricResult:
         assert result["Signal Period"] == 0  # Default value
 
 
+@pytest.mark.integration
 class TestGetMetricRows:
     """Test cases for get_metric_rows function."""
 
@@ -185,6 +188,7 @@ class TestGetMetricRows:
         assert rows == {}
 
 
+@pytest.mark.integration
 class TestCreateMetricResultFromRows:
     """Test cases for create_metric_result_from_rows function."""
 
@@ -241,6 +245,7 @@ class TestCreateMetricResultFromRows:
         assert not any(r["Metric Type"] == "Least Total Return [%]" for r in results)
 
 
+@pytest.mark.integration
 class TestProcessMetrics:
     """Test cases for _process_metrics function."""
 
@@ -299,6 +304,7 @@ class TestProcessMetrics:
         assert results == []
 
 
+@pytest.mark.integration
 class TestFilterPortfolios:
     """Test cases for filter_portfolios function."""
 
@@ -374,6 +380,7 @@ class TestFilterPortfolios:
         assert not result.is_empty()
 
 
+@pytest.mark.integration
 class TestFilterAndExportPortfolios:
     """Test cases for filter_and_export_portfolios function."""
 
@@ -434,6 +441,7 @@ class TestFilterAndExportPortfolios:
         assert result is False
 
 
+@pytest.mark.integration
 class TestConvenienceFunctions:
     """Test cases for convenience functions."""
 
@@ -492,6 +500,7 @@ class TestConvenienceFunctions:
         assert all("Total Return" in row["Metric Type"] for row in result.to_dicts())
 
 
+@pytest.mark.integration
 class TestPrepareResultDf:
     """Test cases for _prepare_result_df function."""
 

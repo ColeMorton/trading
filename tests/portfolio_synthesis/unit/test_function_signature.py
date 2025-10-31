@@ -12,6 +12,7 @@ import pytest
 from app.portfolio_synthesis.review import run
 
 
+@pytest.mark.unit
 class TestFunctionSignature:
     """Test function signature and parameter interface."""
 

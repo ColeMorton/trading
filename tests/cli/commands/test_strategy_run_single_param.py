@@ -25,6 +25,7 @@ from typer.testing import CliRunner
 from app.cli.commands.strategy import app as strategy_app
 
 
+@pytest.mark.integration
 class TestStrategyRunSingleParameter:
     """Test cases for strategy run command with single parameters."""
 
@@ -483,6 +484,7 @@ class TestStrategyRunSingleParameter:
         assert "BTC-USD" in result.stdout
 
 
+@pytest.mark.integration
 class TestStrategyRunEdgeCases:
     """Test edge cases for strategy run command."""
 
@@ -658,6 +660,7 @@ class TestStrategyRunEdgeCases:
         assert result.exit_code != 0 or result.exit_code == 0
 
 
+@pytest.mark.integration
 class TestStrategyRunCSVOutput:
     """Test CSV output generation for copy/paste functionality."""
 
@@ -877,6 +880,7 @@ class TestStrategyRunCSVOutput:
         assert len(data_row) == 1
 
 
+@pytest.mark.integration
 class TestStrategyRunZeroTradesHandling:
     """Test handling of scenarios where strategy generates 0 trades."""
 
@@ -1078,6 +1082,7 @@ class TestStrategyRunZeroTradesHandling:
         assert "AAPL,SMA,45,54" in csv_section
 
 
+@pytest.mark.integration
 class TestStrategyRunTradeStatistics:
     """Test trade statistics calculation and display."""
 
@@ -1289,6 +1294,7 @@ class TestStrategyRunTradeStatistics:
         assert "Worst Trade: -11.22%" in result.stdout or "11.22" in result.stdout
 
 
+@pytest.mark.integration
 class TestStrategyRunTimeframeParameters:
     """Test timeframe parameter functionality."""
 
@@ -1460,6 +1466,7 @@ class TestStrategyRunTimeframeParameters:
         assert captured_config.get("USE_HOURLY") is True
 
 
+@pytest.mark.integration
 class TestStrategyRunDirectionAndMarketType:
     """Test direction and market type parameters."""
 

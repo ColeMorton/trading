@@ -32,6 +32,7 @@ from app.tools.strategy.error_handling import (
 )
 
 
+@pytest.mark.integration
 class TestErrorSeverity:
     """Test cases for ErrorSeverity enum."""
 
@@ -44,6 +45,7 @@ class TestErrorSeverity:
         assert ErrorSeverity.CRITICAL.value == "critical"
 
 
+@pytest.mark.integration
 class TestStrategyErrorCode:
     """Test cases for StrategyErrorCode enum."""
 
@@ -75,6 +77,7 @@ class TestStrategyErrorCode:
         assert StrategyErrorCode.BACKTESTING_FAILED.value == "BACKTESTING_FAILED"
 
 
+@pytest.mark.integration
 class TestStrategyError:
     """Test cases for StrategyError base exception."""
 
@@ -126,6 +129,7 @@ class TestStrategyError:
         }
 
 
+@pytest.mark.integration
 class TestSpecificErrorTypes:
     """Test cases for specific error type classes."""
 
@@ -184,6 +188,7 @@ class TestSpecificErrorTypes:
         assert error.error_code == StrategyErrorCode.INVALID_CONFIGURATION
 
 
+@pytest.mark.integration
 class TestErrorHandlerBase:
     """Test cases for ErrorHandlerBase abstract class."""
 
@@ -205,6 +210,7 @@ class TestErrorHandlerBase:
         assert all(count == 0 for count in handler.error_counts.values())
 
 
+@pytest.mark.integration
 class TestStandardErrorHandler:
     """Test cases for StandardErrorHandler."""
 
@@ -347,6 +353,7 @@ class TestStandardErrorHandler:
         assert all(count == 0 for count in summary.values())
 
 
+@pytest.mark.integration
 class TestPermissiveErrorHandler:
     """Test cases for PermissiveErrorHandler."""
 
@@ -412,6 +419,7 @@ class TestPermissiveErrorHandler:
         assert len(handler.collected_errors) == 0
 
 
+@pytest.mark.integration
 class TestErrorHandlerFactory:
     """Test cases for ErrorHandlerFactory."""
 
@@ -456,6 +464,7 @@ class TestErrorHandlerFactory:
         assert len(handlers) == 2
 
 
+@pytest.mark.integration
 class TestConvenienceFunctions:
     """Test cases for convenience functions."""
 
@@ -501,6 +510,7 @@ class TestConvenienceFunctions:
         assert result["message"] == "Test error"
 
 
+@pytest.mark.integration
 class TestValidationFunctions:
     """Test cases for validation functions."""
 

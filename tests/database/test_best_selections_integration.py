@@ -91,6 +91,7 @@ def sample_sweep_results_for_best():
     ]
 
 
+@pytest.mark.unit
 class TestBestSelectionIntegration:
     """Integration tests for best selection functionality."""
 

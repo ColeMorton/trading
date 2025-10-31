@@ -15,6 +15,7 @@ import pytest
 from app.portfolio_synthesis.review import run
 
 
+@pytest.mark.integration
 class TestEdgeCasesAndErrorHandling:
     """Test edge cases, boundary conditions, and error handling."""
 

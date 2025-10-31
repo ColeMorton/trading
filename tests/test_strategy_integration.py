@@ -24,6 +24,7 @@ def create_test_data(num_days=100):
     return pl.DataFrame({"timestamp": dates, "close": prices})
 
 
+@pytest.mark.integration
 class TestFactoryIntegrationWithExistingCode:
     """Test that factory pattern works with existing code paths."""
 

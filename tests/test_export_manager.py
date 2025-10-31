@@ -16,6 +16,7 @@ from app.tools.export.interfaces import ExportContext, ExportFormat
 from app.tools.export.manager import ExportManager
 
 
+@pytest.mark.integration
 class TestExportManager:
     """Test suite for ExportManager functionality."""
 
@@ -313,6 +314,7 @@ class TestExportManager:
             assert results[1].path.endswith(".json")
 
 
+@pytest.mark.integration
 class TestCSVExporter:
     """Test suite for CSV exporter functionality."""
 
@@ -360,6 +362,7 @@ class TestCSVExporter:
             assert any("Risk metrics missing" in str(call) for call in warning_calls)
 
 
+@pytest.mark.integration
 class TestJSONExporter:
     """Test suite for JSON exporter functionality."""
 

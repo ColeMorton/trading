@@ -24,6 +24,7 @@ from app.concurrency.tools.monte_carlo.core import MonteCarloPortfolioResult
 from app.concurrency.tools.monte_carlo.manager import PortfolioMonteCarloManager
 
 
+@pytest.mark.integration
 class TestPortfolioMonteCarloManager:
     """Test the portfolio-level Monte Carlo manager."""
 
@@ -390,6 +391,7 @@ class TestPortfolioMonteCarloManager:
         assert len(recommendations) == 0
 
 
+@pytest.mark.integration
 class TestPortfolioMonteCarloIntegration:
     """Test integration scenarios for portfolio Monte Carlo analysis."""
 
@@ -547,6 +549,7 @@ class TestPortfolioMonteCarloIntegration:
         assert "strategy2" in manager.progress_tracker.errors
 
 
+@pytest.mark.integration
 class TestMonteCarloManagerEdgeCases:
     """Test edge cases in Monte Carlo manager."""
 

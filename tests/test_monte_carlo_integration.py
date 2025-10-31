@@ -28,6 +28,7 @@ from app.concurrency.tools.report.generator import generate_json_report
 from app.concurrency.tools.runner import run_analysis
 
 
+@pytest.mark.integration
 class TestMonteCarloReportIntegration:
     """Test Monte Carlo integration with report generation."""
 
@@ -170,6 +171,7 @@ class TestMonteCarloReportIntegration:
         assert "portfolio_metrics" in report
 
 
+@pytest.mark.integration
 class TestMonteCarloRunnerIntegration:
     """Test Monte Carlo integration with the runner module."""
 
@@ -339,6 +341,7 @@ class TestMonteCarloRunnerIntegration:
         assert isinstance(results, dict)
 
 
+@pytest.mark.integration
 class TestMonteCarloCSVPortfolioIntegration:
     """Test Monte Carlo integration with CSV portfolio files."""
 
@@ -416,6 +419,7 @@ class TestMonteCarloCSVPortfolioIntegration:
         assert "_0" in strategy_id
 
 
+@pytest.mark.integration
 class TestMonteCarloEndToEndWorkflow:
     """Test complete end-to-end Monte Carlo workflow."""
 

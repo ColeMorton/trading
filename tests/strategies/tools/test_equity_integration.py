@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from app.strategies.tools.summary_processing import (
     _extract_equity_data_if_enabled,
@@ -17,6 +18,7 @@ from app.strategies.tools.summary_processing import (
 from app.tools.equity_data_extractor import EquityData, MetricType
 
 
+@pytest.mark.integration
 class TestEquityIntegration:
     """Test equity data integration with strategy processing."""
 

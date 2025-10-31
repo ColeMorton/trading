@@ -27,6 +27,7 @@ from typer.testing import CliRunner
 from app.cli.commands.concurrency import app as concurrency_app
 
 
+@pytest.mark.integration
 class TestConcurrencyAnalyzeCommand:
     """Test suite for concurrency analyze CLI command."""
 
@@ -255,6 +256,7 @@ class TestConcurrencyAnalyzeCommand:
         assert result.exit_code == 1
 
 
+@pytest.mark.integration
 class TestConcurrencyReviewCommand:
     """Test suite for concurrency review CLI command."""
 
@@ -337,6 +339,7 @@ class TestConcurrencyReviewCommand:
             temp_file.unlink(missing_ok=True)
 
 
+@pytest.mark.integration
 class TestConcurrencyHelperFunctions:
     """Test helper functions used by concurrency commands."""
 
@@ -404,6 +407,7 @@ TEST,SMA,20,60,1.4""",
                 pass  # Placeholder for full implementation
 
 
+@pytest.mark.integration
 class TestConcurrencyMonteCarloCommand:
     """Test suite for concurrency monte-carlo CLI command."""
 
@@ -419,6 +423,7 @@ class TestConcurrencyMonteCarloCommand:
         assert "monte" in result.stdout.lower() or "simulation" in result.stdout.lower()
 
 
+@pytest.mark.integration
 class TestConcurrencyHealthCommand:
     """Test suite for concurrency health CLI command."""
 
@@ -448,6 +453,7 @@ class TestConcurrencyHealthCommand:
         # (exact behavior depends on system state)
 
 
+@pytest.mark.integration
 class TestConcurrencyOptimizeCommand:
     """Test suite for concurrency optimize CLI command."""
 
@@ -470,6 +476,7 @@ class TestConcurrencyOptimizeCommand:
         assert result.exit_code != 0 or "usage" in result.stdout.lower()
 
 
+@pytest.mark.integration
 class TestConcurrencyConfigurationOverrides:
     """Test configuration override mechanics."""
 

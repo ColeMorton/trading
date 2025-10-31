@@ -28,6 +28,7 @@ from app.tools.equity_export import (
 from app.tools.exceptions import TradingSystemError
 
 
+@pytest.mark.integration
 class TestEquityExportFilenames:
     """Test filename generation functionality."""
 
@@ -60,6 +61,7 @@ class TestEquityExportFilenames:
         assert filename == "TESLA_SMA_15_30_0.csv"
 
 
+@pytest.mark.integration
 class TestEquityExportDirectories:
     """Test directory handling functionality."""
 
@@ -132,6 +134,7 @@ class TestEquityExportDirectories:
             assert export_dir.is_dir()
 
 
+@pytest.mark.integration
 class TestEquityDataExport:
     """Test equity data CSV export functionality."""
 
@@ -280,6 +283,7 @@ class TestEquityDataExport:
             )
 
 
+@pytest.mark.integration
 class TestEquityBatchExport:
     """Test batch export functionality."""
 
@@ -410,6 +414,7 @@ class TestEquityBatchExport:
         assert len(results["errors"]) == 1
 
 
+@pytest.mark.integration
 class TestEquityExportValidation:
     """Test validation functionality."""
 
@@ -456,6 +461,7 @@ class TestEquityExportValidation:
         assert result is False
 
 
+@pytest.mark.integration
 class TestEquityExportUtilities:
     """Test utility functions."""
 

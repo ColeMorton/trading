@@ -47,6 +47,7 @@ from app.cli.services.batch_processing_service import BatchProcessingService
 from app.tools.console_logging import ConsoleLogger
 
 
+@pytest.mark.integration
 class TestEndToEndBatchWorkflows:
     """Integration tests for complete batch processing workflows."""
 
@@ -550,6 +551,7 @@ class TestEndToEndBatchWorkflows:
             Path(f.name).unlink()
 
 
+@pytest.mark.integration
 class TestBatchWorkflowStateConsistency:
     """Test state consistency across complex batch workflows."""
 

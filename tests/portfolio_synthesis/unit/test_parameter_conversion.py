@@ -27,6 +27,7 @@ def create_mock_portfolio():
     return mock_portfolio
 
 
+@pytest.mark.integration
 class TestParameterConversionLogic:
     """Test parameter conversion from new format to legacy format."""
 

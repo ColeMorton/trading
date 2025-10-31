@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import Mock
 
 import pandas as pd
+import pytest
 import vectorbt as vbt
 
 from app.tools.trade_history_exporter import (
@@ -23,6 +24,7 @@ from app.tools.trade_history_exporter import (
 )
 
 
+@pytest.mark.integration
 class TestTradeHistoryPerformance(unittest.TestCase):
     """Performance tests for trade history export functionality."""
 
@@ -340,6 +342,7 @@ class TestTradeHistoryPerformance(unittest.TestCase):
         self.assertEqual(len(set(filenames)), len(filenames))
 
 
+@pytest.mark.integration
 class TestTradeHistoryDataValidation(unittest.TestCase):
     """Data validation tests for trade history export."""
 

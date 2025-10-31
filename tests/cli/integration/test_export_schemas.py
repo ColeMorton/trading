@@ -24,6 +24,7 @@ from app.tools.strategy.export_portfolios import export_portfolios
 
 
 @pytest.mark.xdist_group(name="csv_schema")
+@pytest.mark.integration
 class TestExportedCSVSchemaValidation:
     """Test actual CSV file schema validation."""
 

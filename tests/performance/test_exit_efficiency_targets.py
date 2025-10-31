@@ -225,6 +225,7 @@ def sample_positions_high_performance():
     ]
 
 
+@pytest.mark.integration
 class TestExitEfficiencyTargets:
     """Test exit efficiency improvement from 57% to 85%."""
 
@@ -338,6 +339,7 @@ class TestExitEfficiencyTargets:
             )
 
 
+@pytest.mark.integration
 class TestPortfolioHealthScore:
     """Test portfolio health score improvement from 68 to 85+."""
 
@@ -403,6 +405,7 @@ class TestPortfolioHealthScore:
         )
 
 
+@pytest.mark.integration
 class TestSharpeRatioImprovement:
     """Test 25%+ Sharpe ratio improvement."""
 
@@ -466,6 +469,7 @@ class TestSharpeRatioImprovement:
         )
 
 
+@pytest.mark.integration
 class TestSystemIntegrationPerformance:
     """Test integrated system performance validation."""
 

@@ -10,6 +10,8 @@ import sys
 import unittest
 from unittest.mock import Mock, patch
 
+import pytest
+
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -18,6 +20,7 @@ from app.strategies.ma_cross.config_types import Config
 from app.tools.orchestration import PortfolioOrchestrator
 
 
+@pytest.mark.integration
 class TestOrchestratorIntegration(unittest.TestCase):
     """Test the integration of PortfolioOrchestrator with existing code."""
 

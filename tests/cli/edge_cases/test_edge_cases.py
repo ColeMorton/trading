@@ -25,6 +25,7 @@ from typer.testing import CliRunner
 from app.cli.commands.strategy import app as strategy_app
 
 
+@pytest.mark.integration
 class TestSyntheticTickerHandling:
     """Test handling of synthetic ticker formats and unusual ticker symbols."""
 
@@ -285,6 +286,7 @@ class TestSyntheticTickerHandling:
             mock_get_data.reset_mock()
 
 
+@pytest.mark.integration
 class TestSpecialCharacterHandling:
     """Test handling of special characters in parameters and file paths."""
 
@@ -400,6 +402,7 @@ class TestSpecialCharacterHandling:
             assert "injected" not in result.stdout
 
 
+@pytest.mark.integration
 class TestExtremeParameterValues:
     """Test handling of extreme parameter values and boundary conditions."""
 
@@ -570,6 +573,7 @@ class TestExtremeParameterValues:
         assert result.exit_code is not None
 
 
+@pytest.mark.integration
 class TestEmptyResultSetHandling:
     """Test handling of empty result sets and minimal data scenarios."""
 
@@ -816,6 +820,7 @@ class TestEmptyResultSetHandling:
         assert result.exit_code == 0
 
 
+@pytest.mark.integration
 class TestDateTimeEdgeCases:
     """Test handling of timezone and date edge cases."""
 
@@ -1021,6 +1026,7 @@ class TestDateTimeEdgeCases:
         assert result.exit_code == 0
 
 
+@pytest.mark.integration
 class TestUnusualMarketConditions:
     """Test handling of unusual market conditions and data patterns."""
 
@@ -1253,6 +1259,7 @@ class TestUnusualMarketConditions:
         assert result.exit_code == 0
 
 
+@pytest.mark.integration
 class TestLargeScaleDataProcessing:
     """Test handling of large-scale data processing limits."""
 

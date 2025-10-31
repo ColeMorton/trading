@@ -23,6 +23,7 @@ from app.strategies.comp.calculator import (
 )
 
 
+@pytest.mark.integration
 class TestLoadComponentStrategies:
     """Test cases for loading component strategies from CSV."""
 
@@ -77,6 +78,7 @@ class TestLoadComponentStrategies:
             Path(csv_path).unlink()
 
 
+@pytest.mark.integration
 class TestCalculateComponentPosition:
     """Test cases for calculating component positions."""
 
@@ -209,6 +211,7 @@ class TestCalculateComponentPosition:
         log_func.assert_called()
 
 
+@pytest.mark.integration
 class TestAggregatePositions:
     """Test cases for aggregating component positions."""
 
@@ -266,6 +269,7 @@ class TestAggregatePositions:
         assert all(result["num_in_position"] == 3)
 
 
+@pytest.mark.integration
 class TestGenerateCompoundSignals:
     """Test cases for generating compound signals."""
 
@@ -368,6 +372,7 @@ class TestGenerateCompoundSignals:
         assert all(result["Signal"] == 1)
 
 
+@pytest.mark.integration
 class TestCalculateCompoundStrategy:
     """Test cases for full compound strategy calculation."""
 

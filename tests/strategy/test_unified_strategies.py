@@ -20,6 +20,7 @@ from app.tools.strategy.unified_strategies import (
 )
 
 
+@pytest.mark.integration
 class TestUnifiedMAStrategy:
     """Test cases for UnifiedMAStrategy implementation."""
 
@@ -149,6 +150,7 @@ class TestUnifiedMAStrategy:
             strategy.calculate(invalid_data, 10, 50, config, mock_log)
 
 
+@pytest.mark.integration
 class TestUnifiedMACDStrategy:
     """Test cases for UnifiedMACDStrategy implementation."""
 
@@ -201,6 +203,7 @@ class TestUnifiedMACDStrategy:
             strategy.calculate(test_data, 12, 26, config, mock_log)
 
 
+@pytest.mark.integration
 class TestUnifiedMeanReversionStrategy:
     """Test cases for UnifiedMeanReversionStrategy implementation."""
 
@@ -231,6 +234,7 @@ class TestUnifiedMeanReversionStrategy:
         assert "RSI_OVERBOUGHT" in ranges
 
 
+@pytest.mark.integration
 class TestUnifiedRangeStrategy:
     """Test cases for UnifiedRangeStrategy implementation."""
 
@@ -246,6 +250,7 @@ class TestUnifiedRangeStrategy:
         assert strategy.get_strategy_type() == "RANGE"
 
 
+@pytest.mark.integration
 class TestStrategyFactory:
     """Test cases for updated StrategyFactory with unified strategies."""
 
@@ -303,6 +308,7 @@ class TestStrategyFactory:
         assert "RANGE" in strategies
 
 
+@pytest.mark.integration
 class TestStrategyAdapter:
     """Test cases for StrategyAdapter."""
 

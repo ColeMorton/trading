@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from app.tools.equity_data_extractor import EquityData
 from app.tools.equity_memory_optimizer import (
@@ -20,6 +21,7 @@ from app.tools.equity_memory_optimizer import (
 )
 
 
+@pytest.mark.integration
 class TestMemoryOptimizationConfig:
     """Test MemoryOptimizationConfig dataclass."""
 
@@ -53,6 +55,7 @@ class TestMemoryOptimizationConfig:
         assert config.enable_progress_logging is False
 
 
+@pytest.mark.integration
 class TestEquityDataOptimizer:
     """Test EquityDataOptimizer functionality."""
 
@@ -180,6 +183,7 @@ class TestEquityDataOptimizer:
         assert float64_memory > float32_memory
 
 
+@pytest.mark.integration
 class TestStreamingEquityExporter:
     """Test StreamingEquityExporter functionality."""
 
@@ -380,6 +384,7 @@ class TestStreamingEquityExporter:
         assert results["error_count"] == 0
 
 
+@pytest.mark.integration
 class TestMemoryEfficientExportFunction:
     """Test memory-efficient export function creation."""
 
@@ -424,6 +429,7 @@ class TestMemoryEfficientExportFunction:
         assert result == {"exported_count": 5}
 
 
+@pytest.mark.integration
 class TestMemoryAnalysis:
     """Test memory analysis functionality."""
 

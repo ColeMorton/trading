@@ -21,6 +21,7 @@ from app.tools.strategy.signal_processing import (
 )
 
 
+@pytest.mark.integration
 class TestSignalProcessorBase:
     """Test cases for SignalProcessorBase abstract class."""
 
@@ -30,6 +31,7 @@ class TestSignalProcessorBase:
             SignalProcessorBase("SMA")
 
 
+@pytest.mark.integration
 class TestMASignalProcessor:
     """Test cases for MASignalProcessor."""
 
@@ -117,6 +119,7 @@ class TestMASignalProcessor:
         )
 
 
+@pytest.mark.integration
 class TestMACDSignalProcessor:
     """Test cases for MACDSignalProcessor."""
 
@@ -154,6 +157,7 @@ class TestMACDSignalProcessor:
         mock_generate.assert_called_once_with(config, mock_log)
 
 
+@pytest.mark.integration
 class TestMeanReversionSignalProcessor:
     """Test cases for MeanReversionSignalProcessor."""
 
@@ -172,6 +176,7 @@ class TestMeanReversionSignalProcessor:
         assert params["change_pct"] == 0.05
 
 
+@pytest.mark.integration
 class TestSignalProcessorFactory:
     """Test cases for SignalProcessorFactory."""
 
@@ -218,6 +223,7 @@ class TestSignalProcessorFactory:
         assert all(strategy in strategies for strategy in expected)
 
 
+@pytest.mark.integration
 class TestUnifiedSignalProcessing:
     """Test cases for unified signal processing functionality."""
 
@@ -293,6 +299,7 @@ class TestUnifiedSignalProcessing:
         assert len(result) == 1
 
 
+@pytest.mark.integration
 class TestProcessCurrentSignalsIntegration:
     """Integration tests for process_current_signals method."""
 
@@ -384,6 +391,7 @@ class TestProcessCurrentSignalsIntegration:
         assert "AAPL" in error_calls[-1][0][0]
 
 
+@pytest.mark.integration
 class TestProcessTickerPortfoliosIntegration:
     """Integration tests for process_ticker_portfolios method."""
 

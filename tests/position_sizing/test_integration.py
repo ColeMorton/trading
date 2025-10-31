@@ -13,6 +13,7 @@ from app.tools.position_sizing.risk_allocation import RiskAllocationCalculator
 from app.tools.risk.cvar_calculator import CVaRCalculator
 
 
+@pytest.mark.integration
 class TestPositionSizingIntegration:
     """Integration tests for Phase 1 position sizing components."""
 

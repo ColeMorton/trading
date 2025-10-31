@@ -21,6 +21,7 @@ from app.strategies.comp.strategy import (
 )
 
 
+@pytest.mark.integration
 class TestCalculateCompScore:
     """Test cases for COMP score calculation."""
 
@@ -97,6 +98,7 @@ class TestCalculateCompScore:
         assert score >= 0
 
 
+@pytest.mark.integration
 class TestGetStrategiesCSVPath:
     """Test cases for CSV path resolution."""
 
@@ -123,6 +125,7 @@ class TestGetStrategiesCSVPath:
         assert str(path) == "/custom/path/strategies.csv"
 
 
+@pytest.mark.integration
 class TestExportCompoundResults:
     """Test cases for exporting results to CSV."""
 
@@ -185,6 +188,7 @@ class TestExportCompoundResults:
             assert output_dir.exists()
 
 
+@pytest.mark.integration
 class TestProcessTicker:
     """Test cases for processing individual tickers."""
 
@@ -335,6 +339,7 @@ class TestProcessTicker:
             Path(csv_path).unlink()
 
 
+@pytest.mark.integration
 class TestRun:
     """Test cases for main run function."""
 
@@ -402,6 +407,7 @@ class TestRun:
             mock_process.assert_called_once()
 
 
+@pytest.mark.integration
 class TestCompStrategyIntegration:
     """Integration tests for COMP strategy components."""
 

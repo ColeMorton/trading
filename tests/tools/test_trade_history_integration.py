@@ -13,12 +13,14 @@ from unittest.mock import patch
 
 import pandas as pd
 import polars as pl
+import pytest
 import vectorbt as vbt
 
 from app.tools.backtest_strategy import backtest_strategy
 from app.tools.trade_history_exporter import generate_trade_filename
 
 
+@pytest.mark.integration
 class TestTradeHistoryBacktestIntegration(unittest.TestCase):
     """Integration tests for trade history export with backtesting."""
 

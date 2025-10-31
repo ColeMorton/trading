@@ -12,11 +12,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 from typer.testing import CliRunner
 
 from app.cli.services.portfolio_analysis_service import PortfolioAnalysisService
 
 
+@pytest.mark.integration
 class TestPortfolioAnalysisIntegration(unittest.TestCase):
     """Integration tests for portfolio analysis service with CLI commands."""
 
@@ -340,6 +342,7 @@ class TestPortfolioAnalysisIntegration(unittest.TestCase):
         self.assertGreater(stats["best_return"], 0)
 
 
+@pytest.mark.integration
 class TestPortfolioAnalysisServiceEdgeCases(unittest.TestCase):
     """Test edge cases and error conditions for PortfolioAnalysisService."""
 

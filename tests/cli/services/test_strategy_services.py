@@ -21,6 +21,7 @@ from app.cli.models.strategy import (
 from app.cli.services.strategy_services import MACDStrategyService, MAStrategyService
 
 
+@pytest.mark.integration
 class TestMAStrategyService:
     """Test cases for MAStrategyService."""
 
@@ -246,6 +247,7 @@ class TestMAStrategyService:
         assert call_args["TICKER"] == ["AAPL"]  # Should be converted to list
 
 
+@pytest.mark.integration
 class TestMACDStrategyService:
     """Test cases for MACDStrategyService."""
 
@@ -465,6 +467,7 @@ class TestMACDStrategyService:
         assert legacy_config["YEARS"] == 5
 
 
+@pytest.mark.integration
 class TestStrategyServiceIntegration:
     """Integration tests for strategy services."""
 

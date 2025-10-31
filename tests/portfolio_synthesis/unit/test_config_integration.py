@@ -12,6 +12,7 @@ import pytest
 from app.portfolio_synthesis.review import run
 
 
+@pytest.mark.integration
 class TestConfigIntegration:
     """Test configuration integration and parameter precedence."""
 

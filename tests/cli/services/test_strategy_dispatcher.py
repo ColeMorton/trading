@@ -23,6 +23,7 @@ from app.cli.services.strategy_dispatcher import StrategyDispatcher
 from app.cli.services.strategy_services import MACDStrategyService, MAStrategyService
 
 
+@pytest.mark.integration
 class TestStrategyDispatcher:
     """Test cases for StrategyDispatcher."""
 
@@ -297,6 +298,7 @@ class TestStrategyDispatcher:
         )
 
 
+@pytest.mark.integration
 class TestStrategyDispatcherEdgeCases:
     """Test edge cases and error scenarios for StrategyDispatcher."""
 
@@ -417,6 +419,7 @@ class TestStrategyDispatcherEdgeCases:
         assert isinstance(service, MAStrategyService)
 
 
+@pytest.mark.integration
 class TestStrategyDispatcherPerformance:
     """Performance-related tests for StrategyDispatcher."""
 

@@ -19,6 +19,7 @@ from app.tools.strategy.concrete import EMAStrategy, SMAStrategy
 from app.tools.strategy.factory import StrategyFactory
 
 
+@pytest.mark.integration
 class TestStrategyFactory:
     """Test cases for the StrategyFactory class."""
 
@@ -97,6 +98,7 @@ class TestStrategyFactory:
         assert "CUSTOM" not in factory._strategies
 
 
+@pytest.mark.integration
 class TestBaseStrategy:
     """Test cases for the BaseStrategy abstract class."""
 
@@ -169,6 +171,7 @@ class TestBaseStrategy:
         assert strategy.validate_data(None, log) is False
 
 
+@pytest.mark.integration
 class TestSMAStrategy:
     """Test cases for the SMAStrategy class."""
 
@@ -309,6 +312,7 @@ class TestSMAStrategy:
             )
 
 
+@pytest.mark.integration
 class TestEMAStrategy:
     """Test cases for the EMAStrategy class."""
 
@@ -365,6 +369,7 @@ class TestEMAStrategy:
             )
 
 
+@pytest.mark.integration
 class TestStrategyIntegration:
     """Integration tests for strategy factory pattern."""
 

@@ -19,6 +19,7 @@ from app.tools.market_data_analyzer import (
 )
 
 
+@pytest.mark.integration
 class TestMarketDataAnalyzerInitialization:
     """Test MarketDataAnalyzer initialization and basic setup."""
 
@@ -55,6 +56,7 @@ class TestMarketDataAnalyzerInitialization:
         assert analyzer.logger == custom_logger
 
 
+@pytest.mark.integration
 class TestMarketDataFetching:
     """Test data fetching functionality."""
 
@@ -125,6 +127,7 @@ class TestMarketDataFetching:
         assert analyzer.price_data is None
 
 
+@pytest.mark.integration
 class TestReturnsCalculation:
     """Test returns calculation functionality."""
 
@@ -195,6 +198,7 @@ class TestReturnsCalculation:
             assert not np.any(np.isnan(analyzer.returns))
 
 
+@pytest.mark.integration
 class TestDistributionAnalysis:
     """Test distribution analysis functionality."""
 
@@ -249,6 +253,7 @@ class TestDistributionAnalysis:
             assert result["sample_size"] == 1
 
 
+@pytest.mark.integration
 class TestFullAnalysisWorkflow:
     """Test complete analysis workflow."""
 
@@ -326,6 +331,7 @@ class TestFullAnalysisWorkflow:
         assert "analysis_timestamp" in result
 
 
+@pytest.mark.integration
 class TestErrorHandling:
     """Test error handling and edge cases."""
 

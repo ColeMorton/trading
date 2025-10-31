@@ -24,6 +24,7 @@ from app.tools.strategy.export_portfolios import export_portfolios
 
 
 @pytest.mark.xdist_group(name="export_matrix")
+@pytest.mark.integration
 class TestExportTypeMatrix:
     """Test matrix of all strategy type × export type combinations."""
 
@@ -709,6 +710,7 @@ class TestExportTypeMatrix:
 
 
 @pytest.mark.xdist_group(name="export_schema")
+@pytest.mark.integration
 class TestExportSchemaConsistency:
     """Test schema consistency across different export types."""
 

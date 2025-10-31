@@ -13,6 +13,7 @@ import pytest
 from app.tools.market_data_analyzer import MarketDataAnalyzer
 
 
+@pytest.mark.integration
 class TestMomentumMetricsCalculation:
     """Test momentum metrics calculation functionality."""
 
@@ -126,6 +127,7 @@ class TestMomentumMetricsCalculation:
         assert result["historical_avg_return"] == 0.0
 
 
+@pytest.mark.integration
 class TestRollingMomentumCalculation:
     """Test rolling momentum calculation method."""
 
@@ -185,6 +187,7 @@ class TestRollingMomentumCalculation:
         assert not np.isnan(result_60d)
 
 
+@pytest.mark.integration
 class TestPriceAcceleration:
     """Test price acceleration calculation within momentum metrics."""
 
@@ -264,6 +267,7 @@ class TestPriceAcceleration:
         assert result["price_acceleration"] == 0.0
 
 
+@pytest.mark.integration
 class TestMomentumErrorHandling:
     """Test error handling in momentum calculations."""
 
@@ -324,6 +328,7 @@ class TestMomentumErrorHandling:
         analyzer.logger.warning.assert_called_once()
 
 
+@pytest.mark.integration
 class TestMomentumIntegration:
     """Test momentum calculation integration with other components."""
 

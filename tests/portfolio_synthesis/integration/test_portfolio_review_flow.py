@@ -15,6 +15,7 @@ import pytest
 from app.portfolio_synthesis.review import CONFIG_OP, process_strategy, run
 
 
+@pytest.mark.integration
 class TestPortfolioReviewFlowIntegration:
     """Test complete portfolio synthesis execution flows."""
 

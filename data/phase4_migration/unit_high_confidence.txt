@@ -1,0 +1,13 @@
+tests/portfolio_testing/test_riskfolio_import.py
+tests/database/test_best_selections_integration.py
+tests/database/test_strategy_sweep_metrics_integration.py
+tests/unit/test_logging_factory.py
+tests/unit/test_console_display.py
+tests/tools/test_expectancy_integration.py
+tests/api/test_sse_proxy.py
+tests/api/test_sweeps_router.py
+tests/api/test_auth_endpoints.py
+tests/unit/schemas/test_sweep_schemas.py
+tests/unit/calculations/test_ma_calculations_redesign.py
+tests/portfolio_synthesis/unit/test_function_signature.py
+tests/portfolio_synthesis/fixtures/test_portfolio_configs.py

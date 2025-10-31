@@ -10,6 +10,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
 from app.tools.expectancy import calculate_expectancy
@@ -25,6 +26,7 @@ class MockLogger:
         self.logs.append((message, level))
 
 
+@pytest.mark.unit
 class TestExpectancyIntegration(unittest.TestCase):
     """Test cases for expectancy calculation consistency."""
 

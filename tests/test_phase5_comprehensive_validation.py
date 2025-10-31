@@ -18,6 +18,7 @@ from app.tools.portfolio.base_extended_schemas import (
 )
 
 
+@pytest.mark.integration
 class TestPhase5ComprehensiveValidation:
     """Comprehensive validation tests for Phase 5 completion."""
 

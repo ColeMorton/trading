@@ -18,6 +18,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 import polars as pl
+import pytest
 from typer.testing import CliRunner
 
 from app.cli.models.strategy import StrategyType
@@ -796,6 +797,7 @@ def create_test_profile(
 
 
 # Example usage and integration helpers
+@pytest.mark.integration
 class TestingContext:
     """Context manager for comprehensive testing setup."""
 

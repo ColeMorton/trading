@@ -16,6 +16,7 @@ from typer.testing import CliRunner
 from app.cli.commands.config import app as config_app
 
 
+@pytest.mark.integration
 class TestProfileEditingTDD:
     """Test class demonstrating TDD for profile editing functionality."""
 

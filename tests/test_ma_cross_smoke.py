@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import polars as pl
+import pytest
 
 from app.strategies.ma_cross.tools.strategy_execution import execute_single_strategy
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
@@ -37,6 +38,7 @@ def create_test_price_data(ticker="TEST", num_days=100):
     )
 
 
+@pytest.mark.integration
 class TestMAcrossSmokeTest:
     """Smoke tests to ensure basic MA Cross functionality works."""
 

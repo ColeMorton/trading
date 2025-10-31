@@ -16,6 +16,7 @@ from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.orchestration.ticker_processor import TickerProcessor
 
 
+@pytest.mark.integration
 class TestPortfolioOrchestrator(unittest.TestCase):
     """Test cases for PortfolioOrchestrator class."""
 
@@ -233,6 +234,7 @@ class TestPortfolioOrchestrator(unittest.TestCase):
         )
 
 
+@pytest.mark.integration
 class TestTickerProcessor(unittest.TestCase):
     """Test cases for TickerProcessor class."""
 

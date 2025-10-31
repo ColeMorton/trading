@@ -30,6 +30,7 @@ from app.cli.services.batch_processing_service import BatchProcessingService
 from app.tools.console_logging import ConsoleLogger
 
 
+@pytest.mark.integration
 class TestBatchProcessingService:
     """Test cases for BatchProcessingService core functionality."""
 
@@ -334,6 +335,7 @@ class TestBatchProcessingService:
         assert set(tickers) == {"AAPL", "MSFT"}
 
 
+@pytest.mark.integration
 class TestBatchProcessingServiceResumeAware:
     """Test cases for resume-aware batch processing functionality."""
 
@@ -509,6 +511,7 @@ class TestBatchProcessingServiceResumeAware:
         mock_console.debug.assert_called()
 
 
+@pytest.mark.integration
 class TestBatchProcessingServiceErrorHandling:
     """Test cases for error handling and edge cases."""
 

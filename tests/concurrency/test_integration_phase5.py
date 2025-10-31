@@ -22,11 +22,13 @@ from typing import Any
 
 import numpy as np
 import polars as pl
+import pytest
 
 from app.concurrency.tools.concurrency_analysis import ConcurrencyAnalysis
 from app.tools.portfolio import StrategyConfig
 
 
+@pytest.mark.integration
 class TestPortfolioBuilder:
     """Build test portfolios with known hand-calculated results."""
 
@@ -434,6 +436,7 @@ class PerformanceBenchmark:
         }
 
 
+@pytest.mark.integration
 class TestConcurrencyIntegrationPhase5:
     """Phase 5 integration tests for concurrency calculation fixes."""
 

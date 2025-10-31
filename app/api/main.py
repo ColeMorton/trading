@@ -43,10 +43,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     print("🔴 Connecting to Redis...")
     await redis_manager.connect()
 
-    # Create result storage directory
+    # Verify result storage directory exists
     from pathlib import Path
 
-    Path(settings.RESULT_STORAGE_PATH).mkdir(parents=True, exist_ok=True)
+    result_path = Path(settings.RESULT_STORAGE_PATH)
+    try:
+        result_path.mkdir(parents=True, exist_ok=True)
+        print(f"✅ Result storage directory ready: {result_path}")
+    except PermissionError as e:
+        error_msg = (
+            f"Permission denied creating result storage directory: {result_path}. "
+            "Ensure the directory is created with proper ownership in the entrypoint script."
+        )
+        print(f"❌ {error_msg}")
+        raise PermissionError(error_msg) from e
 
     print("✅ Trading CLI API started successfully!")
 

@@ -11,6 +11,7 @@ import pytest
 from app.tools.risk.cvar_calculator import CVaRCalculator
 
 
+@pytest.mark.integration
 class TestCVaRCalculator:
     """Test CVaR calculator functionality and Excel formula accuracy."""
 

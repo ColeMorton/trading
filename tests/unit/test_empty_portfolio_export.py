@@ -19,6 +19,7 @@ from app.tools.orchestration.portfolio_orchestrator import PortfolioOrchestrator
 from app.tools.portfolio.collection import export_best_portfolios
 
 
+@pytest.mark.integration
 class TestEmptyPortfolioExportUnit:
     """Unit tests for empty portfolio export functionality."""
 
@@ -389,6 +390,7 @@ class TestEmptyPortfolioExportUnit:
             assert result is True
 
 
+@pytest.mark.integration
 class TestEmptyPortfolioErrorHandling:
     """Test error handling for empty portfolio exports."""
 

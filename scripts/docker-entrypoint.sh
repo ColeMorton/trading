@@ -51,6 +51,21 @@ else
   echo "⏭️  Skipping database migrations (RUN_MIGRATIONS not set to 'true')"
 fi
 
+# Create result storage directory with proper permissions
+# Must be done before switching to non-root user
+RESULT_DIR="${RESULT_STORAGE_PATH:-data/api_results}"
+if [ ! -d "$RESULT_DIR" ]; then
+  echo "📁 Creating result storage directory: $RESULT_DIR"
+  mkdir -p "$RESULT_DIR"
+  # Set ownership to app user (UID 1001) if running as root
+  if [ "$(id -u)" = "0" ]; then
+    chown -R 1001:1001 "$RESULT_DIR"
+    echo "✅ Set ownership of $RESULT_DIR to app user"
+  fi
+else
+  echo "✅ Result storage directory already exists: $RESULT_DIR"
+fi
+
 echo "✨ Initialization complete!"
 echo "🎯 Starting application: $@"
 

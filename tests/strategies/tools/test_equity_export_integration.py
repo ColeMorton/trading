@@ -9,11 +9,13 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from app.strategies.tools.summary_processing import export_summary_results
 from app.tools.equity_data_extractor import EquityData
 
 
+@pytest.mark.integration
 class TestEquityExportEndToEnd:
     """Test complete equity export pipeline integration."""
 

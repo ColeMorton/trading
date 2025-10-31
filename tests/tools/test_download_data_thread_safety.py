@@ -17,6 +17,7 @@ import pytest
 from app.tools.download_data import download_data
 
 
+@pytest.mark.integration
 class TestDownloadDataThreadSafety:
     """Test suite for thread safety in download_data function."""
 
@@ -350,6 +351,7 @@ class TestDownloadDataThreadSafety:
             )
 
 
+@pytest.mark.integration
 class TestConcurrentStrategyExecution:
     """Integration tests for concurrent strategy execution with thread-safe downloads."""
 

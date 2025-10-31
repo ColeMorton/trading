@@ -25,6 +25,7 @@ from app.cli.config.loader import ConfigLoader
 from app.cli.models.strategy import StrategyConfig, StrategyType
 
 
+@pytest.mark.integration
 class TestDefaultStrategyProfileIntegration:
     """Test integration of default_strategy.yaml profile."""
 
@@ -182,6 +183,7 @@ class TestDefaultStrategyProfileIntegration:
 
 
 @pytest.mark.skip(reason="Profile ma_cross_crypto has been archived")
+@pytest.mark.integration
 class TestMACrossCryptoProfileIntegration:
     """Test integration of ma_cross_crypto.yaml profile (ARCHIVED)."""
 
@@ -328,6 +330,7 @@ class TestMACrossCryptoProfileIntegration:
         mock_dispatcher.validate_strategy_compatibility.assert_called_once()
 
 
+@pytest.mark.integration
 class TestDefaultStrategyCurrentProfileIntegration:
     """Test integration of default_strategy_current.yaml profile with inheritance."""
 
@@ -421,6 +424,7 @@ class TestDefaultStrategyCurrentProfileIntegration:
         assert config.strategy_params.SMA.fast_period_min == 5
 
 
+@pytest.mark.integration
 class TestCrossProfileCompatibility:
     """Test compatibility and consistency across all profiles."""
 
@@ -549,6 +553,7 @@ class TestCrossProfileCompatibility:
             )
 
 
+@pytest.mark.integration
 class TestProfileErrorHandling:
     """Test error handling for profile loading and validation."""
 
@@ -621,6 +626,7 @@ class TestProfileErrorHandling:
                 pass
 
 
+@pytest.mark.integration
 class TestProfileRealWorldUsage:
     """Test profiles in realistic usage scenarios."""
 

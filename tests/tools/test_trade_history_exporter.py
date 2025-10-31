@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import Mock
 
 import pandas as pd
+import pytest
 import vectorbt as vbt
 
 from app.tools.trade_history_exporter import (
@@ -31,6 +32,7 @@ from app.tools.trade_history_exporter import (
 )
 
 
+@pytest.mark.integration
 class TestTradeHistoryExporter(unittest.TestCase):
     """Test suite for trade history export functionality."""
 
@@ -792,6 +794,7 @@ class TestTradeHistoryExporter(unittest.TestCase):
             self.assertEqual(original_mtime, current_mtime)
 
 
+@pytest.mark.integration
 class TestTradeHistoryExporterIntegration(unittest.TestCase):
     """Integration tests for trade history exporter."""
 

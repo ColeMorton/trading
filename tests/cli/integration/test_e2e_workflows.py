@@ -25,6 +25,7 @@ from app.cli.commands.strategy import app as strategy_app
 from app.cli.models.strategy import StrategyType
 
 
+@pytest.mark.integration
 class TestCompleteStrategyWorkflows:
     """Test complete strategy analysis workflows from CLI to file export."""
 
@@ -220,6 +221,7 @@ config:
         pass
 
 
+@pytest.mark.integration
 class TestCompleteErrorRecoveryWorkflows:
     """Test complete error recovery workflows and graceful degradation."""
 
@@ -257,6 +259,7 @@ class TestCompleteErrorRecoveryWorkflows:
         pass
 
 
+@pytest.mark.integration
 class TestRealisticDataProcessingWorkflows:
     """Test workflows with realistic data processing scenarios."""
 

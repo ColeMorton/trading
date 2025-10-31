@@ -95,6 +95,7 @@ def create_mock_strategy_config(ticker=None, strategy_types=None, **kwargs):
     return mock_config
 
 
+@pytest.mark.integration
 class TestStrategySweepCommand:
     """Test cases for strategy sweep command."""
 
@@ -791,6 +792,7 @@ config:
         assert "error" in result.stdout.lower() or result.exit_code != 0
 
 
+@pytest.mark.integration
 class TestStrategySweepCommandEdgeCases:
     """Test edge cases and boundary conditions for strategy sweep command."""
 
@@ -981,6 +983,7 @@ class TestStrategySweepCommandEdgeCases:
         assert result.exit_code is not None
 
 
+@pytest.mark.integration
 class TestDefaultStrategyTypesFeature:
     """Test cases specifically for the default strategy types feature."""
 
@@ -1243,6 +1246,7 @@ class TestDefaultStrategyTypesFeature:
         assert any(strategy in result.stdout for strategy in ["SMA", "EMA", "MACD"])
 
 
+@pytest.mark.integration
 class TestYearsParameter:
     """Test cases specifically for the years parameter functionality."""
 

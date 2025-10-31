@@ -23,6 +23,7 @@ from tests.fixtures.data_stabilization import (
 from tests.fixtures.market_data_factory import MarketDataFactory
 
 
+@pytest.mark.integration
 class TestDownloadDataThreadSafetyStable:
     """Stabilized test suite for thread safety in download_data function."""
 
@@ -363,6 +364,7 @@ class TestDownloadDataThreadSafetyStable:
             assert "Close" in stable_result.schema.names()
 
 
+@pytest.mark.integration
 class TestConcurrentStrategyExecutionStable:
     """Stabilized tests for concurrent strategy execution."""
 

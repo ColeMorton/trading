@@ -113,6 +113,7 @@ def sample_portfolio_stats():
     }
 
 
+@pytest.mark.integration
 class TestATRParameterCombinations:
     """Test ATR parameter combination generation."""
 
@@ -181,6 +182,7 @@ class TestATRParameterCombinations:
         assert "ATR multiplier must be positive" in error
 
 
+@pytest.mark.integration
 class TestATRSignalProcessing:
     """Test ATR signal processing functionality."""
 
@@ -289,6 +291,7 @@ class TestATRSignalProcessing:
         # Error should be handled by the exception, no additional verification needed
 
 
+@pytest.mark.integration
 class TestATRParameterSweepEngine:
     """Test the ATR Parameter Sweep Engine."""
 
@@ -701,6 +704,7 @@ class TestATRParameterSweepEngine:
         assert any("missing Exit Fast Period" in error for error in errors)
 
 
+@pytest.mark.integration
 class TestATRPortfolioExport:
     """Test ATR portfolio export functionality."""
 
@@ -751,6 +755,7 @@ class TestATRPortfolioExport:
         assert extended_portfolio["Exit Slow Period"] == 2.0
 
 
+@pytest.mark.integration
 class TestATRAnalysisIntegration:
     """Integration tests for the complete ATR analysis workflow."""
 
@@ -938,6 +943,7 @@ class TestATRAnalysisIntegration:
             mock_filter_instance.filter_portfolios_list.assert_called_once()
 
 
+@pytest.mark.integration
 class TestATRConfigurationHandling:
     """Test ATR configuration handling and validation."""
 

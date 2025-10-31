@@ -9,12 +9,14 @@ Principles: Behavior-driven, fast execution, isolated
 import unittest
 
 import numpy as np
+import pytest
 
 from app.tools.calculate_ma_and_signals import calculate_ma_and_signals
 from tests.fixtures.market_data import create_realistic_price_data
 from tests.utils.assertions import assert_ma_calculations_accurate, assert_signals_valid
 
 
+@pytest.mark.unit
 class TestMACalculationsBehavior(unittest.TestCase):
     """Test MA calculation behavior with realistic market data."""
 
@@ -197,6 +199,7 @@ class TestMACalculationsBehavior(unittest.TestCase):
         self.assertIn(last_row["Signal"], [-1, 0, 1])
 
 
+@pytest.mark.unit
 class TestMACalculationsIntegration(unittest.TestCase):
     """Integration tests for MA calculations with real data patterns."""
 

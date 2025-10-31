@@ -23,6 +23,7 @@ from app.tools.market_hours import (
 )
 
 
+@pytest.mark.integration
 class TestMarketTypeDetection:
     """Test market type detection functionality."""
 
@@ -47,6 +48,7 @@ class TestMarketTypeDetection:
         assert detect_market_type("AAPL") == MarketType.US_STOCK
 
 
+@pytest.mark.integration
 class TestMarketAware4HourConversion:
     """Test market-aware 4-hour data conversion."""
 
@@ -199,6 +201,7 @@ class TestMarketAware4HourConversion:
         assert isinstance(result, pd.DataFrame)
 
 
+@pytest.mark.integration
 class TestDataValidation:
     """Test data validation for market-aware functionality."""
 
@@ -261,6 +264,7 @@ class TestDataValidation:
         assert "weekend_percentage" in validation
 
 
+@pytest.mark.integration
 class TestTradingHoursFiltering:
     """Test trading hours filtering functionality."""
 
@@ -336,6 +340,7 @@ class TestTradingHoursFiltering:
         assert isinstance(filtered, pl.DataFrame)
 
 
+@pytest.mark.integration
 class TestTradingHoursConfiguration:
     """Test trading hours configuration functionality."""
 
@@ -360,6 +365,7 @@ class TestTradingHoursConfiguration:
         assert len(stock_hours.trading_days) == 5  # Monday-Friday
 
 
+@pytest.mark.integration
 class TestIntegration:
     """Integration tests for the complete market-aware system."""
 

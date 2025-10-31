@@ -13,11 +13,13 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd
+import pytest
 
 from app.contexts.portfolio.services.trade_history_service import TradeHistoryService
 from app.tools.position_calculator import PositionCalculator
 
 
+@pytest.mark.integration
 class TestTradeHistoryServiceIntegration(unittest.TestCase):
     """Integration tests for TradeHistoryService comprehensive refresh."""
 
@@ -519,6 +521,7 @@ class TestTradeHistoryServiceIntegration(unittest.TestCase):
             self.assertEqual(result["updated_count"], 100)
 
 
+@pytest.mark.integration
 class TestTradeHistoryServiceRegression(unittest.TestCase):
     """Regression tests for specific bugs and edge cases."""
 
@@ -653,6 +656,7 @@ class TestTradeHistoryServiceRegression(unittest.TestCase):
             )  # 4 decimal places
 
 
+@pytest.mark.integration
 class TestTradeHistoryServiceCLIIntegration(unittest.TestCase):
     """Tests for CLI integration with TradeHistoryService."""
 

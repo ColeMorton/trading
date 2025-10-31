@@ -6,6 +6,7 @@ from unittest.mock import patch
 from app.tools.portfolio.file_utils import extract_file_metadata, save_aggregation_csv
 
 
+@pytest.mark.integration
 class TestExtractFileMetadata:
     """Test suite for extract_file_metadata function."""
 
@@ -75,6 +76,7 @@ class TestExtractFileMetadata:
         assert result["strategy"] == "SMA"
 
 
+@pytest.mark.integration
 class TestSaveAggregationCsv:
     """Test suite for save_aggregation_csv function."""
 

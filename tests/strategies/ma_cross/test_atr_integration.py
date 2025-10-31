@@ -155,9 +155,13 @@ def sample_atr_portfolios():
 class TestCompleteATRWorkflow:
     """Test the complete ATR analysis workflow end-to-end."""
 
+    @pytest.mark.integration
     @patch("app.tools.get_data.get_data")
+    @pytest.mark.integration
     @patch("app.tools.calculate_ma_and_signals.calculate_ma_and_signals")
+    @pytest.mark.integration
     @patch("app.tools.calculate_atr.calculate_atr")
+    @pytest.mark.integration
     @patch("vectorbt.Portfolio.from_signals")
     def test_complete_workflow_success(
         self,
@@ -240,6 +244,7 @@ class TestCompleteATRWorkflow:
         # Since we're mocking the top-level function, we don't verify individual calls
         # The test focuses on the returned data structure and results validation
 
+    @pytest.mark.integration
     @patch("app.tools.get_data.get_data")
     def test_workflow_data_loading_failure(
         self,
@@ -262,7 +267,9 @@ class TestCompleteATRWorkflow:
 
         # Since this test actually calls the real function, check that it handles the None case gracefully
 
+    @pytest.mark.integration
     @patch("app.tools.get_data.get_data")
+    @pytest.mark.integration
     @patch("app.tools.calculate_ma_and_signals.calculate_ma_and_signals")
     def test_workflow_partial_failures(
         self,
@@ -313,6 +320,7 @@ class TestCompleteATRWorkflow:
 class TestATRPortfolioExportIntegration:
     """Test ATR portfolio export functionality integration."""
 
+    @pytest.mark.integration
     def test_export_atr_portfolios_full_workflow(
         self,
         sample_atr_portfolios,
@@ -364,6 +372,7 @@ class TestATRPortfolioExportIntegration:
                     call_args = mock_write_csv.call_args[0][0]
                     assert expected_filename in call_args
 
+    @pytest.mark.integration
     def test_export_filtering_integration(
         self,
         sample_atr_portfolios,
@@ -405,6 +414,7 @@ class TestATRPortfolioExportIntegration:
                 ]
                 assert len(filter_calls) > 0
 
+    @pytest.mark.integration
     def test_export_sorting_integration(
         self,
         sample_atr_portfolios,
@@ -453,6 +463,7 @@ class TestATRPortfolioExportIntegration:
                         total_returns,
                     )  # Should be sorted ascending
 
+    @pytest.mark.integration
     def test_export_schema_compliance(
         self,
         sample_atr_portfolios,
@@ -480,6 +491,7 @@ class TestATRPortfolioExportIntegration:
             )
             assert is_valid is True, f"Schema validation failed: {errors}"
 
+    @pytest.mark.integration
     def test_export_empty_portfolios_handling(self, comprehensive_config, mock_logger):
         """Test handling of empty portfolio list in export."""
         success = export_atr_portfolios([], "AAPL", comprehensive_config, mock_logger)
@@ -498,6 +510,7 @@ class TestATRPortfolioExportIntegration:
 class TestATRAnalysisMemoryIntegration:
     """Test memory optimization integration in ATR analysis."""
 
+    @pytest.mark.integration
     def test_memory_optimization_integration(self, comprehensive_config, mock_logger):
         """Test that memory optimization is properly integrated."""
         from app.strategies.ma_cross.tools.atr_parameter_sweep import (
@@ -521,6 +534,7 @@ class TestATRAnalysisMemoryIntegration:
         assert engine.chunk_size > 0
         assert engine.chunk_size <= 50  # Reasonable chunk size
 
+    @pytest.mark.integration
     def test_chunking_behavior_integration(self, comprehensive_config, mock_logger):
         """Test that parameter combinations are properly chunked."""
         from app.strategies.ma_cross.tools.atr_parameter_sweep import (
@@ -555,6 +569,7 @@ class TestATRAnalysisMemoryIntegration:
 class TestATRErrorHandlingIntegration:
     """Test error handling integration across the ATR analysis workflow."""
 
+    @pytest.mark.integration
     @patch("app.tools.get_data.get_data")
     def test_graceful_degradation_on_errors(
         self,
@@ -583,6 +598,7 @@ class TestATRErrorHandlingIntegration:
         ]
         assert len(error_calls) > 0
 
+    @pytest.mark.integration
     def test_configuration_error_handling(self, mock_logger):
         """Test handling of invalid configuration."""
         # Invalid configuration with missing required fields
@@ -604,6 +620,7 @@ class TestATRErrorHandlingIntegration:
             # If it does throw an exception, it should be informative
             assert "config" in str(e).lower() or "missing" in str(e).lower()
 
+    @pytest.mark.integration
     def test_file_permission_error_handling(self, sample_atr_portfolios, mock_logger):
         """Test handling of file permission errors during export."""
         config = {
@@ -670,6 +687,7 @@ class TestATREndToEndScenarios:
         for field in expected_minimum_fields:
             assert field in minimums
 
+    @pytest.mark.integration
     def test_large_parameter_space_scenario(self, mock_logger):
         """Test scenario with large parameter space (similar to production)."""
         # Configuration similar to production (but smaller for testing)
@@ -700,6 +718,7 @@ class TestATREndToEndScenarios:
         )
         assert chunk_count > 1  # Should require multiple chunks
 
+    @pytest.mark.integration
     def test_realistic_filtering_scenario(self, mock_logger):
         """Test realistic filtering scenario with mixed portfolio quality."""
         # Create portfolios with realistic distribution of quality

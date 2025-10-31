@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import polars as pl
+import pytest
 
 
 # Add project root to path
@@ -25,6 +26,7 @@ os.environ["USE_FIXED_SIGNAL_PROC"] = "true"
 from app.concurrency.tools.risk_metrics import calculate_risk_contributions
 
 
+@pytest.mark.integration
 def test_risk_calc_fix():
     """Test risk calculation fix directly."""
     print("\nTesting Risk Calculation Fix")
@@ -99,6 +101,7 @@ def test_risk_calc_fix():
     return abs(total_risk - 1.0) < 1e-6
 
 
+@pytest.mark.integration
 def test_expectancy_fix():
     """Test expectancy calculation fix."""
     print("\n\nTesting Expectancy Calculation Fix")
@@ -133,6 +136,7 @@ def test_expectancy_fix():
         return False
 
 
+@pytest.mark.integration
 def test_win_rate_fix():
     """Test win rate calculation fix."""
     print("\n\nTesting Win Rate Calculation Fix")
@@ -163,6 +167,7 @@ def test_win_rate_fix():
         return False
 
 
+@pytest.mark.integration
 def test_signal_processor_fix():
     """Test signal processor fix."""
     print("\n\nTesting Signal Processor Fix")

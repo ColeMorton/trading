@@ -15,6 +15,7 @@ import pytest
 from app.tools.market_data_analyzer import MarketDataAnalyzer
 
 
+@pytest.mark.integration
 class TestTrendMetricsCalculation:
     """Test trend metrics calculation functionality."""
 
@@ -162,6 +163,7 @@ class TestTrendMetricsCalculation:
         assert result == expected_defaults
 
 
+@pytest.mark.integration
 class TestMovingAverageCalculations:
     """Test moving average calculations."""
 
@@ -220,6 +222,7 @@ class TestMovingAverageCalculations:
         assert result["ma_200"] == result["ma_50"]
 
 
+@pytest.mark.integration
 class TestTrendDirectionCalculations:
     """Test trend direction calculations."""
 
@@ -278,6 +281,7 @@ class TestTrendDirectionCalculations:
         assert abs(result["trend_direction_20d"]) < 1e-10
 
 
+@pytest.mark.integration
 class TestTrendConsistencyCalculations:
     """Test trend consistency calculations."""
 
@@ -357,6 +361,7 @@ class TestTrendConsistencyCalculations:
         assert 0.3 < result["trend_consistency"] < 0.7
 
 
+@pytest.mark.integration
 class TestTrendSlopeCalculations:
     """Test trend slope calculations using linear regression."""
 
@@ -414,6 +419,7 @@ class TestTrendSlopeCalculations:
         assert abs(result["trend_slope"]) < 1e-10
 
 
+@pytest.mark.integration
 class TestTrendErrorHandling:
     """Test error handling in trend calculations."""
 
@@ -486,6 +492,7 @@ class TestTrendErrorHandling:
             assert defaults[key] == 0.0
 
 
+@pytest.mark.integration
 class TestTrendIntegration:
     """Test trend calculation integration with other components."""
 

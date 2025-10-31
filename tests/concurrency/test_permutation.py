@@ -23,6 +23,7 @@ from app.concurrency.tools.permutation import (
 from .base import ConcurrencyTestCase, MockDataMixin
 
 
+@pytest.mark.integration
 class TestPermutationGeneration(unittest.TestCase):
     """Test permutation generation functions."""
 
@@ -86,6 +87,7 @@ class TestPermutationGeneration(unittest.TestCase):
         self.assertEqual(size_counts[4], 1)  # C(4,4)
 
 
+@pytest.mark.integration
 class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
     """Test permutation analysis functions."""
 
@@ -264,6 +266,7 @@ class TestPermutationAnalysis(ConcurrencyTestCase, MockDataMixin):
         self.assertEqual(len(error_logs), 2)
 
 
+@pytest.mark.integration
 class TestOptimizationReport(ConcurrencyTestCase):
     """Test optimization report generation."""
 

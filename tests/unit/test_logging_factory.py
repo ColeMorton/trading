@@ -14,24 +14,28 @@ from app.core.logging_factory import (
 )
 
 
+@pytest.mark.unit
 def test_get_logger_basic():
     """Test basic logger creation."""
     logger = get_logger(__name__)
     assert logger is not None
 
 
+@pytest.mark.unit
 def test_get_logger_with_name():
     """Test logger creation with specific name."""
     logger = get_logger("test.module")
     assert logger is not None
 
 
+@pytest.mark.unit
 def test_get_logger_with_context():
     """Test logger creation with initial context."""
     logger = get_logger(__name__, request_id="123", user_id="user456")
     assert logger is not None
 
 
+@pytest.mark.unit
 def test_logger_info():
     """Test basic info logging."""
     logger = get_logger(__name__)
@@ -39,6 +43,7 @@ def test_logger_info():
     logger.info("test_event", key="value")
 
 
+@pytest.mark.unit
 def test_logger_error():
     """Test error logging."""
     logger = get_logger(__name__)
@@ -46,6 +51,7 @@ def test_logger_error():
     logger.error("test_error", error="something went wrong")
 
 
+@pytest.mark.unit
 def test_logger_warning():
     """Test warning logging."""
     logger = get_logger(__name__)
@@ -53,6 +59,7 @@ def test_logger_warning():
     logger.warning("test_warning", severity="medium")
 
 
+@pytest.mark.unit
 def test_logger_debug():
     """Test debug logging."""
     logger = get_logger(__name__)
@@ -60,6 +67,7 @@ def test_logger_debug():
     logger.debug("test_debug", details="debug info")
 
 
+@pytest.mark.unit
 def test_context_binding():
     """Test context binding."""
     logger = get_logger(__name__)
@@ -74,6 +82,7 @@ def test_context_binding():
     clear_context()
 
 
+@pytest.mark.unit
 def test_context_unbinding():
     """Test selective context unbinding."""
     logger = get_logger(__name__)
@@ -94,6 +103,7 @@ def test_context_unbinding():
     clear_context()
 
 
+@pytest.mark.unit
 def test_logger_with_exception():
     """Test logging with exception info."""
     logger = get_logger(__name__)
@@ -106,6 +116,7 @@ def test_logger_with_exception():
         logger.error("test_exception", error=str(e), exc_info=True)
 
 
+@pytest.mark.unit
 def test_multiple_loggers():
     """Test creating multiple loggers."""
     logger1 = get_logger("module1")
@@ -119,6 +130,7 @@ def test_multiple_loggers():
     logger2.info("event2")
 
 
+@pytest.mark.unit
 def test_logger_with_numeric_values():
     """Test logging with various numeric types."""
     logger = get_logger(__name__)
@@ -127,6 +139,7 @@ def test_logger_with_numeric_values():
     logger.info("numeric_test", count=100, price=150.25, percentage=0.95, is_valid=True)
 
 
+@pytest.mark.unit
 def test_logger_with_complex_data():
     """Test logging with dict and list data."""
     logger = get_logger(__name__)
