@@ -13,6 +13,7 @@ from app.tools.position_sizing.kelly_criterion import (
 )
 
 
+@pytest.mark.unit
 class TestKellyCriterionSizer:
     """Test Kelly Criterion calculator functionality and Excel formula accuracy."""
 

@@ -16,6 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import polars as pl
+import pytest
 
 
 # Add parent directories to path
@@ -30,6 +31,7 @@ from app.concurrency.tools.signal_processor import (
 )
 
 
+@pytest.mark.unit
 class TestSignalProcessor(unittest.TestCase):
     """Test cases for the SignalProcessor class."""
 
@@ -352,6 +354,7 @@ class TestSignalProcessor(unittest.TestCase):
         self.assertGreaterEqual(strict_count, 0)
 
 
+@pytest.mark.unit
 class TestSignalVarianceFix(unittest.TestCase):
     """Test cases specifically for the 90% variance fix."""
 

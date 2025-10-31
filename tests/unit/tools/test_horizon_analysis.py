@@ -5,6 +5,7 @@ Tests for the horizon analysis methodology.
 import unittest
 
 import numpy as np
+import pytest
 
 from app.concurrency.tools.signal_quality import (
     _calculate_horizon_metrics,
@@ -12,6 +13,7 @@ from app.concurrency.tools.signal_quality import (
 )
 
 
+@pytest.mark.unit
 class TestHorizonAnalysis(unittest.TestCase):
     """Test cases for the horizon analysis methodology."""
 

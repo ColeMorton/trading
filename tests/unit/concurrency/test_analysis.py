@@ -8,12 +8,14 @@ import unittest
 import numpy as np
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.concurrency.tools.analysis import analyze_concurrency
 
 from .base import ConcurrencyTestCase, MockDataMixin
 
 
+@pytest.mark.unit
 class TestConcurrencyAnalysis(ConcurrencyTestCase, MockDataMixin):
     """Test main concurrency analysis function."""
 

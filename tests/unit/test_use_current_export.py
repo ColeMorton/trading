@@ -12,6 +12,8 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
+import pytest
+
 
 # Add the app directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -21,6 +23,7 @@ from app.tools.setup_logging import setup_logging
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
+@pytest.mark.unit
 class TestUseCurrentExport(unittest.TestCase):
     """Test USE_CURRENT flag behavior for portfolio exports."""
 

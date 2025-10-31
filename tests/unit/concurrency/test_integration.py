@@ -14,6 +14,7 @@ from app.concurrency.review import run_analysis
 from .base import ConcurrencyTestCase, MockDataMixin
 
 
+@pytest.mark.unit
 class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
     """Test basic integration scenarios."""
 
@@ -68,6 +69,7 @@ class TestBasicIntegration(ConcurrencyTestCase, MockDataMixin):
         self.assertEqual(csv_format.extension, ".csv")
 
 
+@pytest.mark.unit
 class TestErrorScenarios(ConcurrencyTestCase):
     """Test error handling in integration scenarios."""
 
@@ -104,6 +106,7 @@ class TestErrorScenarios(ConcurrencyTestCase):
         self.assertFalse(result)
 
 
+@pytest.mark.unit
 class TestConfigurationIntegration(ConcurrencyTestCase):
     """Test configuration handling in integration."""
 
@@ -142,6 +145,7 @@ class TestConfigurationIntegration(ConcurrencyTestCase):
         self.assertEqual(validated["OPTIMIZE_MIN_STRATEGIES"], 5)
 
 
+@pytest.mark.unit
 class TestPortfolioLoading(ConcurrencyTestCase, MockDataMixin):
     """Test portfolio loading integration."""
 
@@ -177,6 +181,7 @@ class TestPortfolioLoading(ConcurrencyTestCase, MockDataMixin):
         self.assertIn("Ticker", rows[0])
 
 
+@pytest.mark.unit
 class TestErrorHandlingIntegration(ConcurrencyTestCase):
     """Test error handling system integration."""
 

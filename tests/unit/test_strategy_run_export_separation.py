@@ -27,6 +27,7 @@ from typer.testing import CliRunner
 from app.cli.main import app
 
 
+@pytest.mark.unit
 class TestStrategySweepCSVExportSeparation:
     """TDD Test Suite for strategy-specific CSV file separation."""
 
@@ -357,6 +358,7 @@ class TestStrategySweepCSVExportSeparation:
         )
 
 
+@pytest.mark.unit
 class TestDispatcherIntegrationValidation:
     """
     Validate that the dispatcher fix integrates correctly with the CLI without running full analysis.
@@ -447,6 +449,7 @@ class TestDispatcherIntegrationValidation:
             print(f"✅ {strategy} strategy validation: PASSED")
 
 
+@pytest.mark.unit
 class TestStrategyDispatcherBugDocumentation:
     """
     Documentation tests that clearly explain the dispatcher bug and required fix.

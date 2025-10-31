@@ -4,9 +4,12 @@ import json
 import unittest
 from pathlib import Path
 
+import pytest
+
 from .base import ConcurrencyTestCase, MockDataMixin
 
 
+@pytest.mark.unit
 class TestFrameworkSetup(ConcurrencyTestCase):
     """Test that the testing framework is properly set up."""
 
@@ -58,6 +61,7 @@ class TestFrameworkSetup(ConcurrencyTestCase):
         self.assertEqual(len(price_data["BTC-USD"]["close"]), 100)
 
 
+@pytest.mark.unit
 class TestMockDataMixin(unittest.TestCase, MockDataMixin):
     """Test the mock data mixin functionality."""
 
@@ -113,6 +117,7 @@ class TestMockDataMixin(unittest.TestCase, MockDataMixin):
         self.assertIn("EMA", types)
 
 
+@pytest.mark.unit
 class TestImportability(unittest.TestCase):
     """Test that key modules can be imported."""
 

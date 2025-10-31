@@ -21,6 +21,7 @@ from app.concurrency.tools.asset_strategy_loader import AssetStrategyLoader
 from app.tools.exceptions import DataLoadError
 
 
+@pytest.mark.unit
 class TestAssetStrategyLoader:
     """Test suite for AssetStrategyLoader class."""
 
@@ -337,6 +338,7 @@ TEST,D,EMA,15,45,,1.40,56.0,2.1,0.62,105.0,-18.0,10.5,52,0.0"""
         assert types == {"SMA", "EMA"}
 
 
+@pytest.mark.unit
 class TestAssetStrategyLoaderIntegration:
     """Integration tests using real data structure."""
 

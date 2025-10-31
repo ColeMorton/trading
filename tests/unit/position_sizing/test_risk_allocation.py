@@ -12,6 +12,7 @@ from app.tools.position_sizing.risk_allocation import (
 )
 
 
+@pytest.mark.unit
 class TestRiskAllocationCalculator:
     """Test risk allocation calculator functionality and Excel formula accuracy."""
 

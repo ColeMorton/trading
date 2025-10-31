@@ -9,6 +9,7 @@ import pytest
 from app.tools.accounts import ManualAccountBalanceService
 
 
+@pytest.mark.unit
 class TestManualAccountBalanceService:
     """Test cases for ManualAccountBalanceService."""
 

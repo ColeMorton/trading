@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 import polars as pl
+import pytest
 
 
 # Add the app directory to the Python path
@@ -22,6 +23,7 @@ from app.tools.portfolio.collection import export_best_portfolios
 from app.tools.setup_logging import setup_logging
 
 
+@pytest.mark.unit
 class TestMultiTickerExport(unittest.TestCase):
     """Test multi-ticker export behavior for portfolios_best."""
 

@@ -12,6 +12,7 @@ from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
 
 @pytest.mark.unit
+@pytest.mark.unit
 class TestCalculateSignalUnconfirmed:
     """Test calculate_signal_unconfirmed function across different scenarios."""
 

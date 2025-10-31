@@ -6,6 +6,7 @@ import unittest
 
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.tools.signal_metrics import (
     SignalMetrics,
@@ -24,6 +25,7 @@ class MockLogger:
         self.logs.append((message, level))
 
 
+@pytest.mark.unit
 class TestSignalMetrics(unittest.TestCase):
     """Test cases for the SignalMetrics class."""
 

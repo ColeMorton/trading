@@ -13,6 +13,7 @@ from app.cli.services.best_selection_service import BestSelectionService
 from app.database.models import SelectionAlgorithm, SweepBestSelection
 
 
+@pytest.mark.unit
 class TestSelectionAlgorithmModel:
     """Test SelectionAlgorithm SQLAlchemy model."""
 
@@ -51,6 +52,7 @@ class TestSelectionAlgorithmModel:
         assert result["max_confidence"] == 80.00
 
 
+@pytest.mark.unit
 class TestSweepBestSelectionModel:
     """Test SweepBestSelection SQLAlchemy model."""
 
@@ -123,6 +125,7 @@ class TestSweepBestSelectionModel:
         assert result["result_score"] == 7.8
 
 
+@pytest.mark.unit
 class TestBestSelectionService:
     """Test BestSelectionService logic."""
 
@@ -295,6 +298,7 @@ class TestBestSelectionService:
         assert selection["alternatives_considered"] == 1  # Only 1 BTC-USD SMA result
 
 
+@pytest.mark.unit
 class TestSelectionAlgorithmSeedData:
     """Test selection algorithm seed data."""
 
@@ -378,6 +382,7 @@ class TestSelectionAlgorithmSeedData:
             )
 
 
+@pytest.mark.unit
 class TestParameterConsistencyAlgorithm:
     """Test parameter consistency detection algorithm."""
 

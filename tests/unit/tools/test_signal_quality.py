@@ -5,6 +5,7 @@ Tests for the signal quality metrics module.
 import unittest
 
 import polars as pl
+import pytest
 
 from app.concurrency.tools.signal_quality import calculate_signal_quality_metrics
 
@@ -19,6 +20,7 @@ class MockLogger:
         self.logs.append((message, level))
 
 
+@pytest.mark.unit
 class TestSignalQualityMetrics(unittest.TestCase):
     """Test cases for the signal quality metrics module."""
 

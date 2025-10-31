@@ -7,12 +7,15 @@ the 596,446% variance issue and produces consistent, reasonable results.
 
 import os
 
+import pytest
+
 from app.concurrency.tools.expectancy_calculator import (
     ExpectancyCalculator,
     fix_legacy_expectancy,
 )
 
 
+@pytest.mark.unit
 class TestExpectancyFix:
     """Test suite for expectancy calculation fixes."""
 

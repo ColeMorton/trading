@@ -15,6 +15,7 @@ from app.concurrency.tools.risk_contribution_calculator import (
 )
 
 
+@pytest.mark.unit
 class TestRiskContributionCalculator:
     """Test suite for the fixed risk contribution calculator."""
 

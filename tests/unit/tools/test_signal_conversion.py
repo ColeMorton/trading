@@ -6,6 +6,7 @@ import unittest
 
 import pandas as pd
 import polars as pl
+import pytest
 
 from app.tools.signal_conversion import convert_signals_to_positions
 
@@ -20,6 +21,7 @@ class MockLogger:
         self.logs.append((message, level))
 
 
+@pytest.mark.unit
 class TestSignalConversion(unittest.TestCase):
     """Test cases for signal conversion functions."""
 

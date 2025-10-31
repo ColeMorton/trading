@@ -19,6 +19,7 @@ from tests.fixtures.data_stabilization import fast_test_data, stable_market_data
 
 @pytest.mark.integration
 @pytest.mark.phase4
+@pytest.mark.unit
 class TestIntegrationDemonstration:
     """Demonstrate advanced integration testing patterns."""
 
@@ -99,6 +100,7 @@ class TestIntegrationDemonstration:
 
 @pytest.mark.performance
 @pytest.mark.phase4
+@pytest.mark.unit
 class TestPerformanceDemonstration:
     """Demonstrate performance testing patterns."""
 
@@ -196,6 +198,7 @@ class TestPerformanceDemonstration:
 
 @pytest.mark.error_handling
 @pytest.mark.phase4
+@pytest.mark.unit
 class TestErrorHandlingDemonstration:
     """Demonstrate comprehensive error handling testing."""
 
@@ -318,6 +321,7 @@ class TestErrorHandlingDemonstration:
 
 
 @pytest.mark.phase4
+@pytest.mark.unit
 class TestAdvancedTestingPatterns:
     """Demonstrate advanced testing patterns and techniques."""
 

@@ -21,6 +21,7 @@ from app.tools.portfolio.base_extended_schemas import (  # Backward compatibilit
 )
 
 
+@pytest.mark.unit
 class TestSchemaDefinitions:
     """Test schema class definitions and properties."""
 
@@ -113,6 +114,7 @@ class TestSchemaDefinitions:
         assert filtered_names[1:] == extended_names
 
 
+@pytest.mark.unit
 class TestBackwardCompatibility:
     """Test backward compatibility with canonical schema constants."""
 
@@ -137,6 +139,7 @@ class TestBackwardCompatibility:
         assert "Allocation [%]" in CANONICAL_COLUMN_NAMES
 
 
+@pytest.mark.unit
 class TestSchemaTransformer:
     """Test SchemaTransformer functionality."""
 
@@ -398,6 +401,7 @@ class TestSchemaTransformer:
         assert extended["Ticker"] == "AAPL"  # Non-None values preserved
 
 
+@pytest.mark.unit
 class TestSchemaValidation:
     """Test schema validation functionality."""
 
@@ -467,6 +471,7 @@ class TestSchemaValidation:
         assert any("Extra columns" in error for error in errors)
 
 
+@pytest.mark.unit
 class TestPolarsIntegration:
     """Test integration with Polars DataFrames."""
 
@@ -514,6 +519,7 @@ class TestPolarsIntegration:
         assert extended["Allocation [%]"] == 25.0
 
 
+@pytest.mark.unit
 class TestPerformance:
     """Test performance characteristics of schema operations."""
 

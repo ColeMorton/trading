@@ -30,6 +30,7 @@ from app.concurrency.tools.win_rate_calculator import (
 )
 
 
+@pytest.mark.unit
 class TestWinRateCalculator(unittest.TestCase):
     """Test cases for the WinRateCalculator class."""
 
@@ -265,6 +266,7 @@ class TestWinRateCalculator(unittest.TestCase):
         self.assertAlmostEqual(win_rate_legacy, 0.6, places=3)
 
 
+@pytest.mark.unit
 class TestWinRateDiscrepancyFix(unittest.TestCase):
     """Test cases specifically for the 18.8% discrepancy fix."""
 

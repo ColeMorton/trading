@@ -5,6 +5,7 @@ Tests for the stop loss simulator module.
 import unittest
 
 import numpy as np
+import pytest
 
 from app.tools.stop_loss_simulator import (
     apply_stop_loss_to_returns,
@@ -25,6 +26,7 @@ class MockLogger:
         self.logs.append((message, level))
 
 
+@pytest.mark.unit
 class TestStopLossSimulator(unittest.TestCase):
     """Test cases for the stop loss simulator module."""
 

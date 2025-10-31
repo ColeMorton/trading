@@ -31,6 +31,7 @@ from app.tools.portfolio.base_extended_schemas import SchemaType
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.unit
 class TestUnifiedExportPerformance:
     """Test suite focusing on performance improvements."""
 
