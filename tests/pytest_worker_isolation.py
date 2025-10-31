@@ -35,7 +35,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(autouse=True, scope="function")
-def isolate_test_worker():
+def isolate_test_worker(request):
     """Automatically isolate each test for parallel execution safety.
 
     This fixture runs before every test function and ensures:
@@ -43,7 +43,18 @@ def isolate_test_worker():
     2. Pandas/Polars internal state is reset
     3. Temporary directories are unique per worker
     4. No state leaks between tests
+
+    The fixture is optimized to only run full isolation for parallel execution.
+    For serial execution (single worker), minimal overhead is applied.
     """
+    # Check if running in parallel mode (xdist workers)
+    is_parallel = hasattr(request.config, "workerinput")
+
+    # For serial execution, skip the expensive isolation overhead
+    if not is_parallel:
+        yield
+        return
+
     # Store original environment state
     original_env = os.environ.copy()
 
@@ -87,14 +98,10 @@ def _clear_module_caches():
     # Force garbage collection to clear any circular references
     gc.collect()
 
-    try:
-        # Clear pandas internal state that might affect DataFrame operations
-        import pandas as pd
-
-        # Reset pandas option state (if any test modified it)
-        pd.reset_option("all")
-    except (ImportError, AttributeError):
-        pass
+    # NOTE: pd.reset_option("all") removed due to excessive overhead (~182ms per call)
+    # This was causing 16+ minutes of overhead across 1,366 tests (4 calls per test)
+    # Most unit tests don't modify pandas state, so this reset is unnecessary
+    # If specific tests need pandas reset, they should do it explicitly
 
     try:
         # Clear polars thread pool state if applicable
@@ -145,27 +152,10 @@ def worker_temp_dir(tmp_path, worker_id):
     return worker_dir
 
 
-@pytest.hookimpl(tryfirst=True)
-def pytest_runtest_setup(item):
-    """Hook called before each test runs.
-
-    Ensures clean state for each test in parallel execution.
-    """
-    # Clear caches before each test
-    _clear_module_caches()
-
-
-@pytest.hookimpl(trylast=True)
-def pytest_runtest_teardown(item):
-    """Hook called after each test completes.
-
-    Cleanup to prevent state leakage to next test.
-    """
-    # Clear caches after each test
-    _clear_module_caches()
-
-    # Force garbage collection
-    gc.collect()
+# NOTE: Removed redundant pytest hooks (pytest_runtest_setup and pytest_runtest_teardown)
+# These hooks were calling _clear_module_caches() in addition to the autouse fixture,
+# resulting in 4 calls per test instead of 2. The isolate_test_worker fixture already
+# handles cache clearing before and after each test, making these hooks unnecessary.
 
 
 # Register plugin metadata
