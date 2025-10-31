@@ -60,6 +60,8 @@ pydeps = "^3.0.1"
 radon = "^6.0.1"
 import-linter = "^2.5.2"
 vulture = "^2.14"
+structlog = "^24.1.0"
+hypothesis = "^6.98.0"
 
 [build-system]
 requires = ["poetry-core"]

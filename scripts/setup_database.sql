@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS ix_jobs_status_created ON jobs(status, created_at);
 -- Hash generated with bcrypt
 INSERT INTO api_keys (id, key_hash, name, scopes, rate_limit, is_active, created_at)
 VALUES (
-    'dev-key-0000-0000-0000-000000000000'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
     '$2b$12$YourHashHere',  -- This will be replaced by actual hash
     'Development Key',
     '["*"]'::jsonb,

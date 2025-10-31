@@ -190,7 +190,7 @@ def run(
     signal_period=9,
 ):
     """
-    Run portfolio review analysis.
+    Run portfolio synthesis analysis.
 
     Args:
         config_dict (dict, optional): Configuration dictionary
@@ -334,10 +334,20 @@ def run(
             # Extract value series and convert to DataFrame
             value_series = portfolio.value()
             initial_value = value_series[0]
+
+            # Convert values to numpy array for proper division
+            import numpy as np
+
+            values_array = (
+                np.array(value_series.values)
+                if isinstance(value_series.values, list)
+                else value_series.values
+            )
+
             equity_curve = pl.DataFrame(
                 {
                     "Date": value_series.index,
-                    "Close": value_series.values / initial_value,
+                    "Close": values_array / initial_value,
                 },
             )
 

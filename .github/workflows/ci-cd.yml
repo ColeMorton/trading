@@ -120,6 +120,34 @@ jobs:
         run: |
           poetry run alembic upgrade head
 
+      - name: Start API server for integration tests
+        if: matrix.test-group == 'integration'
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
+          ENVIRONMENT: test
+        run: |
+          echo "Starting API server for integration tests..."
+          poetry run uvicorn app.api.main:app --host 0.0.0.0 --port 8000 &
+          API_PID=$!
+          echo $API_PID > api.pid
+
+          echo "Waiting for API to be ready..."
+          python - <<'PY'
+          import httpx, time, sys
+          for i in range(60):
+              try:
+                  response = httpx.get('http://localhost:8000/health/', timeout=2)
+                  response.raise_for_status()
+                  print(f"✓ API is ready after {i+1} attempts")
+                  break
+              except Exception as e:
+                  if i == 59:
+                      print(f"✗ API did not become healthy in time: {e}")
+                      sys.exit(1)
+                  time.sleep(1)
+          PY
+
       - name: Run ${{ matrix.test-group }} tests
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
@@ -128,6 +156,29 @@ jobs:
           PYTEST_RUNNING: 1
         run: |
           poetry run pytest tests/ -v -m "${{ matrix.test-group }}" --cov=app --cov-report=xml --cov-report=term-missing --maxfail=10 --tb=short -n auto
+
+      - name: Stop API server
+        if: always() && matrix.test-group == 'integration'
+        run: |
+          if [ -f api.pid ]; then
+            API_PID=$(cat api.pid)
+            if kill -0 $API_PID 2>/dev/null; then
+              echo "Stopping API server (PID: $API_PID)..."
+              kill $API_PID || true
+              sleep 2
+            fi
+            rm api.pid
+          fi
+
+      - name: Collect API logs on failure
+        if: failure() && matrix.test-group == 'integration'
+        run: |
+          echo "=== API Server Logs ==="
+          if [ -f api_server.log ]; then
+            cat api_server.log
+          else
+            echo "No API server logs found"
+          fi
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3

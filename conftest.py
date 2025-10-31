@@ -342,8 +342,22 @@ def data_corruption_simulation():
 # =============================================================================
 
 
+def _check_api_server_available() -> bool:
+    """Check if API server is available on localhost:8000."""
+    try:
+        import requests
+
+        response = requests.get("http://localhost:8000/health/", timeout=2)
+        return response.status_code == 200
+    except Exception:
+        return False
+
+
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to add markers and organize tests."""
+    # Check if API server is running for requires_api tests
+    api_available = _check_api_server_available()
+
     for item in items:
         # Add markers based on test path and name
         if "slow" in item.name or "performance" in item.name:
@@ -357,7 +371,14 @@ def pytest_collection_modifyitems(config, items):
         elif "unit" in str(item.fspath):
             item.add_marker(pytest.mark.unit)
 
-        # API marker removed - API no longer exists
+        # Skip tests that require API server if it's not available
+        if "requires_api" in item.keywords and not api_available:
+            item.add_marker(
+                pytest.mark.skip(
+                    reason="API server not running on localhost:8000. "
+                    "Start it with: ./scripts/start_api.sh"
+                )
+            )
 
         # Add strategy marker for strategy tests
         if "strateg" in str(item.fspath):

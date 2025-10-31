@@ -8,8 +8,12 @@ Prerequisites:
 - API running on http://localhost:8000
 - Database tables created
 - ARQ worker running
+
+Note: These tests are automatically skipped if the API server is not running.
+In CI, the API server is started before running integration tests.
 """
 
+import pytest
 import requests
 
 
@@ -18,6 +22,8 @@ TEST_API_KEY = "dev-key-000000000000000000000000"
 BASE_URL = "http://localhost:8000"
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestLiveAPI:
     """Test the live API."""
 
@@ -45,6 +51,8 @@ class TestLiveAPI:
         print(f"✓ Redis: {data['components']['redis']['status']}")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestStrategyEndpoints:
     """Test strategy command endpoints."""
 
@@ -157,6 +165,8 @@ class TestStrategyEndpoints:
         print(f"  Status: {status_data['status']}")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestConfigEndpoints:
     """Test config command endpoints."""
 
@@ -187,6 +197,8 @@ class TestConfigEndpoints:
         print(f"✓ Config show job created: {data['job_id']}")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestConcurrencyEndpoints:
     """Test concurrency command endpoints."""
 
@@ -224,6 +236,8 @@ class TestConcurrencyEndpoints:
         print(f"✓ Concurrency health job created: {data['job_id']}")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestSeasonalityEndpoints:
     """Test seasonality command endpoints."""
 
@@ -257,6 +271,8 @@ class TestSeasonalityEndpoints:
         print(f"✓ Seasonality run job created: {data['job_id']}")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestJobManagement:
     """Test job management endpoints."""
 
@@ -336,6 +352,8 @@ class TestJobManagement:
         print("✓ Complete lifecycle test passed!")
 
 
+@pytest.mark.requires_api
+@pytest.mark.integration
 class TestAuthentication:
     """Test authentication and authorization."""
 

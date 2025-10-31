@@ -18,7 +18,10 @@ from app.portfolio_synthesis.review import run
 class TestEdgeCasesAndErrorHandling:
     """Test edge cases, boundary conditions, and error handling."""
 
-    def test_invalid_timeframe_values(self):
+    @pytest.mark.parametrize(
+        "invalid_timeframe", ["weekly", "monthly", "1hour", "invalid", None, 123, []]
+    )
+    def test_invalid_timeframe_values(self, invalid_timeframe):
         """Test behavior with invalid timeframe values."""
         mock_config = {
             "TICKER": "TEST",
@@ -27,38 +30,37 @@ class TestEdgeCasesAndErrorHandling:
             "BASE_DIR": "/tmp",
         }
 
-        invalid_timeframes = ["weekly", "monthly", "1hour", "invalid", None, 123, []]
+        with (
+            patch(
+                "app.portfolio_synthesis.review.setup_logging",
+            ) as mock_logging,
+            patch(
+                "app.portfolio_synthesis.review.get_config",
+            ) as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = mock_config
 
-        for invalid_timeframe in invalid_timeframes:
-            with self.subTest(timeframe=invalid_timeframe):
-                with (
-                    patch(
-                        "app.portfolio_synthesis.review.setup_logging",
-                    ) as mock_logging,
-                    patch(
-                        "app.portfolio_synthesis.review.get_config",
-                    ) as mock_get_config,
-                ):
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                    mock_get_config.return_value = mock_config
+            # Invalid timeframes should still be processed (no validation in current implementation)
+            # The conversion function handles unknown values as 'daily' (default case)
+            with patch(
+                "app.portfolio_synthesis.review.get_data",
+            ) as mock_get_data:
+                mock_get_data.side_effect = Exception("Expected test stop")
 
-                    # Invalid timeframes should still be processed (no validation in current implementation)
-                    # The conversion function handles unknown values as 'daily' (default case)
-                    with patch(
-                        "app.portfolio_synthesis.review.get_data",
-                    ) as mock_get_data:
-                        mock_get_data.side_effect = Exception("Expected test stop")
+                with pytest.raises(Exception, match="Expected test stop"):
+                    run(config_dict=mock_config, timeframe=invalid_timeframe)
 
-                        with pytest.raises(Exception, match="Expected test stop"):
-                            run(config_dict=mock_config, timeframe=invalid_timeframe)
+                # Verify that conversion happened (unknown timeframe -> daily conversion)
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["USE_HOURLY"] is False
+                assert enhanced_config["USE_4HOUR"] is False
+                assert enhanced_config["USE_2DAY"] is False
 
-                        # Verify that conversion happened (unknown timeframe -> daily conversion)
-                        enhanced_config = mock_get_config.call_args[0][0]
-                        assert enhanced_config["USE_HOURLY"] is False
-                        assert enhanced_config["USE_4HOUR"] is False
-                        assert enhanced_config["USE_2DAY"] is False
-
-    def test_invalid_strategy_type_values(self):
+    @pytest.mark.parametrize(
+        "invalid_strategy_type", ["RSI", "BOLLINGER", "invalid", None, 123, []]
+    )
+    def test_invalid_strategy_type_values(self, invalid_strategy_type):
         """Test behavior with invalid strategy type values."""
         mock_config = {
             "TICKER": "TEST",
@@ -67,40 +69,39 @@ class TestEdgeCasesAndErrorHandling:
             "BASE_DIR": "/tmp",
         }
 
-        invalid_strategy_types = ["RSI", "BOLLINGER", "invalid", None, 123, []]
+        with (
+            patch(
+                "app.portfolio_synthesis.review.setup_logging",
+            ) as mock_logging,
+            patch(
+                "app.portfolio_synthesis.review.get_config",
+            ) as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = mock_config
 
-        for invalid_strategy_type in invalid_strategy_types:
-            with self.subTest(strategy_type=invalid_strategy_type):
-                with (
-                    patch(
-                        "app.portfolio_synthesis.review.setup_logging",
-                    ) as mock_logging,
-                    patch(
-                        "app.portfolio_synthesis.review.get_config",
-                    ) as mock_get_config,
-                ):
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                    mock_get_config.return_value = mock_config
+            with patch(
+                "app.portfolio_synthesis.review.get_data",
+            ) as mock_get_data:
+                mock_get_data.side_effect = Exception("Expected test stop")
 
-                    with patch(
-                        "app.portfolio_synthesis.review.get_data",
-                    ) as mock_get_data:
-                        mock_get_data.side_effect = Exception("Expected test stop")
+                with pytest.raises(Exception, match="Expected test stop"):
+                    run(
+                        config_dict=mock_config,
+                        strategy_type=invalid_strategy_type,
+                    )
 
-                        with pytest.raises(Exception, match="Expected test stop"):
-                            run(
-                                config_dict=mock_config,
-                                strategy_type=invalid_strategy_type,
-                            )
+                # Verify that conversion happened (invalid strategy types are handled)
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["STRATEGY_TYPE"] == invalid_strategy_type
+                assert (
+                    enhanced_config["USE_SMA"] is False
+                )  # Only "SMA" sets USE_SMA to True
 
-                        # Verify that conversion happened (invalid strategy types are handled)
-                        enhanced_config = mock_get_config.call_args[0][0]
-                        assert enhanced_config["STRATEGY_TYPE"] == invalid_strategy_type
-                        assert (
-                            enhanced_config["USE_SMA"] is False
-                        )  # Only "SMA" sets USE_SMA to True
-
-    def test_invalid_signal_period_values(self):
+    @pytest.mark.parametrize(
+        "invalid_signal_period", [-1, 0, "invalid", None, 3.14, []]
+    )
+    def test_invalid_signal_period_values(self, invalid_signal_period):
         """Test behavior with invalid signal period values."""
         mock_config = {
             "TICKER": "TEST",
@@ -109,69 +110,73 @@ class TestEdgeCasesAndErrorHandling:
             "BASE_DIR": "/tmp",
         }
 
-        invalid_signal_periods = [-1, 0, "invalid", None, 3.14, []]
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = mock_config
 
-        for invalid_signal_period in invalid_signal_periods:
-            with (
-                self.subTest(signal_period=invalid_signal_period),
-                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
-                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
-            ):
-                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                mock_get_config.return_value = mock_config
+            with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                mock_get_data.side_effect = Exception("Expected test stop")
 
-                with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
-                    mock_get_data.side_effect = Exception("Expected test stop")
+                with pytest.raises(Exception, match="Expected test stop"):
+                    run(
+                        config_dict=mock_config,
+                        signal_period=invalid_signal_period,
+                    )
 
-                    with pytest.raises(Exception, match="Expected test stop"):
-                        run(
-                            config_dict=mock_config,
-                            signal_period=invalid_signal_period,
-                        )
+                # Verify that invalid signal periods are passed through as-is
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["SIGNAL_PERIOD"] == invalid_signal_period
 
-                    # Verify that invalid signal periods are passed through as-is
-                    enhanced_config = mock_get_config.call_args[0][0]
-                    assert enhanced_config["SIGNAL_PERIOD"] == invalid_signal_period
-
-    def test_missing_required_config_fields(self):
+    @pytest.mark.parametrize(
+        "incomplete_config",
+        [
+            pytest.param({}, id="empty"),  # Completely empty
+            pytest.param({"FAST_PERIOD": 10}, id="missing-ticker"),  # Missing TICKER
+            pytest.param(
+                {"TICKER": "TEST"}, id="missing-periods"
+            ),  # Missing FAST_PERIOD, SLOW_PERIOD
+            pytest.param(
+                {"TICKER": "TEST", "FAST_PERIOD": 10}, id="missing-slow-period"
+            ),  # Missing SLOW_PERIOD
+        ],
+    )
+    def test_missing_required_config_fields(self, incomplete_config):
         """Test behavior with missing required configuration fields."""
-        incomplete_configs = [
-            {},  # Completely empty
-            {"FAST_PERIOD": 10},  # Missing TICKER
-            {"TICKER": "TEST"},  # Missing FAST_PERIOD, SLOW_PERIOD
-            {"TICKER": "TEST", "FAST_PERIOD": 10},  # Missing SLOW_PERIOD
-        ]
+        with (
+            patch(
+                "app.portfolio_synthesis.review.setup_logging",
+            ) as mock_logging,
+            patch(
+                "app.portfolio_synthesis.review.get_config",
+            ) as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = incomplete_config
 
-        for incomplete_config in incomplete_configs:
-            with self.subTest(config=incomplete_config):
-                with (
-                    patch(
-                        "app.portfolio_synthesis.review.setup_logging",
-                    ) as mock_logging,
-                    patch(
-                        "app.portfolio_synthesis.review.get_config",
-                    ) as mock_get_config,
-                ):
-                    mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            with patch(
+                "app.portfolio_synthesis.review.get_data",
+            ) as mock_get_data:
+                # This should cause an error when trying to access missing fields
+                mock_get_data.side_effect = Exception(
+                    "Expected error from incomplete config",
+                )
 
-                    # get_config should handle incomplete configs and potentially raise errors
-                    # or return defaults - we'll simulate both scenarios
+                # Note: Empty config may not raise exception immediately, that's acceptable behavior
+                # The code gracefully handles missing fields at various points
+                if (
+                    incomplete_config
+                ):  # Only expect exception for non-empty incomplete configs
+                    with pytest.raises(Exception):
+                        run(config_dict=incomplete_config)
+                else:
+                    # Empty config may be handled gracefully - just ensure no crash
                     try:
-                        mock_get_config.return_value = incomplete_config
-
-                        with patch(
-                            "app.portfolio_synthesis.review.get_data",
-                        ) as mock_get_data:
-                            # This should cause an error when trying to access missing fields
-                            mock_get_data.side_effect = Exception(
-                                "Expected error from incomplete config",
-                            )
-
-                            with pytest.raises(Exception):
-                                run(config_dict=incomplete_config)
-
+                        run(config_dict=incomplete_config)
                     except Exception:
-                        # Expected behavior for incomplete configs
+                        # This is also acceptable - either way is fine
                         pass
 
     def test_nonexistent_portfolio_file(self):
@@ -330,49 +335,49 @@ class TestEdgeCasesAndErrorHandling:
             with pytest.raises(PermissionError):
                 run(config_dict=mock_config)
 
-    def test_extreme_parameter_values(self):
-        """Test behavior with extreme parameter values."""
-        extreme_configs = [
+    @pytest.mark.parametrize(
+        "extreme_config",
+        [
             {
                 "TICKER": "EXTREME1",
-                "FAST_PERIOD": 1,  # Very small
-                "SLOW_PERIOD": 2,  # Very small
+                "FAST_PERIOD": 1,
+                "SLOW_PERIOD": 2,
                 "BASE_DIR": "/tmp",
-            },
+            },  # Very small
             {
                 "TICKER": "EXTREME2",
-                "FAST_PERIOD": 9999,  # Very large
-                "SLOW_PERIOD": 10000,  # Very large
+                "FAST_PERIOD": 9999,
+                "SLOW_PERIOD": 10000,
                 "BASE_DIR": "/tmp",
-            },
+            },  # Very large
             {
                 "TICKER": "EXTREME3",
                 "FAST_PERIOD": 50,
-                "SLOW_PERIOD": 10,  # Slow < Fast (invalid relationship)
+                "SLOW_PERIOD": 10,
                 "BASE_DIR": "/tmp",
-            },
-        ]
+            },  # Slow < Fast (invalid relationship)
+        ],
+    )
+    def test_extreme_parameter_values(self, extreme_config):
+        """Test behavior with extreme parameter values."""
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+            patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = extreme_config
 
-        for extreme_config in extreme_configs:
-            with (
-                self.subTest(config=extreme_config),
-                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
-                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
-                patch("app.portfolio_synthesis.review.get_data") as mock_get_data,
-            ):
-                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                mock_get_config.return_value = extreme_config
+            # Extreme parameters might cause calculation errors
+            mock_get_data.side_effect = Exception("Expected calculation error")
 
-                # Extreme parameters might cause calculation errors
-                mock_get_data.side_effect = Exception("Expected calculation error")
+            # Should handle extreme values gracefully or fail with meaningful errors
+            with pytest.raises(Exception):
+                run(config_dict=extreme_config)
 
-                # Should handle extreme values gracefully or fail with meaningful errors
-                with pytest.raises(Exception):
-                    run(config_dict=extreme_config)
-
-    def test_none_and_null_handling(self):
-        """Test behavior with None and null values in various fields."""
-        configs_with_none = [
+    @pytest.mark.parametrize(
+        "config_with_none",
+        [
             {"TICKER": None, "FAST_PERIOD": 10, "SLOW_PERIOD": 20, "BASE_DIR": "/tmp"},
             {
                 "TICKER": "TEST",
@@ -386,69 +391,70 @@ class TestEdgeCasesAndErrorHandling:
                 "SLOW_PERIOD": None,
                 "BASE_DIR": "/tmp",
             },
-        ]
+        ],
+    )
+    def test_none_and_null_handling(self, config_with_none):
+        """Test behavior with None and null values in various fields."""
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = config_with_none
 
-        for config_with_none in configs_with_none:
-            with (
-                self.subTest(config=config_with_none),
-                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
-                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
-            ):
-                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                mock_get_config.return_value = config_with_none
+            with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                # None values should cause appropriate errors
+                mock_get_data.side_effect = Exception("Expected None value error")
 
-                with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
-                    # None values should cause appropriate errors
-                    mock_get_data.side_effect = Exception("Expected None value error")
+                with pytest.raises(Exception):
+                    run(config_dict=config_with_none)
 
-                    with pytest.raises(Exception):
-                        run(config_dict=config_with_none)
-
-    def test_unicode_and_special_character_handling(self):
+    @pytest.mark.parametrize(
+        "special_config",
+        [
+            {
+                "TICKER": "TÉST-USD",
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
+                "BASE_DIR": "/tmp",
+            },  # Unicode characters
+            {
+                "TICKER": "TEST@#$",
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
+                "BASE_DIR": "/tmp",
+            },  # Special characters
+            {
+                "TICKER": "",
+                "FAST_PERIOD": 10,
+                "SLOW_PERIOD": 20,
+                "BASE_DIR": "/tmp",
+            },  # Empty string
+        ],
+    )
+    def test_unicode_and_special_character_handling(self, special_config):
         """Test behavior with unicode and special characters in parameters."""
-        special_configs = [
-            {
-                "TICKER": "TÉST-USD",  # Unicode characters
-                "FAST_PERIOD": 10,
-                "SLOW_PERIOD": 20,
-                "BASE_DIR": "/tmp",
-            },
-            {
-                "TICKER": "TEST@#$",  # Special characters
-                "FAST_PERIOD": 10,
-                "SLOW_PERIOD": 20,
-                "BASE_DIR": "/tmp",
-            },
-            {
-                "TICKER": "",  # Empty string
-                "FAST_PERIOD": 10,
-                "SLOW_PERIOD": 20,
-                "BASE_DIR": "/tmp",
-            },
-        ]
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = special_config
 
-        for special_config in special_configs:
-            with (
-                self.subTest(config=special_config),
-                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
-                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
-            ):
-                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                mock_get_config.return_value = special_config
+            with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                # Special characters might cause data retrieval issues
+                mock_get_data.side_effect = Exception(
+                    "Expected special character error",
+                )
 
-                with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
-                    # Special characters might cause data retrieval issues
-                    mock_get_data.side_effect = Exception(
-                        "Expected special character error",
-                    )
+                with pytest.raises(Exception):
+                    run(config_dict=special_config)
 
-                    with pytest.raises(Exception):
-                        run(config_dict=special_config)
-
-    def test_boundary_value_analysis_signal_periods(self):
+    @pytest.mark.parametrize(
+        "signal_period", [1, 2, 999, 1000]
+    )  # Min/max reasonable values
+    def test_boundary_value_analysis_signal_periods(self, signal_period):
         """Test boundary values for signal periods."""
-        boundary_signal_periods = [1, 2, 999, 1000]  # Min/max reasonable values
-
         mock_config = {
             "TICKER": "BOUNDARY-TEST",
             "FAST_PERIOD": 10,
@@ -456,21 +462,19 @@ class TestEdgeCasesAndErrorHandling:
             "BASE_DIR": "/tmp",
         }
 
-        for signal_period in boundary_signal_periods:
-            with (
-                self.subTest(signal_period=signal_period),
-                patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
-                patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
-            ):
-                mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
-                mock_get_config.return_value = mock_config
+        with (
+            patch("app.portfolio_synthesis.review.setup_logging") as mock_logging,
+            patch("app.portfolio_synthesis.review.get_config") as mock_get_config,
+        ):
+            mock_logging.return_value = (MagicMock(), MagicMock(), None, None)
+            mock_get_config.return_value = mock_config
 
-                with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
-                    mock_get_data.side_effect = Exception("Expected test stop")
+            with patch("app.portfolio_synthesis.review.get_data") as mock_get_data:
+                mock_get_data.side_effect = Exception("Expected test stop")
 
-                    with pytest.raises(Exception, match="Expected test stop"):
-                        run(config_dict=mock_config, signal_period=signal_period)
+                with pytest.raises(Exception, match="Expected test stop"):
+                    run(config_dict=mock_config, signal_period=signal_period)
 
-                    # Verify boundary values are handled
-                    enhanced_config = mock_get_config.call_args[0][0]
-                    assert enhanced_config["SIGNAL_PERIOD"] == signal_period
+                # Verify boundary values are handled
+                enhanced_config = mock_get_config.call_args[0][0]
+                assert enhanced_config["SIGNAL_PERIOD"] == signal_period

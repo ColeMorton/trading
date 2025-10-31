@@ -168,8 +168,8 @@ class ExportTypeRouter:
             "validation_level": "strict",
         },
         "portfolios_filtered": {
-            "schema": SchemaType.EXTENDED,
-            "description": "62 columns, canonical format for minimums-filtered results",
+            "schema": SchemaType.FILTERED,
+            "description": "65 columns, Metric Type + Extended for minimums-filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
@@ -477,40 +477,59 @@ def export_portfolios(
             and (has_metric_type or has_multiple_strategy_types)
             and not has_compound_metric_types
         ):
-            from app.tools.portfolio.collection import (
-                deduplicate_and_aggregate_portfolios,
+            # Check if portfolios need aggregation (same config, different metric types)
+            # Only aggregate if there are duplicate configurations with different metric types
+            config_check = df.group_by(
+                ["Ticker", "Strategy Type", "Fast Period", "Slow Period"]
+            ).agg(pl.col("Metric Type").n_unique().alias("unique_metrics"))
+
+            needs_aggregation = any(
+                row["unique_metrics"] > 1 for row in config_check.to_dicts()
             )
 
-            if log:
-                if has_metric_type and has_multiple_strategy_types:
-                    log("Aggregating portfolios by metric type and strategy", "debug")
-                elif has_metric_type:
-                    log("Aggregating portfolios by metric type", "debug")
-                elif has_multiple_strategy_types:
-                    log("Aggregating portfolios by strategy type", "debug")
+            if needs_aggregation:
+                from app.tools.portfolio.collection import (
+                    deduplicate_and_aggregate_portfolios,
+                )
 
-                # Log detailed pre-aggregation data (debug only)
                 if log:
-                    log(f"Starting aggregation of {len(df)} portfolios", "debug")
+                    if has_metric_type and has_multiple_strategy_types:
+                        log(
+                            "Aggregating portfolios by metric type and strategy",
+                            "debug",
+                        )
+                    elif has_metric_type:
+                        log("Aggregating portfolios by metric type", "debug")
+                    elif has_multiple_strategy_types:
+                        log("Aggregating portfolios by strategy type", "debug")
 
-            # Apply metric type aggregation before schema transformation
-            pre_aggregation_count = len(df)
+                    # Log detailed pre-aggregation data (debug only)
+                    if log:
+                        log(f"Starting aggregation of {len(df)} portfolios", "debug")
 
-            # Convert to dict for aggregation function
-            pre_agg_portfolios = df.to_dicts()
-            if log:
-                log(f"Aggregating {len(pre_agg_portfolios)} portfolios", "debug")
+                # Apply metric type aggregation before schema transformation
+                pre_aggregation_count = len(df)
 
-            aggregated_portfolios = deduplicate_and_aggregate_portfolios(
-                pre_agg_portfolios,
-                log,
-            )
-            df = pl.DataFrame(aggregated_portfolios)
+                # Convert to dict for aggregation function
+                pre_agg_portfolios = df.to_dicts()
+                if log:
+                    log(f"Aggregating {len(pre_agg_portfolios)} portfolios", "debug")
 
-            if log:
+                aggregated_portfolios = deduplicate_and_aggregate_portfolios(
+                    pre_agg_portfolios,
+                    log,
+                )
+                df = pl.DataFrame(aggregated_portfolios)
+
+                if log:
+                    log(
+                        f"Aggregation complete: {pre_aggregation_count} → {len(df)} portfolios",
+                        "info",
+                    )
+            elif log:
                 log(
-                    f"Aggregation complete: {pre_aggregation_count} → {len(df)} portfolios",
-                    "info",
+                    "Skipping aggregation - portfolios have unique configurations",
+                    "debug",
                 )
         elif export_type == "portfolios_best" and has_compound_metric_types:
             if log:

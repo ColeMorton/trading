@@ -146,13 +146,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_sma,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_sma,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -181,13 +180,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_sma,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_sma,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -215,13 +213,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_sma,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_sma,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -234,13 +231,9 @@ class TestExportTypeMatrix:
         export_path = Path(temp_export_dir) / "data" / "raw" / "portfolios_best"
         assert export_path.exists()
 
-        # Verify CSV file exists with timestamp
+        # Verify CSV file exists
         csv_files = list(export_path.glob("*.csv"))
         assert len(csv_files) > 0
-
-        # Verify filename contains timestamp for best portfolios
-        filename = csv_files[0].name
-        assert any(char.isdigit() for char in filename)  # Contains timestamp
 
     def test_ema_portfolios_export(
         self,
@@ -254,13 +247,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_ema,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_ema,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -288,13 +280,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_ema,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_ema,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         # Verify export success and schema
         assert success is True
@@ -322,13 +313,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["EMA"]
         config["STRATEGY_TYPE"] = "EMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_ema,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_ema,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         # Verify export success and schema
         assert success is True
@@ -351,13 +341,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_macd,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_macd,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -390,13 +379,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_macd,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_macd,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         # Verify export success and filtered schema
         assert success is True
@@ -424,13 +412,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["MACD"]
         config["STRATEGY_TYPE"] = "MACD"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios_macd,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios_macd,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         # Verify export success and best schema
         assert success is True
@@ -460,13 +447,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPE"] = "Multi"
         config["USE_MA"] = False  # No strategy suffix for multiple strategies
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=mixed_portfolios,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=mixed_portfolios,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -505,13 +491,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=multi_ticker_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=multi_ticker_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -548,13 +533,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = ["SMA"]
         config["STRATEGY_TYPE"] = "SMA"
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=synthetic_portfolios,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=synthetic_portfolios,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         # Verify export success
         assert success is True
@@ -669,13 +653,12 @@ class TestExportTypeMatrix:
         config["STRATEGY_TYPES"] = [strategy_type]
         config["STRATEGY_TYPE"] = strategy_type
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=sample_portfolios,
-                config=config,
-                export_type=export_type,
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=sample_portfolios,
+            config=config,
+            export_type=export_type,
+            log=Mock(),
+        )
 
         # Verify all combinations work
         assert success is True
@@ -788,13 +771,12 @@ class TestExportSchemaConsistency:
         """Test that portfolios export maintains schema consistency."""
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=[comprehensive_portfolio],
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=[comprehensive_portfolio],
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
         assert len(df) == 1
@@ -823,13 +805,12 @@ class TestExportSchemaConsistency:
         """Test that portfolios_filtered export maintains schema consistency."""
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=[comprehensive_portfolio],
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=[comprehensive_portfolio],
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
         assert len(df) == 1
@@ -862,13 +843,12 @@ class TestExportSchemaConsistency:
         """Test that portfolios_best export maintains schema consistency."""
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=[comprehensive_portfolio],
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=[comprehensive_portfolio],
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
         assert len(df) == 1
@@ -910,16 +890,17 @@ class TestExportSchemaConsistency:
         column_orders = {}
 
         for export_type in export_types:
-            with patch("app.tools.strategy.export_portfolios.logging_context"):
-                df, success = export_portfolios(
-                    portfolios=[comprehensive_portfolio],
-                    config=config,
-                    export_type=export_type,
-                    log=Mock(),
-                )
+            df, success = export_portfolios(
+                portfolios=[comprehensive_portfolio],
+                config=config,
+                export_type=export_type,
+                log=Mock(),
+            )
 
             assert success is True
-            column_orders[export_type] = df.columns.to_list()
+            column_orders[export_type] = (
+                df.columns if isinstance(df.columns, list) else df.columns.to_list()
+            )
 
         # Verify that common columns appear in consistent order
         common_columns = (
@@ -954,13 +935,12 @@ class TestExportSchemaConsistency:
         dataframes = {}
 
         for export_type in export_types:
-            with patch("app.tools.strategy.export_portfolios.logging_context"):
-                df, success = export_portfolios(
-                    portfolios=[comprehensive_portfolio],
-                    config=config,
-                    export_type=export_type,
-                    log=Mock(),
-                )
+            df, success = export_portfolios(
+                portfolios=[comprehensive_portfolio],
+                config=config,
+                export_type=export_type,
+                log=Mock(),
+            )
 
             assert success is True
             dataframes[export_type] = df

@@ -49,7 +49,7 @@ class APISettings(BaseSettings):
 
     # Database
     DATABASE_URL: str = Field(
-        default="postgresql://trading_user:trading_password@localhost:5432/trading_db",
+        default="postgresql://trading_user:changeme@localhost:5432/trading_db",
         description="PostgreSQL connection URL",
     )
     DB_POOL_SIZE: int = 20

@@ -33,14 +33,14 @@ async def startup(ctx: dict[str, Any]) -> None:
     print("🔍 Verifying trading-cli availability...")
     try:
         result = subprocess.run(
-            ["trading-cli", "--version"],
+            ["trading-cli", "--help"],
             capture_output=True,
             timeout=10,
             text=True,
             check=False,
         )
         if result.returncode == 0:
-            print(f"✅ trading-cli available: {result.stdout.strip()}")
+            print("✅ trading-cli is available and responding")
         else:
             print(f"⚠️  trading-cli exists but returned error code {result.returncode}")
             print(f"   stderr: {result.stderr}")
