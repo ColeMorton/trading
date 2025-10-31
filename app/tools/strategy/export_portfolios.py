@@ -5,6 +5,7 @@ This module handles the export of portfolio data to CSV files using the
 centralized export functionality.
 """
 
+import os
 from collections.abc import Callable
 from typing import Any
 
@@ -22,6 +23,33 @@ from app.tools.portfolio.base_extended_schemas import (
 )
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
+
+
+def _get_worker_prefix() -> str:
+    """Get worker ID prefix for parallel execution diagnostics.
+
+    Returns:
+        str: Worker ID prefix like "[gw0]" or "" if not in parallel mode
+    """
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER") or os.environ.get(
+        "PYTEST_WORKER_ID"
+    )
+    return f"[{worker_id}] " if worker_id else ""
+
+
+def _log_with_worker_id(
+    log: Callable | None, message: str, level: str = "info"
+) -> None:
+    """Log message with worker ID prefix for parallel execution tracing.
+
+    Args:
+        log: Optional logging function
+        message: Message to log
+        level: Log level (info, debug, warning, error)
+    """
+    if log:
+        worker_prefix = _get_worker_prefix()
+        log(f"{worker_prefix}{message}", level)
 
 
 def _validate_portfolio_schema(
@@ -429,22 +457,59 @@ def export_portfolios(
         if export_type == "portfolios_best":
             from app.tools.portfolio.filtering_service import PortfolioFilterService
 
+            # Log pre-filtering state for diagnostics
+            _log_with_worker_id(
+                log,
+                f"portfolios_best: Starting filtering with {len(df)} portfolios",
+                "debug",
+            )
+            _log_with_worker_id(
+                log,
+                f"portfolios_best: Config MINIMUMS = {config.get('MINIMUMS', {})}",
+                "debug",
+            )
+
             # Apply MinimumsFilter to ensure YAML config criteria are enforced
             filter_service = PortfolioFilterService()
             filtered_df = filter_service.filter_portfolios_dataframe(df, config, log)
 
             if filtered_df is None or len(filtered_df) == 0:
                 # Skip export for portfolios_best when all portfolios are filtered out
-                if log:
-                    log(
-                        f"Skipping {export_type} export - no portfolios remain after applying MINIMUMS filtering",
-                        "info",
+                _log_with_worker_id(
+                    log, "⚠️ portfolios_best: ALL PORTFOLIOS FILTERED OUT", "warning"
+                )
+                _log_with_worker_id(
+                    log,
+                    f"   Original count: {len(df)} → Filtered count: {len(filtered_df) if filtered_df is not None else 0}",
+                    "warning",
+                )
+                _log_with_worker_id(
+                    log,
+                    f"   DataFrame columns: {df.columns[:5]}..."
+                    if len(df.columns) > 5
+                    else f"   DataFrame columns: {df.columns}",
+                    "warning",
+                )
+                if len(df) > 0:
+                    first_row = df.row(0, named=True)
+                    _log_with_worker_id(
+                        log,
+                        f"   First row sample: Score={first_row.get('Score')}, Profit Factor={first_row.get('Profit Factor')}, Expectancy per Trade={first_row.get('Expectancy per Trade')}",
+                        "warning",
                     )
+                _log_with_worker_id(
+                    log,
+                    f"Skipping {export_type} export - no portfolios remain after applying MINIMUMS filtering",
+                    "info",
+                )
                 return pl.DataFrame(), False
 
             df = filtered_df
-            if log:
-                log(f"Applied filters: {len(df)} portfolios remain", "debug")
+            _log_with_worker_id(
+                log,
+                f"portfolios_best: Filtering complete - {len(df)} portfolios remain",
+                "debug",
+            )
 
         # Check if portfolios already have compound metric types (indicating prior aggregation)
         has_compound_metric_types = False

@@ -28,6 +28,7 @@ from app.concurrency.tools.monte_carlo.config import (
 from app.concurrency.tools.monte_carlo.core import MonteCarloAnalyzer
 
 
+@pytest.mark.unit
 class TestMonteCarloConfig:
     """Test Monte Carlo configuration handling."""
 
@@ -135,6 +136,7 @@ class TestMonteCarloConfig:
         assert config.max_parameters_to_test == 10
 
 
+@pytest.mark.unit
 class TestBootstrapConfiguration:
     """Test bootstrap sampling configuration."""
 
@@ -172,6 +174,7 @@ class TestBootstrapConfiguration:
         assert sampler.min_data_fraction == 1.1  # Will be handled during sampling
 
 
+@pytest.mark.unit
 class TestMonteCarloErrorHandling:
     """Test error handling in Monte Carlo analysis."""
 
@@ -358,6 +361,7 @@ class TestMonteCarloErrorHandling:
         assert any("Completed Monte Carlo analysis" in msg for msg in messages)
 
 
+@pytest.mark.unit
 class TestMonteCarloEdgeCases:
     """Test edge cases in Monte Carlo analysis."""
 

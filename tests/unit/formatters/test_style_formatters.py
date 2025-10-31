@@ -2,9 +2,12 @@
 
 from unittest.mock import patch
 
+import pytest
+
 from app.tools.formatters.style_formatters import create_section_header
 
 
+@pytest.mark.unit
 class TestCreateSectionHeader:
     """Test suite for create_section_header function."""
 

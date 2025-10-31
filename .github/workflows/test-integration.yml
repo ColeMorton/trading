@@ -1,0 +1,50 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
+
+      - name: Install fakeredis for in-memory Redis
+        run: poetry add --group dev fakeredis
+
+      - name: Run integration tests
+        run: |
+          poetry run pytest -m integration \
+            -n 4 \
+            --maxfail=15 \
+            --tb=short \
+            --color=yes \
+            -v \
+            --junitxml=test-results/integration-tests.xml
+        timeout-minutes: 10
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: test-results/
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "📊 Integration Test Summary"
+          if [ -f test-results/integration-tests.xml ]; then
+            grep -oP 'tests="\K[0-9]+' test-results/integration-tests.xml || echo "0 tests"
+          fi

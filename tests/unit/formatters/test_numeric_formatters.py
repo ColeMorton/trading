@@ -1,5 +1,6 @@
 """Tests for numeric formatting functions."""
 
+import pytest
 from rich.text import Text
 
 from app.tools.formatters.numeric_formatters import (
@@ -11,6 +12,7 @@ from app.tools.formatters.numeric_formatters import (
 )
 
 
+@pytest.mark.unit
 class TestFormatPercentage:
     """Test suite for format_percentage function."""
 
@@ -85,6 +87,7 @@ class TestFormatPercentage:
         assert result.style == "yellow"
 
 
+@pytest.mark.unit
 class TestFormatCurrency:
     """Test suite for format_currency function."""
 
@@ -139,6 +142,7 @@ class TestFormatCurrency:
         assert result.style == "dim"
 
 
+@pytest.mark.unit
 class TestFormatScore:
     """Test suite for format_score function."""
 
@@ -197,6 +201,7 @@ class TestFormatScore:
         assert result.style == "dim"
 
 
+@pytest.mark.unit
 class TestFormatWinRate:
     """Test suite for format_win_rate function."""
 
@@ -250,6 +255,7 @@ class TestFormatWinRate:
         assert result.style == "dim"
 
 
+@pytest.mark.unit
 class TestFormatRatio:
     """Test suite for format_ratio function."""
 

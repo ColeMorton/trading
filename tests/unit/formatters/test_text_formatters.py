@@ -12,6 +12,7 @@ from app.tools.formatters.text_formatters import (
 )
 
 
+@pytest.mark.unit
 class TestFormatDuration:
     """Test suite for format_duration function."""
 
@@ -66,6 +67,7 @@ class TestFormatDuration:
         assert result.style == "dim"
 
 
+@pytest.mark.unit
 class TestParseDurationToHours:
     """Test suite for parse_duration_to_hours function."""
 
@@ -108,6 +110,7 @@ class TestParseDurationToHours:
         assert result == 0.0
 
 
+@pytest.mark.unit
 class TestFormatAverageDuration:
     """Test suite for format_average_duration function."""
 
@@ -146,6 +149,7 @@ class TestFormatAverageDuration:
         assert result == "1d 1h"
 
 
+@pytest.mark.unit
 class TestFormatStatus:
     """Test suite for format_status function."""
 
@@ -185,6 +189,7 @@ class TestFormatStatus:
         assert result.style == "white"
 
 
+@pytest.mark.unit
 class TestFormatSignalStatus:
     """Test suite for format_signal_status function."""
 

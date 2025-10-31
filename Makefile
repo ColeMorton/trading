@@ -10,13 +10,23 @@ help:
 	@echo "Development:"
 	@echo "  install          - Install dependencies using Poetry"
 	@echo "  dev              - Start development server"
-	@echo "  test             - Run unified test suite (CI configuration)"
-	@echo "  test-quick       - Run quick tests for development"
-	@echo "  test-full        - Run full test suite with coverage"
 	@echo "  clean            - Clean temporary files"
 	@echo "  lint-help        - Show all linting commands"
 	@echo "  lint-all         - Run all linters and formatters"
 	@echo "  validate-versions - Check tool version consistency"
+	@echo ""
+	@echo "Testing (NEW TAXONOMY):"
+	@echo "  test-unit        - Unit tests only (fast, no Docker, <1 min)"
+	@echo "  test-integration - Integration tests (in-memory DB, no Docker, <5 min)"
+	@echo "  test-e2e         - E2E tests (requires Docker, <15 min)"
+	@echo "  test-ci          - CI suite (unit + integration, <5 min)"
+	@echo "  test-stats       - Show test marker statistics"
+	@echo "  test-validate-markers - Validate all tests have proper markers"
+	@echo ""
+	@echo "Testing (LEGACY):"
+	@echo "  test             - Run unified test suite (OLD - Phase 3)"
+	@echo "  test-quick       - Run quick tests for development (OLD)"
+	@echo "  test-full        - Run full test suite with coverage (OLD)"
 	@echo ""
 	@echo "Workflow Testing:"
 	@echo "  workflow-help    - Show workflow testing commands"
@@ -90,26 +100,48 @@ test-full:
 	poetry run python tests/run_unified_tests.py all -c --save test_results.json
 	@echo "📊 Coverage report available at: htmlcov/index.html"
 
-# Individual test categories (delegating to unified runner)
-# Unit tests run natively - no services needed
+# Individual test categories (NEW TAXONOMY - Phase 1)
+# Unit tests - Pure functions, no I/O, <100ms per test
 test-unit:
-	@echo "Running unit tests (no services needed)..."
-	poetry run python tests/run_unified_tests.py unit -v
+	@echo "🧪 Running unit tests (no Docker required)..."
+	@echo "📋 Fast feedback loop: pure functions only"
+	poetry run pytest -m unit -n auto --maxfail=10 --tb=short -v
 
-# Integration tests need services - auto-start them
-test-integration: services-up
-	@echo "Running integration tests with Docker services..."
-	poetry run python tests/run_unified_tests.py integration -v
+# Integration tests - In-memory DB, mocked services, <5s per test
+test-integration:
+	@echo "🧪 Running integration tests (no Docker required)..."
+	@echo "📋 Uses: TestClient (ASGI), in-memory DB, fakeredis"
+	poetry run pytest -m integration -n 4 --maxfail=15 --tb=short -v
 
+# E2E tests - Full Docker stack required, real HTTP, <60s per test
+test-e2e: e2e-up
+	@echo "🧪 Running E2E tests (Docker required)..."
+	@echo "📋 Tests full stack: API → Worker → DB → Webhooks"
+	@bash -c 'for i in {1..180}; do if curl -sfL http://localhost:8000/health/ >/dev/null; then break; fi; sleep 1; done'
+	poetry run pytest -m e2e -v --maxfail=5 --tb=long || ( $(MAKE) e2e-down; exit 1 )
+	$(MAKE) e2e-down
+
+# CI test suite - Unit + Integration only (no Docker)
+test-ci:
+	@echo "🚀 Running CI test suite (unit + integration)..."
+	poetry run pytest -m "unit or integration" -n 4 --maxfail=20 --tb=short -v
+
+# Validate test markers
+test-validate-markers:
+	@echo "🔍 Validating test markers..."
+	poetry run python tests/validate_markers.py --check
+
+# Show test statistics
+test-stats:
+	@echo "📊 Test marker statistics:"
+	poetry run python tests/validate_markers.py
+
+# Legacy targets (for backwards compatibility)
 # API tests need services - auto-start them
-test-api: services-up
-	@echo "Running API tests with Docker services..."
+test-api-legacy: services-up
+	@echo "⚠️  DEPRECATED: Use 'make test-integration' or 'make test-e2e' instead"
+	@echo "Running legacy API tests with Docker services..."
 	poetry run python tests/run_unified_tests.py api -v
-
-# E2E tests need services - auto-start them
-test-e2e: services-up
-	@echo "Running E2E tests with Docker services..."
-	poetry run python tests/run_unified_tests.py e2e -v
 
 # Legacy pytest command for direct pytest access
 test-pytest:

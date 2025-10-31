@@ -44,13 +44,39 @@ def isolate_test_worker():
     3. Temporary directories are unique per worker
     4. No state leaks between tests
     """
+    # Store original environment state
+    original_env = os.environ.copy()
+
     # Clear any module-level caches that could cause interference
     _clear_module_caches()
+
+    # Ensure clean tempfile state per test
+    import tempfile
+
+    # Get worker-specific temp directory
+    worker_id = os.environ.get("PYTEST_WORKER_ID", "master")
+    worker_temp = tempfile.gettempdir() + f"/pytest_worker_{worker_id}_{os.getpid()}"
+    os.makedirs(worker_temp, exist_ok=True)
 
     yield
 
     # Cleanup after test
     _clear_module_caches()
+
+    # Restore original environment (in case test modified it)
+    # Only restore keys that existed originally or were added
+    current_keys = set(os.environ.keys())
+    original_keys = set(original_env.keys())
+
+    # Remove keys that were added during test
+    for key in current_keys - original_keys:
+        if key not in ["PYTEST_WORKER_ID", "PYTEST_WORKER_OUTPUT_DIR"]:
+            os.environ.pop(key, None)
+
+    # Restore keys that were modified
+    for key in original_keys:
+        if os.environ.get(key) != original_env[key]:
+            os.environ[key] = original_env[key]
 
     # Force garbage collection to prevent memory leaks
     gc.collect()
@@ -58,43 +84,33 @@ def isolate_test_worker():
 
 def _clear_module_caches():
     """Clear all module-level caches that could interfere with parallel tests."""
-    try:
-        # Clear portfolio export caches
-        from app.tools.portfolio.base_extended_schemas import SchemaTransformer
-
-        if hasattr(SchemaTransformer, "_cache"):
-            SchemaTransformer._cache = {}
-    except (ImportError, AttributeError):
-        pass
+    # Force garbage collection to clear any circular references
+    gc.collect()
 
     try:
-        # Clear data conversion caches
-        from app.tools.processing.data_converter import ConversionCache
-
-        # Create new cache instance to clear
-        if hasattr(ConversionCache, "__init__"):
-            pass  # Instance-level cache, no clearing needed
-    except (ImportError, AttributeError):
-        pass
-
-    try:
-        # Clear polars internal caches
-        import polars as pl
-
-        if hasattr(pl, "clear_cache"):
-            pl.clear_cache()
-    except (ImportError, AttributeError):
-        pass
-
-    try:
-        # Clear pandas caches
+        # Clear pandas internal state that might affect DataFrame operations
         import pandas as pd
 
-        # Clear any pandas internal caches
-        if hasattr(pd, "_cached_file_warning_issued"):
-            pd._cached_file_warning_issued = False
+        # Reset pandas option state (if any test modified it)
+        pd.reset_option("all")
     except (ImportError, AttributeError):
         pass
+
+    try:
+        # Clear polars thread pool state if applicable
+        import polars as pl
+
+        # Polars doesn't have a public cache clearing API, but forcing GC helps
+        # Release any cached DataFrames or internal buffers
+        pass
+    except ImportError:
+        pass
+
+    # Note: We intentionally do NOT clear module-level constants or configuration
+    # dictionaries like STRATEGY_TYPE_FIELDS, EXPORT_SCHEMA_CONFIG, etc.
+    # These are immutable application constants that should persist.
+    #
+    # Only clear actual caches or mutable state that accumulates during test runs.
 
 
 @pytest.fixture(scope="session")

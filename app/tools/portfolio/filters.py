@@ -5,9 +5,18 @@ This module provides utilities for filtering portfolios based on various criteri
 """
 
 import math
+import os
 from typing import Any
 
 import polars as pl
+
+
+def _get_worker_prefix() -> str:
+    """Get worker ID prefix for parallel execution diagnostics."""
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER") or os.environ.get(
+        "PYTEST_WORKER_ID"
+    )
+    return f"[{worker_id}] " if worker_id else ""
 
 
 def filter_invalid_metrics(
@@ -29,13 +38,23 @@ def filter_invalid_metrics(
     Returns:
         Filtered portfolios in the same format as input (list or DataFrame)
     """
+    worker_prefix = _get_worker_prefix()
+
     if portfolios is None:
+        if log:
+            log(f"{worker_prefix}filter_invalid_metrics: Input is None", "debug")
         return None
 
     if isinstance(portfolios, list) and len(portfolios) == 0:
+        if log:
+            log(f"{worker_prefix}filter_invalid_metrics: Empty list input", "debug")
         return []
 
     if isinstance(portfolios, pl.DataFrame) and len(portfolios) == 0:
+        if log:
+            log(
+                f"{worker_prefix}filter_invalid_metrics: Empty DataFrame input", "debug"
+            )
         return pl.DataFrame()
 
     # Convert to DataFrame if necessary
@@ -43,6 +62,12 @@ def filter_invalid_metrics(
     df = pl.DataFrame(portfolios) if input_is_list else portfolios
 
     original_count = len(df)
+
+    if log:
+        log(
+            f"{worker_prefix}filter_invalid_metrics: Starting with {original_count} portfolios",
+            "debug",
+        )
 
     # Note: Filters are now applied directly below to avoid Polars implementation errors
 
@@ -133,12 +158,10 @@ def filter_invalid_metrics(
     # Log final filtering results
     if log:
         filtered_count = original_count - len(filtered_df)
-        if filtered_count > 0:
-            log(
-                f"Final result: Filtered out {filtered_count} portfolios with invalid metrics",
-                "debug",
-            )
-        log(f"Remaining portfolios: {len(filtered_df)}", "debug")
+        log(
+            f"{worker_prefix}filter_invalid_metrics: Complete - removed {filtered_count}, remaining {len(filtered_df)}",
+            "info" if filtered_count > 0 else "debug",
+        )
 
     # Return in original format
     return filtered_df.to_dicts() if input_is_list else filtered_df

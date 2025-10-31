@@ -28,6 +28,13 @@ repos:
   # LOCAL HOOKS - Use Poetry environment for version consistency
   - repo: local
     hooks:
+      - id: validate-versions
+        name: validate tool versions
+        entry: scripts/validate-versions.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: ruff-format
         name: ruff format (Poetry)
         entry: poetry run ruff format

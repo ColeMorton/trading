@@ -5,11 +5,14 @@ and correct configuration processing.
 
 import os
 
+import pytest
+
 from app.tools.config_management import apply_config_defaults, normalize_config
 from app.tools.config_service import ConfigService, get_unified_config
 from app.tools.get_config import get_config
 
 
+@pytest.mark.unit
 class TestConfigService:
     """Test suite for ConfigService functionality."""
 
