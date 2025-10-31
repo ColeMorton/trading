@@ -1,4 +1,5 @@
 """
+import pytest
 Data Consistency Validation Tests
 
 Comprehensive tests to ensure data integrity across all position
@@ -24,6 +25,7 @@ from app.services.position_service import TradingSystemConfig
 from app.tools.position_calculator import get_position_calculator
 
 
+@pytest.mark.integration
 class TestDataConsistencyValidation(unittest.TestCase):
     """Tests for data consistency across position operations."""
 

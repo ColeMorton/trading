@@ -24,6 +24,7 @@ from app.services import PositionService
 from app.services.position_service import TradingSystemConfig
 
 
+@pytest.mark.integration
 class TestPositionWorkflowsIntegration(unittest.TestCase):
     """Integration tests for complete position workflows."""
 
@@ -441,6 +442,7 @@ class TestPositionWorkflowsIntegration(unittest.TestCase):
         shutil.rmtree(custom_dir, ignore_errors=True)
 
 
+@pytest.mark.integration
 class TestPositionWorkflowsErrorRecovery(unittest.TestCase):
     """Test error recovery and edge cases in position workflows."""
 

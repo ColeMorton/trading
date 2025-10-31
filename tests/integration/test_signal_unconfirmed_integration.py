@@ -9,11 +9,13 @@ import os
 import tempfile
 
 import polars as pl
+import pytest
 
 from app.tools.stats_converter import convert_stats
 from app.tools.strategy.signal_utils import calculate_signal_unconfirmed
 
 
+@pytest.mark.integration
 class TestSignalUnconfirmedIntegration:
     """Integration tests for Signal Unconfirmed field across the entire pipeline."""
 

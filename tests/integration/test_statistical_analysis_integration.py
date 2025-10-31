@@ -130,6 +130,7 @@ def mock_return_distribution_data():
     }
 
 
+@pytest.mark.integration
 class TestStatisticalAnalysisIntegration:
     """Integration tests for complete statistical analysis workflow."""
 
@@ -533,6 +534,7 @@ class TestStatisticalAnalysisIntegration:
             assert service.config.FALLBACK_TO_EQUITY is True
 
 
+@pytest.mark.integration
 class TestPerformanceValidation:
     """Performance validation tests for exit efficiency targets."""
 

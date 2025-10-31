@@ -13,6 +13,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 import polars as pl
+import pytest
 
 from app.strategies.ma_cross.tools.strategy_execution import execute_strategy
 from app.tools.orchestration import PortfolioOrchestrator
@@ -26,6 +27,7 @@ from tests.utils.assertions import (
 )
 
 
+@pytest.mark.integration
 class TestMACrossStrategyPipeline(unittest.TestCase):
     """Integration tests for complete MA Cross strategy pipeline."""
 
@@ -235,6 +237,7 @@ class TestMACrossStrategyPipeline(unittest.TestCase):
         self.assertIn("NVDA", log_text, "Ticker should appear in processing logs")
 
 
+@pytest.mark.integration
 class TestDataPipelineIntegration(unittest.TestCase):
     """Integration tests for data pipeline components."""
 

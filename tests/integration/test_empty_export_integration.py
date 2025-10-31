@@ -21,6 +21,7 @@ from app.tools.portfolio.collection import export_best_portfolios
 from app.tools.strategy.export_portfolios import export_portfolios
 
 
+@pytest.mark.integration
 class TestEmptyExportIntegration:
     """Integration tests for empty portfolio export functionality."""
 
@@ -448,6 +449,7 @@ class TestEmptyExportIntegration:
                 assert col in df.columns, f"Missing {col} in {export_type}"
 
 
+@pytest.mark.integration
 class TestEmptyExportEdgeCases:
     """Test edge cases for empty portfolio exports."""
 

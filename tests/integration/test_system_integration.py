@@ -12,12 +12,14 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd
+import pytest
 
 from app.strategies.tools.summary_processing import _generate_spds_compatible_entries
 from app.tools.portfolio.schema_validation import SchemaValidator
 from app.tools.portfolio_results import calculate_breadth_metrics
 
 
+@pytest.mark.integration
 class TestSystemIntegration:
     """Integration tests for the trading system components."""
 
