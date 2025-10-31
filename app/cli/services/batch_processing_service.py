@@ -262,16 +262,22 @@ class BatchProcessingService:
             for ticker in pending_tickers:
                 checked_count += 1
 
-                # Check if this ticker actually needs processing using resume analysis
-                if resume_check_fn(ticker):
-                    tickers_needing_work.append(ticker)
+                try:
+                    # Check if this ticker actually needs processing using resume analysis
+                    if resume_check_fn(ticker):
+                        tickers_needing_work.append(ticker)
 
-                    # Stop when we have enough tickers that need work
-                    if len(tickers_needing_work) >= batch_size:
-                        break
-                else:
+                        # Stop when we have enough tickers that need work
+                        if len(tickers_needing_work) >= batch_size:
+                            break
+                    else:
+                        self.console.debug(
+                            f"Skipping {ticker} - already complete and fresh",
+                        )
+                except Exception as e:
+                    # Skip tickers that fail resume check and continue with others
                     self.console.debug(
-                        f"Skipping {ticker} - already complete and fresh",
+                        f"Skipping {ticker} - resume check failed: {e}",
                     )
 
             self.console.info(

@@ -41,7 +41,9 @@ class TestDefaultStrategyProfileIntegration:
     def test_default_strategy_profile_loading(self, config_loader):
         """Test that default_strategy profile loads correctly."""
         # Load the actual profile
-        config = config_loader.load_from_profile("default_strategy", {}, {})
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides={}
+        )
 
         # Verify basic profile structure
         assert isinstance(config, StrategyConfig)
@@ -68,7 +70,9 @@ class TestDefaultStrategyProfileIntegration:
 
     def test_default_strategy_profile_parameter_validation(self, config_loader):
         """Test parameter validation for default_strategy profile."""
-        config = config_loader.load_from_profile("default_strategy", {}, {})
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides={}
+        )
 
         # Verify MACD parameter relationships
         assert config.short_window_start < config.long_window_start
@@ -86,7 +90,9 @@ class TestDefaultStrategyProfileIntegration:
 
     def test_default_strategy_profile_includes_all_strategy_types(self, config_loader):
         """Test that default_strategy profile explicitly includes all strategy types."""
-        config = config_loader.load_from_profile("default_strategy", StrategyConfig)
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=StrategyConfig, overrides={}
+        )
 
         # Verify that the profile explicitly defines all strategy types
         assert config.strategy_types == [
@@ -111,7 +117,7 @@ class TestDefaultStrategyProfileIntegration:
         assert "EMA" in strategy_values
         assert "MACD" in strategy_values
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_profile_cli_execution(
@@ -124,7 +130,9 @@ class TestDefaultStrategyProfileIntegration:
         """Test CLI execution with default_strategy profile."""
         # Setup real config loading
         real_config_loader = ConfigLoader()
-        real_config = real_config_loader.load_from_profile("default_strategy", {}, {})
+        real_config = real_config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides={}
+        )
         mock_config_loader.return_value.load_from_profile.return_value = real_config
 
         # Setup execution mocks
@@ -152,20 +160,26 @@ class TestDefaultStrategyProfileIntegration:
         """Test parameter overrides with default_strategy profile."""
         # Test ticker override
         overrides = {"ticker": ["ETH-USD"]}
-        config = config_loader.load_from_profile("default_strategy", {}, overrides)
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides=overrides
+        )
         assert config.ticker == ["ETH-USD"]
 
         # Test years override
         overrides = {"years": 5}
-        config = config_loader.load_from_profile("default_strategy", {}, overrides)
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides=overrides
+        )
         assert config.years == 5
 
         # Test use_years override
         overrides = {"use_years": True}
-        config = config_loader.load_from_profile("default_strategy", {}, overrides)
+        config = config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides=overrides
+        )
         assert config.use_years is True
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_default_strategy_profile_dry_run(
@@ -178,7 +192,9 @@ class TestDefaultStrategyProfileIntegration:
         """Test dry-run execution with default_strategy profile."""
         # Setup real config
         real_config_loader = ConfigLoader()
-        real_config = real_config_loader.load_from_profile("default_strategy", {}, {})
+        real_config = real_config_loader.load_from_profile(
+            "default_strategy", config_type=None, overrides={}
+        )
         mock_config_loader.return_value.load_from_profile.return_value = real_config
 
         # Execute dry-run
@@ -195,8 +211,9 @@ class TestDefaultStrategyProfileIntegration:
         mock_get_data.assert_not_called()
 
 
+@pytest.mark.skip(reason="Profile ma_cross_crypto has been archived")
 class TestMACrossCryptoProfileIntegration:
-    """Test integration of ma_cross_crypto.yaml profile."""
+    """Test integration of ma_cross_crypto.yaml profile (ARCHIVED)."""
 
     @pytest.fixture
     def cli_runner(self):

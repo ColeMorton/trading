@@ -133,6 +133,13 @@ class TestExportTypeMatrix:
             "USE_HOURLY": False,
             "USE_MA": True,
             "STRATEGY_TYPE": "SMA",
+            "MINIMUMS": {
+                "WIN_RATE": 0,  # No minimum filtering for tests
+                "TRADES": 0,
+                "EXPECTANCY_PER_TRADE": 0,
+                "PROFIT_FACTOR": 0,
+                "SCORE": 0,
+            },
         }
 
     def test_sma_portfolios_export(
@@ -760,6 +767,13 @@ class TestExportSchemaConsistency:
             "USE_HOURLY": False,
             "USE_MA": True,
             "STRATEGY_TYPE": "SMA",
+            "MINIMUMS": {
+                "WIN_RATE": 0,  # No minimum filtering for tests
+                "TRADES": 0,
+                "EXPECTANCY_PER_TRADE": 0,
+                "PROFIT_FACTOR": 0,
+                "SCORE": 0,
+            },
         }
 
     def test_portfolios_schema_consistency(
