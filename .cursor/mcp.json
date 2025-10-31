@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "Context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    },
+    "Playwright": {
+      "command": "npx -y @playwright/mcp@latest"
+    },
+    "Postman": {
+      "url": "https://mcp.postman.com/minimal",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    },
+    "Prisma": {
+      "url": "https://mcp.prisma.io/mcp",
+      "headers": {}
+    },
+    "Supabase": {
+      "url": "https://mcp.supabase.com/mcp",
+      "headers": {}
+    }
+  }
+}
