@@ -12,12 +12,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 # Import test modules
 from tests.tools.test_expectancy import TestExpectancy
-from tests.tools.test_expectancy_integration import TestExpectancyIntegration
 from tests.tools.test_horizon_analysis import TestHorizonAnalysis
 from tests.tools.test_signal_conversion import TestSignalConversion
 from tests.tools.test_signal_metrics import TestSignalMetrics
 from tests.tools.test_signal_quality import TestSignalQualityMetrics
 from tests.tools.test_stop_loss_simulator import TestStopLossSimulator
+
+from tests.tools.test_expectancy_integration import TestExpectancyIntegration
 
 
 def run_tests():
