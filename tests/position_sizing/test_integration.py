@@ -111,12 +111,12 @@ class TestPositionSizingIntegration:
         assert five_position_risk == 5900.0  # $29.5k / 5 positions
 
     @patch(
-        "app.tools.allocation.efficient_frontier_integration.AllocationOptimizer.get_price_data",
+        "app.tools.allocation.efficient_frontier_integration.AllocationOptimizer.get_prices",
     )
     def test_portfolio_allocation_integration(self, mock_price_data):
         """Test integration with portfolio allocation optimization."""
-        # Mock price data
-        mock_price_data.side_effect = lambda symbol: {
+        # Mock get_prices to return test data
+        mock_price_data.side_effect = lambda symbol, config=None: {
             "AAPL": 150.0,
             "MSFT": 250.0,
             "GOOGL": 2500.0,
