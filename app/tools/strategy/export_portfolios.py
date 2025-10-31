@@ -179,12 +179,6 @@ class ExportTypeRouter:
             "allocation_handling": "none",
             "validation_level": "strict",
         },
-        "portfolios": {
-            "schema": SchemaType.EXTENDED,
-            "description": "62 columns, canonical format (default)",
-            "allocation_handling": "none",
-            "validation_level": "strict",
-        },
     }
 
     @classmethod
