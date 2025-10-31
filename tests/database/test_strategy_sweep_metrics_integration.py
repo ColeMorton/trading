@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.database.config import DatabaseManager
+from app.database.config import get_db_manager
 from app.database.strategy_sweep_repository import StrategySweepRepository
 
 
@@ -19,10 +19,10 @@ pytestmark = pytest.mark.asyncio
 
 @pytest.fixture
 def db_manager():
-    """Create a test database manager."""
+    """Get the database manager instance."""
     # DatabaseManager reads connection info from environment variables
     # No arguments needed
-    return DatabaseManager()
+    return get_db_manager()
 
 
 @pytest.fixture

@@ -1584,10 +1584,13 @@ async def _persist_sweep_results_to_database(
     """
     import uuid
 
-    from app.database.config import db_manager, is_database_available
+    from app.database.config import get_db_manager, is_database_available
     from app.database.strategy_sweep_repository import StrategySweepRepository
 
     try:
+        # Get database manager instance
+        db_manager = get_db_manager()
+
         # Initialize database connection if not already initialized
         await db_manager.initialize()
 

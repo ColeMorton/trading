@@ -5,13 +5,16 @@ Quick test script for database integration.
 import asyncio
 import uuid
 
-from app.database.config import db_manager, is_database_available
+from app.database.config import get_db_manager, is_database_available
 from app.database.strategy_sweep_repository import StrategySweepRepository
 
 
 async def test_database_integration():
     """Test database persistence functionality."""
     print("🧪 Testing Database Integration\n")
+
+    # Get database manager instance
+    db_manager = get_db_manager()
 
     # Test 1: Database availability
     print("1. Checking database availability...")

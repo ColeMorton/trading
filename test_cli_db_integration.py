@@ -4,12 +4,13 @@ Test CLI strategy sweep with database persistence.
 
 import asyncio
 
-from app.database.config import db_manager
+from app.database.config import get_db_manager
 
 
 async def test_cli_with_database():
     """Initialize database then test CLI command."""
     print("🔧 Initializing database connection...")
+    db_manager = get_db_manager()
     await db_manager.initialize()
     print("✅ Database initialized\n")
 

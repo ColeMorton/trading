@@ -192,38 +192,55 @@ class DatabaseManager:
             return await connection.fetchval(query, *args)
 
 
-# Global database manager instance
-db_manager = DatabaseManager()
+# Global database manager singleton
+_db_manager_instance: DatabaseManager | None = None
+
+
+def get_db_manager() -> DatabaseManager:
+    """
+    Get or create database manager singleton.
+
+    Returns:
+        DatabaseManager: The singleton database manager instance
+
+    Raises:
+        RuntimeError: If database settings validation fails
+    """
+    global _db_manager_instance
+    if _db_manager_instance is None:
+        _db_manager_instance = DatabaseManager()
+    return _db_manager_instance
 
 
 async def get_database_manager() -> DatabaseManager:
     """Dependency to get database manager."""
-    return db_manager
+    return get_db_manager()
 
 
 async def get_redis() -> redis.Redis | None:
     """Dependency to get Redis client."""
-    if not db_manager.redis_client:
+    manager = get_db_manager()
+    if not manager.redis_client:
         logger.warning("Redis client not available - caching features disabled")
         return None
-    return db_manager.redis_client
+    return manager.redis_client
 
 
 # Health check function for FastAPI
 async def database_health_check():
     """Health check endpoint function."""
-    return await db_manager.health_check()
+    return await get_db_manager().health_check()
 
 
 # Startup and shutdown events
 async def startup_database():
     """Startup event for database initialization."""
-    await db_manager.initialize()
+    await get_db_manager().initialize()
 
 
 async def shutdown_database():
     """Shutdown event for database cleanup."""
-    await db_manager.close()
+    await get_db_manager().close()
 
 
 async def is_database_available() -> bool:
@@ -234,10 +251,11 @@ async def is_database_available() -> bool:
         True if database is available and can accept connections, False otherwise
     """
     try:
+        manager = get_db_manager()
         # Check if connection pool is available (asyncpg-based)
-        if db_manager._connection_pool:
+        if manager._connection_pool:
             # Try a simple query
-            async with db_manager._connection_pool.acquire() as conn:
+            async with manager._connection_pool.acquire() as conn:
                 await conn.fetchval("SELECT 1")
             return True
         return False
