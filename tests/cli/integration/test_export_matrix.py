@@ -46,6 +46,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.2,
                 "Score": 8.5,
                 "Metric Type": "Most Total Return [%]",
+                "Expectancy per Trade": 0.02,
+                "Profit Factor": 1.5,
+                "Sortino Ratio": 1.3,
+                "Beats BNH [%]": 10.0,
+                "Avg Losing Trade [%]": -2.5,
             },
             {
                 "Ticker": "AAPL",
@@ -58,6 +63,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.5,
                 "Score": 9.2,
                 "Metric Type": "Most Sharpe Ratio",
+                "Expectancy per Trade": 0.03,
+                "Profit Factor": 1.8,
+                "Sortino Ratio": 1.6,
+                "Beats BNH [%]": 15.0,
+                "Avg Losing Trade [%]": -2.0,
             },
         ]
 
@@ -76,6 +86,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.3,
                 "Score": 8.8,
                 "Metric Type": "Most Total Return [%]",
+                "Expectancy per Trade": 0.025,
+                "Profit Factor": 1.6,
+                "Sortino Ratio": 1.4,
+                "Beats BNH [%]": 12.0,
+                "Avg Losing Trade [%]": -2.3,
             },
             {
                 "Ticker": "MSFT",
@@ -88,6 +103,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.4,
                 "Score": 9.0,
                 "Metric Type": "Most Win Rate [%]",
+                "Expectancy per Trade": 0.028,
+                "Profit Factor": 1.7,
+                "Sortino Ratio": 1.5,
+                "Beats BNH [%]": 14.0,
+                "Avg Losing Trade [%]": -2.1,
             },
         ]
 
@@ -107,6 +127,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.6,
                 "Score": 9.5,
                 "Metric Type": "Most Total Return [%]",
+                "Expectancy per Trade": 0.035,
+                "Profit Factor": 2.0,
+                "Sortino Ratio": 1.7,
+                "Beats BNH [%]": 20.0,
+                "Avg Losing Trade [%]": -1.8,
             },
             {
                 "Ticker": "GOOGL",
@@ -120,6 +145,11 @@ class TestExportTypeMatrix:
                 "Sharpe Ratio": 1.35,
                 "Score": 8.7,
                 "Metric Type": "Most Profit Factor",
+                "Expectancy per Trade": 0.027,
+                "Profit Factor": 1.9,
+                "Sortino Ratio": 1.45,
+                "Beats BNH [%]": 16.0,
+                "Avg Losing Trade [%]": -2.0,
             },
         ]
 
@@ -637,6 +667,11 @@ class TestExportTypeMatrix:
                     "Sharpe Ratio": 1.4,
                     "Score": 8.5,
                     "Metric Type": "Most Total Return [%]",
+                    "Expectancy per Trade": 0.03,
+                    "Profit Factor": 1.7,
+                    "Sortino Ratio": 1.5,
+                    "Beats BNH [%]": 15.0,
+                    "Avg Losing Trade [%]": -2.2,
                 },
             ]
         else:
@@ -652,6 +687,11 @@ class TestExportTypeMatrix:
                     "Sharpe Ratio": 1.2,
                     "Score": 8.0,
                     "Metric Type": "Most Total Return [%]",
+                    "Expectancy per Trade": 0.025,
+                    "Profit Factor": 1.6,
+                    "Sortino Ratio": 1.3,
+                    "Beats BNH [%]": 12.0,
+                    "Avg Losing Trade [%]": -2.4,
                 },
             ]
 
@@ -707,10 +747,10 @@ class TestExportSchemaConsistency:
             "Total Open Trades": 0,
             "Total Trades": 50,
             "Win Rate [%]": 55.0,
-            "Profit Factor": 1.3,
+            "Profit Factor": 1.5,
             "Expectancy per Trade": 0.02,
-            "Sortino Ratio": 1.1,
-            "Beats BNH [%]": 5.0,
+            "Sortino Ratio": 1.3,
+            "Beats BNH [%]": 10.0,
             "Avg Trade Duration": "5 days 12:00:00",
             "Trades Per Day": 0.137,
             "Trades per Month": 4.17,
