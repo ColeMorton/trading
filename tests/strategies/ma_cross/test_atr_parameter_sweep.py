@@ -878,9 +878,10 @@ class TestATRConfigurationHandling:
         # Calculate expected combinations
         length_count = 21 - 2 + 1  # 20 lengths (2 through 21 inclusive)
         # For multipliers: range from 1.5 to 10.0 with step 0.2
-        # This creates: 1.5, 1.7, 1.9, ..., 9.9 (10.0 is exclusive)
-        multiplier_count = int((10.0 - 1.5) / 0.2)  # 42 multipliers
-        expected_total = length_count * multiplier_count  # 20 * 42 = 840
+        # Implementation adds +1 to handle non-even divisions, then filters < 10.0
+        # This creates: 1.5, 1.7, 1.9, ..., 9.9 (43 multipliers with 10.0 exclusive)
+        multiplier_count = int((10.0 - 1.5) / 0.2) + 1  # 43 multipliers after filter
+        expected_total = length_count * multiplier_count  # 20 * 43 = 860
 
         assert len(combinations) == expected_total
 

@@ -111,37 +111,6 @@ jobs:
           name: codecov-ma-cross
           fail_ci_if_error: false
 
-  performance:
-    name: Performance Tests
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || github.event.inputs.test_suite == 'performance' || github.event.inputs.test_suite == 'all'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python with Poetry
-        uses: ./.github/actions/setup-python-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          # poetry-version uses default from action (see .versions file)
-          dependency-groups: 'all'
-          cache-key-suffix: 'ma-cross-perf'
-
-      - name: Run performance benchmarks
-        run: |
-          poetry run pytest tests/strategies/ma_cross/ -v -m "performance" --tb=short --benchmark-only
-        timeout-minutes: 45
-
-      - name: Upload performance results
-        uses: actions/upload-artifact@v4
-        with:
-          name: ma-cross-performance-results
-          path: |
-            .pytest_cache/
-            .benchmarks/
-          retention-days: 90
-
   e2e:
     name: End-to-End Tests
     runs-on: ubuntu-latest

@@ -722,6 +722,15 @@ def sweep(
                 overrides,
             )
 
+        # Validate that we have tickers to process
+        if not config.synthetic.use_synthetic and (
+            not config.ticker or len(config.ticker) == 0
+        ):
+            rprint(
+                "[red]Error: No valid tickers provided. Please specify at least one ticker using --ticker or -t.[/red]"
+            )
+            raise typer.Exit(1)
+
         # Validate parameter relationships
         validate_parameter_relationships(config)
 

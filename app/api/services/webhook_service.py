@@ -94,8 +94,14 @@ class WebhookService:
             db_manager: Database manager
             job: Job model instance
         """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
         if not job.webhook_url:
             return
+
+        logger.info(f"Sending webhook for job {job.id} to {job.webhook_url}")
 
         # Build webhook payload
         payload = {
@@ -121,6 +127,8 @@ class WebhookService:
             payload=payload,
             headers=job.webhook_headers,
         )
+
+        logger.info(f"Webhook for job {job.id} completed with status {status_code}")
 
         # Update job record with webhook delivery status
         async with db_manager.get_async_session() as session:

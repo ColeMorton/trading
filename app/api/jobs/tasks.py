@@ -53,10 +53,8 @@ async def update_job_status(db_manager, job_id: str, status: str, **kwargs) -> N
             job = result.scalar_one_or_none()
 
             if job and job.webhook_url:
-                # Send webhook asynchronously (don't block)
-                asyncio.create_task(
-                    WebhookService.notify_job_completion(db_manager, job),
-                )
+                # Send webhook and await completion to ensure delivery
+                await WebhookService.notify_job_completion(db_manager, job)
 
 
 # Strategy Tasks

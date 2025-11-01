@@ -106,13 +106,13 @@ class StrategyService(BaseCommandService):
         logger = logging.getLogger(__name__)
 
         patterns = [
-            r"run ID: ([a-f0-9]{8})",  # Original: "run ID: abc12345"
-            r"Run ID: ([a-f0-9]{8})",  # Capitalized: "Run ID: abc12345"
-            r"run_id:\s*([a-f0-9]{8})",  # Underscore: "run_id: abc12345"
-            r"sweep_run_id:\s*([a-f0-9]{8})",  # Full name: "sweep_run_id: abc12345"
-            r"sweep run: ([a-f0-9]{8})",  # Alt format: "sweep run: abc12345"
-            r"\[([a-f0-9]{8})\]",  # Bracketed: "[abc12345]"
-            r"ID:\s*([a-f0-9]{8})",  # Generic: "ID: abc12345"
+            r"run ID: ([a-f0-9A-F-]{8,})",  # Original: "run ID: abc12345..." (supports uppercase and full UUIDs)
+            r"Run ID: ([a-f0-9A-F-]{8,})",  # Capitalized: "Run ID: abc12345..."
+            r"run_id:\s*([a-f0-9A-F-]{8,})",  # Underscore: "run_id: abc12345..."
+            r"sweep_run_id:\s*([a-f0-9A-F-]{8,})",  # Full name: "sweep_run_id: abc12345..."
+            r"sweep run: ([a-f0-9A-F-]{8,})",  # Alt format: "sweep run: abc12345..."
+            r"\[([a-f0-9A-F-]{8,})\]",  # Bracketed: "[abc12345...]"
+            r"ID:\s*([a-f0-9A-F-]{8,})",  # Generic: "ID: abc12345..."
         ]
 
         for pattern in patterns:

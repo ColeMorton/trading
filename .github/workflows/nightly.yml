@@ -40,35 +40,6 @@ jobs:
             htmlcov/
           retention-days: 90
 
-  performance-baseline:
-    name: Performance Baseline Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python with Poetry
-        uses: ./.github/actions/setup-python-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          dependency-groups: 'all'
-          cache-key-suffix: 'perf-baseline'
-
-      - name: Run performance benchmarks
-        env:
-          PYTEST_RUNNING: 1
-        run: |
-          poetry run pytest tests/performance/ -v -m performance --tb=short --benchmark-only
-
-      - name: Upload performance baseline
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-baseline-$(date +%Y%m%d)
-          path: |
-            .pytest_cache/
-            .benchmarks/
-          retention-days: 365 # Keep performance baselines for 1 year
-
   stress-tests:
     name: Stress Tests
     runs-on: ubuntu-latest

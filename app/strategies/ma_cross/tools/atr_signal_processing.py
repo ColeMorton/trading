@@ -268,16 +268,28 @@ def create_atr_parameter_combinations(
     atr_lengths = list(range(atr_length_range[0], atr_length_range[1]))
 
     # For multipliers, use exclusive upper bound for consistency
-    # Calculate number of steps (exclusive of upper bound)
-    num_steps = int(
-        (atr_multiplier_range[1] - atr_multiplier_range[0]) / atr_multiplier_step
-    )
+    # Handle edge case where min == max (single value)
+    if atr_multiplier_range[0] == atr_multiplier_range[1]:
+        atr_multipliers = [atr_multiplier_range[0]]
+    else:
+        # Calculate number of steps (exclusive of upper bound)
+        # Add 1 to handle cases where steps don't divide evenly
+        num_steps = (
+            int(
+                (atr_multiplier_range[1] - atr_multiplier_range[0])
+                / atr_multiplier_step
+            )
+            + 1
+        )
 
-    # Generate multipliers manually to avoid float precision issues with np.arange
-    atr_multipliers = [
-        round(atr_multiplier_range[0] + i * atr_multiplier_step, 1)
-        for i in range(num_steps)
-    ]
+        # Generate multipliers manually to avoid float precision issues with np.arange
+        # Filter to ensure all values are strictly less than max (exclusive upper bound)
+        atr_multipliers = [
+            round(atr_multiplier_range[0] + i * atr_multiplier_step, 1)
+            for i in range(num_steps)
+            if round(atr_multiplier_range[0] + i * atr_multiplier_step, 1)
+            < atr_multiplier_range[1]
+        ]
 
     combinations = []
     for length in atr_lengths:

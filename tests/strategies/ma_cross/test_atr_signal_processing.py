@@ -102,24 +102,23 @@ class TestATRParameterCombinations:
         # Test large step size
         combinations_large = create_atr_parameter_combinations(
             atr_length_range=(10, 12),  # 10, 11
-            atr_multiplier_range=(1.0, 5.0),  # 1.0, 3.0, 5.0
+            atr_multiplier_range=(1.0, 5.0),  # 1.0, 3.0 (5.0 is exclusive upper bound)
             atr_multiplier_step=2.0,
         )
-        assert len(combinations_large) == 2 * 3  # 2 lengths × 3 multipliers
+        assert len(combinations_large) == 2 * 2  # 2 lengths × 2 multipliers
         assert (10, 1.0) in combinations_large
         assert (10, 3.0) in combinations_large
-        assert (10, 5.0) in combinations_large
 
         # Test small step size
         combinations_small = create_atr_parameter_combinations(
             atr_length_range=(5, 6),  # 5
-            atr_multiplier_range=(2.0, 2.4),  # 2.0, 2.1, 2.2, 2.3, 2.4
+            atr_multiplier_range=(2.0, 2.4),  # 2.0, 2.1, 2.2, 2.3 (2.4 is exclusive)
             atr_multiplier_step=0.1,
         )
-        assert len(combinations_small) == 1 * 5  # 1 length × 5 multipliers
+        assert len(combinations_small) == 1 * 4  # 1 length × 4 multipliers
 
         # Verify specific small step combinations
-        expected_multipliers = [2.0, 2.1, 2.2, 2.3, 2.4]
+        expected_multipliers = [2.0, 2.1, 2.2, 2.3]
         for mult in expected_multipliers:
             assert (5, mult) in combinations_small
 
@@ -163,9 +162,9 @@ class TestATRParameterCombinations:
 
         # Invalid length cases
         invalid_length_cases = [
-            (0, 2.0, "ATR length must be positive"),
-            (-1, 2.0, "ATR length must be positive"),
-            (-10, 2.0, "ATR length must be positive"),
+            (0, 2.0, "ATR length must be a positive integer"),
+            (-1, 2.0, "ATR length must be a positive integer"),
+            (-10, 2.0, "ATR length must be a positive integer"),
         ]
 
         for length, multiplier, expected_error in invalid_length_cases:
@@ -342,16 +341,16 @@ class TestHybridSignalGeneration:
         )
         assert result is None
 
-        # Test with invalid data structure
+        # Test with invalid data structure - should raise ValueError (fail-fast)
         invalid_data = pd.DataFrame({"InvalidColumn": [1, 2, 3]})
-        result = generate_hybrid_ma_atr_signals(
-            invalid_data,
-            sample_ma_config,
-            atr_length=14,
-            atr_multiplier=2.0,
-            log=mock_logger,
-        )
-        assert result is None
+        with pytest.raises(ValueError, match="Missing required columns"):
+            generate_hybrid_ma_atr_signals(
+                invalid_data,
+                sample_ma_config,
+                atr_length=14,
+                atr_multiplier=2.0,
+                log=mock_logger,
+            )
 
         # Verify error logging
         assert mock_logger.call_count > 0

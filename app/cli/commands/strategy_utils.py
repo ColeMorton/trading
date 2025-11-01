@@ -47,7 +47,9 @@ def process_ticker_input(ticker: list[str] | None) -> list[str]:
             )
         else:
             # Single ticker value
-            flattened_tickers.append(t.strip().upper())
+            stripped = t.strip().upper()
+            if stripped:  # Only add non-empty tickers
+                flattened_tickers.append(stripped)
 
     return flattened_tickers
 

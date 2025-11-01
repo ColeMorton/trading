@@ -134,12 +134,13 @@ def sample_atr_portfolios():
             "Total Return": 15.0 + i * 2,  # Varying returns
             "Sharpe Ratio": 1.2 + i * 0.1,
             "Max Drawdown": -8.0 - i * 0.5,
-            "Win Rate": 55.0 + i,
+            "Win Rate [%]": 55.0 + i,
             "Total Trades": 30 + i * 2,
             "Profit Factor": 1.5 + i * 0.1,
             "Expectancy per Trade": 0.025 + i * 0.005,
             "Sortino Ratio": 1.0 + i * 0.1,
             "Score": 70.0 + i * 2,
+            "Avg Losing Trade [%]": -2.0 - i * 0.1,
             # Additional fields for filtering
             "WIN_RATE": (55.0 + i) / 100.0,
             "TRADES": 30 + i * 2,
@@ -726,13 +727,19 @@ class TestATREndToEndScenarios:
 
         # Good portfolios (should pass filtering)
         for i in range(10):
+            win_rate_decimal = 0.55 + i * 0.01
             portfolios.append(
                 {
-                    "WIN_RATE": 0.55 + i * 0.01,
+                    "WIN_RATE": win_rate_decimal,
+                    "Win Rate [%]": win_rate_decimal * 100,
                     "TRADES": 50 + i * 5,
+                    "Total Trades": 50 + i * 5,
                     "EXPECTANCY_PER_TRADE": 0.05 + i * 0.01,
+                    "Expectancy per Trade": 0.05 + i * 0.01,
                     "PROFIT_FACTOR": 1.8 + i * 0.1,
+                    "Profit Factor": 1.8 + i * 0.1,
                     "SORTINO_RATIO": 1.2 + i * 0.1,
+                    "Sortino Ratio": 1.2 + i * 0.1,
                     "Score": 80 + i * 2,
                     "Exit Fast Period": 10 + i,
                     "Exit Slow Period": 1.5 + i * 0.1,
@@ -742,13 +749,19 @@ class TestATREndToEndScenarios:
 
         # Mediocre portfolios (some should pass, some should fail)
         for i in range(10):
+            win_rate_decimal = 0.40 + i * 0.02
             portfolios.append(
                 {
-                    "WIN_RATE": 0.40 + i * 0.02,
+                    "WIN_RATE": win_rate_decimal,
+                    "Win Rate [%]": win_rate_decimal * 100,
                     "TRADES": 30 + i * 3,
+                    "Total Trades": 30 + i * 3,
                     "EXPECTANCY_PER_TRADE": 0.02 + i * 0.005,
+                    "Expectancy per Trade": 0.02 + i * 0.005,
                     "PROFIT_FACTOR": 1.2 + i * 0.05,
+                    "Profit Factor": 1.2 + i * 0.05,
                     "SORTINO_RATIO": 0.8 + i * 0.05,
+                    "Sortino Ratio": 0.8 + i * 0.05,
                     "Score": 60 + i,
                     "Exit Fast Period": 15 + i,
                     "Exit Slow Period": 2.0 + i * 0.05,
@@ -758,13 +771,19 @@ class TestATREndToEndScenarios:
 
         # Poor portfolios (should mostly fail filtering)
         for i in range(10):
+            win_rate_decimal = 0.25 + i * 0.01
             portfolios.append(
                 {
-                    "WIN_RATE": 0.25 + i * 0.01,
+                    "WIN_RATE": win_rate_decimal,
+                    "Win Rate [%]": win_rate_decimal * 100,
                     "TRADES": 10 + i * 2,
+                    "Total Trades": 10 + i * 2,
                     "EXPECTANCY_PER_TRADE": 0.005 + i * 0.002,
+                    "Expectancy per Trade": 0.005 + i * 0.002,
                     "PROFIT_FACTOR": 0.8 + i * 0.02,
+                    "Profit Factor": 0.8 + i * 0.02,
                     "SORTINO_RATIO": 0.3 + i * 0.02,
+                    "Sortino Ratio": 0.3 + i * 0.02,
                     "Score": 40 + i,
                     "Exit Fast Period": 20 + i,
                     "Exit Slow Period": 2.5 + i * 0.02,
@@ -796,14 +815,14 @@ class TestATREndToEndScenarios:
 
         # All remaining portfolios should meet minimum criteria
         for portfolio in filtered:
-            assert portfolio["WIN_RATE"] >= config["MINIMUMS"]["WIN_RATE"]
-            assert portfolio["TRADES"] >= config["MINIMUMS"]["TRADES"]
+            assert portfolio["Win Rate [%]"] >= config["MINIMUMS"]["WIN_RATE"] * 100
+            assert portfolio["Total Trades"] >= config["MINIMUMS"]["TRADES"]
             assert (
-                portfolio["EXPECTANCY_PER_TRADE"]
+                portfolio["Expectancy per Trade"]
                 >= config["MINIMUMS"]["EXPECTANCY_PER_TRADE"]
             )
-            assert portfolio["PROFIT_FACTOR"] >= config["MINIMUMS"]["PROFIT_FACTOR"]
-            assert portfolio["SORTINO_RATIO"] >= config["MINIMUMS"]["SORTINO_RATIO"]
+            assert portfolio["Profit Factor"] >= config["MINIMUMS"]["PROFIT_FACTOR"]
+            assert portfolio["Sortino Ratio"] >= config["MINIMUMS"]["SORTINO_RATIO"]
 
 
 if __name__ == "__main__":
