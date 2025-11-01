@@ -61,10 +61,7 @@ class TestSharpeRatioCalculation:
     def test_sharpe_positive_returns(self):
         """Test Sharpe ratio calculation with positive returns."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
-
-        analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -75,7 +72,7 @@ class TestSharpeRatioCalculation:
         all_returns = returns  # Doesn't matter for this test
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=all_returns,
@@ -90,7 +87,7 @@ class TestSharpeRatioCalculation:
     def test_sharpe_negative_returns(self):
         """Test Sharpe ratio is negative when returns are negative."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -110,7 +107,7 @@ class TestSharpeRatioCalculation:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -122,7 +119,7 @@ class TestSharpeRatioCalculation:
     def test_sharpe_zero_std_deviation(self):
         """CRITICAL: Test Sharpe ratio handles zero std deviation."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -130,7 +127,7 @@ class TestSharpeRatioCalculation:
         returns = np.array([0.01] * 10)
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -147,7 +144,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_uses_downside_deviation_only(self):
         """CRITICAL: Sortino must use ONLY downside (negative) returns for std."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -157,7 +154,7 @@ class TestSortinoRatioCalculation:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -175,7 +172,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_all_positive_returns(self):
         """CRITICAL: Sortino with all positive returns (no downside)."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -185,7 +182,7 @@ class TestSortinoRatioCalculation:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -198,7 +195,7 @@ class TestSortinoRatioCalculation:
     def test_sortino_differs_from_sharpe_with_asymmetric_returns(self):
         """Test that Sortino differs from Sharpe when returns are asymmetric."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
@@ -208,7 +205,7 @@ class TestSortinoRatioCalculation:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -225,14 +222,14 @@ class TestMaximumDrawdown:
     def test_max_drawdown_identifies_worst_loss(self):
         """Test that max drawdown correctly identifies the worst single-period loss."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
         returns = np.array([0.01, -0.02, 0.005, -0.08, 0.01, 0.02])  # -8% is worst
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -244,14 +241,14 @@ class TestMaximumDrawdown:
     def test_max_drawdown_all_positive(self):
         """Test max drawdown with all positive returns."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
         returns = np.array([0.01, 0.02, 0.015, 0.008, 0.012])
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -263,14 +260,14 @@ class TestMaximumDrawdown:
     def test_max_drawdown_all_negative(self):
         """Test max drawdown with all negative returns."""
         analyzer_cls = get_analyzer_class()
-        get_pattern_type()
+        pattern_type_cls = get_pattern_type()
 
         analyzer = analyzer_cls()
 
         returns = np.array([-0.01, -0.02, -0.015, -0.008, -0.012])
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -295,7 +292,7 @@ class TestSkewnessCalculation:
         returns = np.array([0.01, 0.02])
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -318,7 +315,7 @@ class TestSkewnessCalculation:
         returns_array = returns.values[:100]
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_array,
             all_returns=returns_array,
@@ -338,7 +335,7 @@ class TestSkewnessCalculation:
         returns = np.random.normal(0, 0.02, 50)
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -365,7 +362,7 @@ class TestKurtosisCalculation:
         returns = np.array([0.01, 0.02, 0.015])
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -385,7 +382,7 @@ class TestKurtosisCalculation:
         returns = np.random.normal(0, 0.02, 50)
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -413,7 +410,7 @@ class TestStatisticalSignificance:
         all_returns = np.random.normal(0, 0.02, 500)
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=all_returns,
@@ -434,7 +431,7 @@ class TestStatisticalSignificance:
         all_returns = np.array([0.001] * 200)  # Low returns
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=all_returns,
@@ -456,7 +453,7 @@ class TestStatisticalSignificance:
         all_returns = np.random.normal(0, 0.02, 200)
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=all_returns,
@@ -483,7 +480,7 @@ class TestConfidenceIntervals:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -505,7 +502,7 @@ class TestConfidenceIntervals:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -529,7 +526,7 @@ class TestConfidenceIntervals:
         # Low variance
         returns_low_var = np.array([0.01] * 10)
         pattern_low = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_low_var,
             all_returns=returns_low_var,
@@ -540,7 +537,7 @@ class TestConfidenceIntervals:
             [0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02, 0.0, 0.02],
         )
         pattern_high = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_high_var,
             all_returns=returns_high_var,
@@ -575,7 +572,7 @@ class TestConsistencyScore:
         )
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -595,7 +592,7 @@ class TestConsistencyScore:
         returns_array = returns.values[:50]
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_array,
             all_returns=returns_array,
@@ -616,7 +613,7 @@ class TestConsistencyScore:
         returns_array = returns.values[:50]
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_array,
             all_returns=returns_array,
@@ -642,7 +639,7 @@ class TestEdgeCases:
 
         # Should not crash
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -662,7 +659,7 @@ class TestEdgeCases:
         returns = np.array([0.01, 0.02])
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns,
             all_returns=returns,
@@ -683,7 +680,7 @@ class TestEdgeCases:
         returns_array = returns.values[:50]
 
         pattern = analyzer._create_pattern(
-            pattern_type=PatternType.MONTHLY,
+            pattern_type=pattern_type_cls.MONTHLY,
             period="January",
             returns=returns_array,
             all_returns=returns_array,
