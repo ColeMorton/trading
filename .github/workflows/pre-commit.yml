@@ -2,8 +2,10 @@ name: Pre-commit Checks
 
 on:
   pull_request:
+    branches: [main, develop]
   push:
     branches: [main, develop]
+  workflow_dispatch:
 
 jobs:
   pre-commit:
@@ -13,58 +15,54 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: poetry install --only main,dev
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
 
       - name: Install pre-commit
-        run: pip install pre-commit
+        run: poetry run pre-commit install --install-hooks
 
-      - name: Cache pre-commit hooks
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            pre-commit-
+      - name: Run pre-commit hooks on all files
+        run: poetry run pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: '' # Don't skip any hooks
 
-      - name: Run pre-commit hooks
-        run: pre-commit run --all-files --show-diff-on-failure
-
-      - name: Generate summary
-        if: always()
+      - name: Generate failure summary
+        if: failure()
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "## ✅ Pre-commit Checks Passed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "All code quality checks passed successfully." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## ❌ Pre-commit Checks Failed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Some code quality checks failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### How to fix locally:" >> $GITHUB_STEP_SUMMARY
-            echo '```bash' >> $GITHUB_STEP_SUMMARY
-            echo 'pre-commit install  # Install pre-commit hooks' >> $GITHUB_STEP_SUMMARY
-            echo 'pre-commit run --all-files  # Run all hooks' >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "## ❌ Pre-commit Checks Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Pre-commit hooks found issues that must be fixed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Common Fixes" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Formatting Issues (Ruff)**: Run \`poetry run ruff format .\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Linting Issues (Ruff)**: Run \`poetry run ruff check --fix .\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Type Issues (MyPy)**: Add type annotations or fix type errors" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### How to Fix Locally" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Install pre-commit hooks" >> $GITHUB_STEP_SUMMARY
+          echo "poetry run pre-commit install" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Run all pre-commit hooks" >> $GITHUB_STEP_SUMMARY
+          echo "poetry run pre-commit run --all-files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Or run verification script" >> $GITHUB_STEP_SUMMARY
+          echo "./scripts/verify-commit.sh" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Comprehensive security scans run daily via security.yml workflow" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate success summary
+        if: success()
+        run: |
+          echo "## ✅ All Pre-Commit Checks Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All code quality checks have passed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code formatting (Ruff)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code linting (Ruff)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Type checking (MyPy)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend linting (ESLint)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend formatting (Prettier)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Comprehensive security scans run daily at 3 AM UTC via security.yml workflow" >> $GITHUB_STEP_SUMMARY

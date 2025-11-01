@@ -70,119 +70,8 @@ jobs:
           poetry run lint-imports --verbose || echo "⚠️ Architecture violations detected (non-blocking)"
         continue-on-error: true
 
-  # Unit tests
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    needs: lint
-    strategy:
-      matrix:
-        test-group: [unit, integration]
-      fail-fast: false
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python with Poetry
-        uses: ./.github/actions/setup-python-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          dependency-groups: 'all'
-          cache-key-suffix: 'test-${{ matrix.test-group }}'
-
-      - name: Run database migrations
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-        run: |
-          poetry run alembic upgrade head
-
-      - name: Start API server for integration tests
-        if: matrix.test-group == 'integration'
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379
-          ENVIRONMENT: test
-        run: |
-          echo "Starting API server for integration tests..."
-          poetry run uvicorn app.api.main:app --host 0.0.0.0 --port 8000 &
-          API_PID=$!
-          echo $API_PID > api.pid
-
-          echo "Waiting for API to be ready..."
-          poetry run python scripts/wait_for_api_health.py --url http://localhost:8000/health/ --timeout 60
-
-      - name: Run ${{ matrix.test-group }} tests
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379
-          ENVIRONMENT: test
-          PYTEST_RUNNING: 1
-        run: |
-          poetry run pytest tests/ -v -m "${{ matrix.test-group }}" --cov=app --cov-report=xml --cov-report=term-missing --maxfail=10 --tb=short -n auto
-
-      - name: Stop API server
-        if: always() && matrix.test-group == 'integration'
-        run: |
-          if [ -f api.pid ]; then
-            API_PID=$(cat api.pid)
-            if kill -0 $API_PID 2>/dev/null; then
-              echo "Stopping API server (PID: $API_PID)..."
-              kill $API_PID || true
-              sleep 2
-            fi
-            rm api.pid
-          fi
-
-      - name: Collect API logs on failure
-        if: failure() && matrix.test-group == 'integration'
-        run: |
-          echo "=== API Server Logs ==="
-          if [ -f api_server.log ]; then
-            cat api_server.log
-          else
-            echo "No API server logs found"
-          fi
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: backend
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ci-test-results-${{ matrix.test-group }}
-          path: |
-            .coverage
-            coverage.xml
-            htmlcov/
-          retention-days: 30
+  # Tests are now run via tests.yml workflow
+  # This ensures better separation and allows tests to run independently
 
   # Performance tests
   test-performance:
@@ -221,7 +110,7 @@ jobs:
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [test-backend]
+    needs: [lint]
     permissions:
       contents: read
       packages: write
@@ -270,57 +159,14 @@ jobs:
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VERSION=${{ github.sha }}
 
-  # End-to-End Integration Tests
-  e2e-test:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name != 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python with Poetry
-        uses: ./.github/actions/setup-python-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          dependency-groups: 'main'
-          cache-key-suffix: 'e2e'
-
-      - name: Start E2E stack
-        run: docker compose -f docker-compose.e2e.yml up -d
-
-      - name: Wait for API
-        run: poetry run python scripts/wait_for_api_health.py --url http://localhost:8000/health/ --timeout 180
-
-      - name: Run E2E tests
-        env:
-          E2E_API: http://localhost:8000
-          E2E_API_KEY: dev-key-000000000000000000000000
-        run: pytest tests/e2e/ -v -k e2e --tb=short
-
-      - name: Upload E2E test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: e2e-test-results
-          path: |
-            .pytest_cache/
-            logs/
-          retention-days: 30
-
-      - name: Collect logs
-        if: failure()
-        run: docker compose -f docker-compose.e2e.yml logs
-
-      - name: Teardown
-        if: always()
-        run: docker compose -f docker-compose.e2e.yml down -v
+  # E2E tests now run via tests.yml workflow
+  # This ensures better separation and allows E2E tests to run on schedule
 
   # CI/CD Summary
   ci-summary:
     name: CI/CD Summary
     runs-on: ubuntu-latest
-    needs: [lint, test-backend, test-performance, build, e2e-test]
+    needs: [lint, test-performance, build]
     if: always()
     steps:
       - name: Generate CI/CD Summary
@@ -341,12 +187,6 @@ jobs:
             echo "❌ **Linting**: FAILED" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ needs.test-backend.result }}" == "success" ]; then
-            echo "✅ **Backend Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Backend Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
-          fi
-
           if [ "${{ needs.test-performance.result }}" == "success" ]; then
             echo "✅ **Performance Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ needs.test-performance.result }}" == "skipped" ]; then
@@ -363,14 +203,8 @@ jobs:
             echo "❌ **Docker Build**: FAILED" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ needs.e2e-test.result }}" == "success" ]; then
-            echo "✅ **E2E Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ needs.e2e-test.result }}" == "skipped" ]; then
-            echo "⏭️ **E2E Tests**: SKIPPED" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **E2E Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
-          fi
-
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Unit, integration, and E2E tests run via tests.yml workflow" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 📊 Code Quality Metrics" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -384,14 +218,13 @@ jobs:
           echo "_See lint job output for current metrics_" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "- Test results and coverage reports available in artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance test results available in artifacts" >> $GITHUB_STEP_SUMMARY
           echo "- Docker images pushed to GHCR (if applicable)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Overall status
           if [ "${{ needs.lint.result }}" == "success" ] && \
-             [ "${{ needs.test-backend.result }}" == "success" ] && \
-             [ "${{ needs.build.result }}" == "success" ] || [ "${{ needs.build.result }}" == "skipped" ]; then
+             ([ "${{ needs.build.result }}" == "success" ] || [ "${{ needs.build.result }}" == "skipped" ]); then
             echo "## ✅ Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ❌ Overall Status: FAILURE" >> $GITHUB_STEP_SUMMARY

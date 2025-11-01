@@ -38,7 +38,7 @@ jobs:
           path: |
             .pytest_cache/
             htmlcov/
-          retention-days: 90
+          retention-days: 30
 
   stress-tests:
     name: Stress Tests
@@ -105,13 +105,7 @@ jobs:
   nightly-summary:
     name: Nightly Test Summary
     runs-on: ubuntu-latest
-    needs:
-      [
-        regression-tests,
-        performance-baseline,
-        stress-tests,
-        memory-leak-detection,
-      ]
+    needs: [regression-tests, stress-tests, memory-leak-detection]
     if: always()
     steps:
       - name: Generate nightly summary
@@ -123,12 +117,6 @@ jobs:
             echo "✅ **Regression Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Regression Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "${{ needs.performance-baseline.result }}" == "success" ]; then
-            echo "✅ **Performance Baseline**: PASSED" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **Performance Baseline**: FAILED" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ needs.stress-tests.result }}" == "success" ]; then
@@ -145,11 +133,12 @@ jobs:
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Test Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "- Performance baselines retained for 365 days" >> $GITHUB_STEP_SUMMARY
-          echo "- Other test results retained for 30-90 days" >> $GITHUB_STEP_SUMMARY
+          echo "- Test results retained for 30 days" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** E2E tests run nightly via tests.yml workflow" >> $GITHUB_STEP_SUMMARY
 
       - name: Send notification on failure
-        if: needs.regression-tests.result == 'failure' || needs.performance-baseline.result == 'failure' || needs.stress-tests.result == 'failure' || needs.memory-leak-detection.result == 'failure'
+        if: needs.regression-tests.result == 'failure' || needs.stress-tests.result == 'failure' || needs.memory-leak-detection.result == 'failure'
         run: |
           echo "📧 Sending failure notification..."
           # Add notification logic
