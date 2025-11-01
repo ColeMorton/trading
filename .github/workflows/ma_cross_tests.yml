@@ -103,7 +103,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: matrix.test-suite == 'unit' || matrix.test-suite == 'all'
         with:
           file: ./coverage.xml
