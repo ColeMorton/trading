@@ -39,11 +39,14 @@ class BatchProcessingService:
         self.console = console or ConsoleLogger()
 
         # Ensure the directory exists
-        self.batch_file_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.batch_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Initialize file if it doesn't exist
-        if not self.batch_file_path.exists():
-            self._create_batch_file()
+            # Initialize file if it doesn't exist
+            if not self.batch_file_path.exists():
+                self._create_batch_file()
+        except (PermissionError, OSError) as e:
+            self.console.error(f"Cannot create batch file directory: {e}")
 
     def _create_batch_file(self) -> None:
         """Create a new batch file with proper headers."""

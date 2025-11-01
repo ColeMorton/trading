@@ -35,7 +35,7 @@ class OptimizationConfig:
         )
 
         # Asset configuration
-        self.assets = ["MA", "BRK-B", "TPR", "TTWO", "XYZ", "BTC-USD"]
+        self.assets = ["MA", "BRK-B", "TPR", "TTWO", "XYZ", "BTC-USD", "CRM", "ACN"]
 
         # Asset configuration
         # self.assets = [

@@ -197,8 +197,8 @@ class ExportTypeRouter:
             "validation_level": "strict",
         },
         "portfolios_filtered": {
-            "schema": SchemaType.FILTERED,
-            "description": "63 columns, includes Metric Type for filtered results",
+            "schema": SchemaType.EXTENDED,
+            "description": "64 columns, canonical format for filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },

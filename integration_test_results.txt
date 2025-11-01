@@ -1,0 +1,391 @@
+[1m============================= test session starts ==============================[0m
+platform darwin -- Python 3.12.10, pytest-8.3.5, pluggy-1.6.0 -- /Users/colemorton/Projects/trading/.venv/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /Users/colemorton/Projects/trading
+configfile: pytest.ini
+testpaths: tests/unit, tests, app/api/tests, tests/concurrency, tests/e2e, tests/frontend, tests/portfolio_testing, tests/strategies, tests/tools
+plugins: xdist-3.7.0, timeout-2.4.0, mock-3.14.1, hypothesis-6.142.4, cov-6.1.1, asyncio-1.0.0, anyio-4.6.2.post1
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+[1mcollecting ... [0mcollected 1346 items / 970 deselected / 376 selected
+
+tests/unit/concurrency/test_asset_strategy_loader.py::TestAssetStrategyLoaderIntegration::test_load_real_asset_structure [32mPASSED[0m[33m [  0%][0m
+tests/unit/concurrency/test_asset_strategy_loader.py::TestAssetStrategyLoaderIntegration::test_validate_real_asset [32mPASSED[0m[33m [  0%][0m
+tests/unit/phase4/test_demonstration_suite.py::TestIntegrationDemonstration::test_service_integration_workflow [32mPASSED[0m[33m [  0%][0m
+tests/unit/phase4/test_demonstration_suite.py::TestIntegrationDemonstration::test_multi_component_state_consistency [32mPASSED[0m[33m [  1%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_export_best_portfolios_empty_input [32mPASSED[0m[33m [  1%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_export_best_portfolios_skips_deduplication_when_empty [32mPASSED[0m[33m [  1%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_export_best_portfolios_with_data_calls_deduplication [32mPASSED[0m[33m [  1%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_portfolio_orchestrator_empty_export_raw_portfolios [32mPASSED[0m[33m [  2%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_portfolio_orchestrator_empty_export_filtered_portfolios [33mSKIPPED[0m[33m [  2%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_portfolio_orchestrator_empty_export_results [33mSKIPPED[0m[33m [  2%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_portfolio_orchestrator_full_workflow_with_empty_results [33mSKIPPED[0m[33m [  2%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_csv_export_with_empty_dataframe [32mPASSED[0m[33m [  3%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_empty_portfolio_logging_messages [32mPASSED[0m[33m [  3%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_empty_portfolio_config_logging [32mPASSED[0m[33m [  3%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioExportUnit::test_empty_portfolio_preserves_config [32mPASSED[0m[33m [  3%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioErrorHandling::test_export_best_portfolios_export_failure [32mPASSED[0m[33m [  4%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioErrorHandling::test_portfolio_orchestrator_empty_export_succeeds [32mPASSED[0m[33m [  4%][0m
+tests/unit/test_empty_portfolio_export.py::TestEmptyPortfolioErrorHandling::test_missing_required_config_fields [32mPASSED[0m[33m [  4%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_mixed_strategies_create_separate_files_per_strategy_per_ticker [32mPASSED[0m[33m [  5%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_ma_strategies_work_correctly_when_isolated [32mPASSED[0m[33m [  5%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_macd_strategy_works_correctly_when_isolated [33mSKIPPED[0m[33m [  5%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_file_naming_convention_correctness [32mPASSED[0m[33m [  5%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_export_directory_structure_correctness [32mPASSED[0m[33m [  6%][0m
+tests/unit/test_strategy_run_export_separation.py::TestDispatcherIntegrationValidation::test_cli_mixed_strategy_validation_integration [32mPASSED[0m[33m [  6%][0m
+tests/unit/test_strategy_run_export_separation.py::TestDispatcherIntegrationValidation::test_cli_individual_strategy_validation [32mPASSED[0m[33m [  6%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategyDispatcherBugDocumentation::test_dispatcher_mixed_strategy_compatibility_fix [32mPASSED[0m[33m [  6%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategyDispatcherBugDocumentation::test_dispatcher_execution_path_detection [32mPASSED[0m[33m [  7%][0m
+tests/unit/test_strategy_run_export_separation.py::TestStrategyDispatcherBugDocumentation::test_required_fix_specification [32mPASSED[0m[33m [  7%][0m
+tests/concurrency/test_integration_fixes.py::test_risk_calc_fix [32mPASSED[0m[33m   [  7%][0m
+tests/concurrency/test_integration_fixes.py::test_expectancy_fix [32mPASSED[0m[33m  [  7%][0m
+tests/concurrency/test_integration_fixes.py::test_win_rate_fix [32mPASSED[0m[33m    [  8%][0m
+tests/concurrency/test_integration_fixes.py::test_signal_processor_fix [32mPASSED[0m[33m [  8%][0m
+tests/concurrency/test_integration_permutation.py::TestOptimizationReport::test_generate_optimization_report [32mPASSED[0m[33m [  8%][0m
+tests/concurrency/test_integration_permutation.py::TestOptimizationReport::test_numpy_encoder [32mPASSED[0m[33m [  9%][0m
+tests/concurrency/test_integration_permutation.py::TestOptimizationReport::test_save_optimization_report [32mPASSED[0m[33m [  9%][0m
+tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_all_fixes_enabled [32mPASSED[0m[33m [  9%][0m
+tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_individual_fixes [32mPASSED[0m[33m [  9%][0m
+tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_cross_module_validation [32mPASSED[0m[33m [ 10%][0m
+tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_performance_benchmarks [32mPASSED[0m[33m [ 10%][0m
+tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_known_results_validation [32mPASSED[0m[33m [ 10%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_current_signals_scenario [32mPASSED[0m[33m [ 10%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_error_handling_scenario [32mPASSED[0m[33m [ 11%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_filtering_scenario [32mPASSED[0m[33m [ 11%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_multi_strategy_comparison_scenario [32mPASSED[0m[33m [ 11%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_short_strategy_scenario [32mPASSED[0m[33m [ 11%][0m
+tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_single_ticker_analysis_scenario [32mPASSED[0m[33m [ 12%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_sync_analysis_metric_type_flow [33mSKIPPED[0m[33m [ 12%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_async_analysis_metric_type_flow [33mSKIPPED[0m[33m [ 12%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_consistency_across_endpoints [33mSKIPPED[0m[33m [ 13%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_with_different_configurations[BTC-USD-strategy_types0] [33mSKIPPED[0m[33m [ 13%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_with_different_configurations[ETH-USD-strategy_types1] [33mSKIPPED[0m[33m [ 13%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_with_different_configurations[AAPL-strategy_types2] [33mSKIPPED[0m[33m [ 13%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_serialization_formats [33mSKIPPED[0m[33m [ 14%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_error_scenarios [33mSKIPPED[0m[33m [ 14%][0m
+tests/e2e/test_metric_type_integration.py::TestMetricTypeE2EIntegration::test_metric_type_performance_impact [33mSKIPPED[0m[33m [ 14%][0m
+tests/strategies/comp/test_calculator.py::TestLoadComponentStrategies::test_load_component_strategies_success [32mPASSED[0m[33m [ 14%][0m
+tests/strategies/comp/test_calculator.py::TestLoadComponentStrategies::test_load_component_strategies_file_not_found [32mPASSED[0m[33m [ 15%][0m
+tests/strategies/comp/test_calculator.py::TestLoadComponentStrategies::test_load_component_strategies_mixed_types [32mPASSED[0m[33m [ 15%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateComponentPosition::test_calculate_component_position_sma [32mPASSED[0m[33m [ 15%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateComponentPosition::test_calculate_component_position_ema [32mPASSED[0m[33m [ 15%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateComponentPosition::test_calculate_component_position_macd [32mPASSED[0m[33m [ 16%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateComponentPosition::test_calculate_component_position_unsupported [32mPASSED[0m[33m [ 16%][0m
+tests/strategies/comp/test_calculator.py::TestAggregatePositions::test_aggregate_positions_multiple_strategies [32mPASSED[0m[33m [ 16%][0m
+tests/strategies/comp/test_calculator.py::TestAggregatePositions::test_aggregate_positions_empty_list [32mPASSED[0m[33m [ 17%][0m
+tests/strategies/comp/test_calculator.py::TestAggregatePositions::test_aggregate_positions_all_in [32mPASSED[0m[33m [ 17%][0m
+tests/strategies/comp/test_calculator.py::TestGenerateCompoundSignals::test_generate_compound_signals_entry [32mPASSED[0m[33m [ 17%][0m
+tests/strategies/comp/test_calculator.py::TestGenerateCompoundSignals::test_generate_compound_signals_exit [32mPASSED[0m[33m [ 17%][0m
+tests/strategies/comp/test_calculator.py::TestGenerateCompoundSignals::test_generate_compound_signals_stays_in_position [32mPASSED[0m[33m [ 18%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateCompoundStrategy::test_calculate_compound_strategy_success [32mPASSED[0m[33m [ 18%][0m
+tests/strategies/comp/test_calculator.py::TestCalculateCompoundStrategy::test_calculate_compound_strategy_no_strategies [32mPASSED[0m[33m [ 18%][0m
+tests/strategies/comp/test_strategy.py::TestCalculateCompScore::test_calculate_comp_score_high_trades [32mPASSED[0m[33m [ 18%][0m
+tests/strategies/comp/test_strategy.py::TestCalculateCompScore::test_calculate_comp_score_medium_trades [32mPASSED[0m[33m [ 19%][0m
+tests/strategies/comp/test_strategy.py::TestCalculateCompScore::test_calculate_comp_score_low_trades [32mPASSED[0m[33m [ 19%][0m
+tests/strategies/comp/test_strategy.py::TestCalculateCompScore::test_calculate_comp_score_fallback [32mPASSED[0m[33m [ 19%][0m
+tests/strategies/comp/test_strategy.py::TestGetStrategiesCSVPath::test_get_strategies_csv_path_default [32mPASSED[0m[33m [ 19%][0m
+tests/strategies/comp/test_strategy.py::TestGetStrategiesCSVPath::test_get_strategies_csv_path_custom [32mPASSED[0m[33m [ 20%][0m
+tests/strategies/comp/test_strategy.py::TestExportCompoundResults::test_export_compound_results_success [32mPASSED[0m[33m [ 20%][0m
+tests/strategies/comp/test_strategy.py::TestExportCompoundResults::test_export_compound_results_creates_directory [32mPASSED[0m[33m [ 20%][0m
+tests/strategies/comp/test_strategy.py::TestProcessTicker::test_process_ticker_success [32mPASSED[0m[33m [ 21%][0m
+tests/strategies/comp/test_strategy.py::TestProcessTicker::test_process_ticker_missing_csv [32mPASSED[0m[33m [ 21%][0m
+tests/strategies/comp/test_strategy.py::TestProcessTicker::test_process_ticker_no_data [32mPASSED[0m[33m [ 21%][0m
+tests/strategies/comp/test_strategy.py::TestProcessTicker::test_process_ticker_no_signals [32mPASSED[0m[33m [ 21%][0m
+tests/strategies/comp/test_strategy.py::TestRun::test_run_success_single_ticker [32mPASSED[0m[33m [ 22%][0m
+tests/strategies/comp/test_strategy.py::TestRun::test_run_success_multiple_tickers [32mPASSED[0m[33m [ 22%][0m
+tests/strategies/comp/test_strategy.py::TestRun::test_run_failure_no_ticker [32mPASSED[0m[33m [ 22%][0m
+tests/strategies/comp/test_strategy.py::TestRun::test_run_handles_string_ticker [32mPASSED[0m[33m [ 22%][0m
+tests/strategies/comp/test_strategy.py::TestCompStrategyIntegration::test_score_calculation_realistic [32mPASSED[0m[33m [ 23%][0m
+tests/strategies/comp/test_strategy.py::TestCompStrategyIntegration::test_export_preserves_all_metrics [32mPASSED[0m[33m [ 23%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestCompleteATRWorkflow::test_complete_workflow_success [32mPASSED[0m[33m [ 23%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestCompleteATRWorkflow::test_workflow_data_loading_failure [32mPASSED[0m[33m [ 23%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestCompleteATRWorkflow::test_workflow_partial_failures [32mPASSED[0m[33m [ 24%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRPortfolioExportIntegration::test_export_atr_portfolios_full_workflow [32mPASSED[0m[33m [ 24%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRPortfolioExportIntegration::test_export_filtering_integration [32mPASSED[0m[33m [ 24%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRPortfolioExportIntegration::test_export_schema_compliance [32mPASSED[0m[33m [ 25%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRPortfolioExportIntegration::test_export_empty_portfolios_handling [32mPASSED[0m[33m [ 25%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRAnalysisMemoryIntegration::test_memory_optimization_integration [32mPASSED[0m[33m [ 25%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRAnalysisMemoryIntegration::test_chunking_behavior_integration [32mPASSED[0m[33m [ 25%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRErrorHandlingIntegration::test_graceful_degradation_on_errors [32mPASSED[0m[33m [ 26%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRErrorHandlingIntegration::test_configuration_error_handling [32mPASSED[0m[33m [ 26%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATRErrorHandlingIntegration::test_file_permission_error_handling [32mPASSED[0m[33m [ 26%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATREndToEndScenarios::test_command_line_execution_scenario [32mPASSED[0m[33m [ 26%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATREndToEndScenarios::test_large_parameter_space_scenario [32mPASSED[0m[33m [ 27%][0m
+tests/strategies/ma_cross/test_atr_integration.py::TestATREndToEndScenarios::test_realistic_filtering_scenario [32mPASSED[0m[33m [ 27%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterCombinations::test_create_atr_parameter_combinations_basic [32mPASSED[0m[33m [ 27%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterCombinations::test_create_atr_parameter_combinations_edge_cases [32mPASSED[0m[33m [ 27%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterCombinations::test_validate_atr_parameters [32mPASSED[0m[33m [ 28%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRSignalProcessing::test_generate_hybrid_ma_atr_signals [32mPASSED[0m[33m [ 28%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRSignalProcessing::test_generate_signals_error_handling [32mPASSED[0m[33m [ 28%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_engine_initialization [32mPASSED[0m[33m [ 28%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_engine_initialization_defaults [32mPASSED[0m[33m [ 29%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_generate_atr_parameter_combinations [32mPASSED[0m[33m [ 29%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_process_single_atr_combination_signal_failure [32mPASSED[0m[33m [ 29%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_process_single_atr_combination_backtest_failure [32mPASSED[0m[33m [ 30%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_process_single_atr_combination_invalid_parameters [32mPASSED[0m[33m [ 30%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_execute_atr_parameter_sweep_success [32mPASSED[0m[33m [ 30%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_execute_atr_parameter_sweep_data_failure [32mPASSED[0m[33m [ 30%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_validate_sweep_results_valid [32mPASSED[0m[33m [ 31%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_validate_sweep_results_empty [32mPASSED[0m[33m [ 31%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRParameterSweepEngine::test_validate_sweep_results_missing_atr_fields [32mPASSED[0m[33m [ 31%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRPortfolioExport::test_export_atr_portfolios_success [32mPASSED[0m[33m [ 31%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRPortfolioExport::test_atr_portfolio_schema_compliance [32mPASSED[0m[33m [ 32%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRAnalysisIntegration::test_complete_atr_analysis_workflow [32mPASSED[0m[33m [ 32%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRAnalysisIntegration::test_atr_analysis_memory_efficiency [32mPASSED[0m[33m [ 32%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRAnalysisIntegration::test_atr_portfolio_export_csv_format [32mPASSED[0m[33m [ 32%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRConfigurationHandling::test_atr_config_parameter_ranges [32mPASSED[0m[33m [ 33%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRConfigurationHandling::test_atr_config_minimums_validation [32mPASSED[0m[33m [ 33%][0m
+tests/strategies/ma_cross/test_atr_parameter_sweep.py::TestATRConfigurationHandling::test_atr_config_sorting_options [32mPASSED[0m[33m [ 33%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_create_ticker_batches_small_list [32mPASSED[0m[33m [ 34%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_create_ticker_batches_medium_list [32mPASSED[0m[33m [ 34%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_create_ticker_batches_large_list [32mPASSED[0m[33m [ 34%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_create_ticker_batches_custom_size [32mPASSED[0m[33m [ 34%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_process_ticker_batch [32mPASSED[0m[33m [ 35%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_process_ticker_batch_with_errors [32mPASSED[0m[33m [ 35%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_execute_strategy_concurrent_performance [32mPASSED[0m[33m [ 35%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_execute_strategy_concurrent_falls_back_to_sequential [32mPASSED[0m[33m [ 35%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_execute_strategy_concurrent_error_handling [32mPASSED[0m[33m [ 36%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_concurrent_execution_thread_safety [32mPASSED[0m[33m [ 36%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_concurrent_execution_progress_tracking [32mPASSED[0m[33m [ 36%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_empty_ticker_list_handling [32mPASSED[0m[33m [ 36%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecution::test_invalid_config_handling [32mPASSED[0m[33m [ 37%][0m
+tests/strategies/ma_cross/test_concurrent_execution.py::TestConcurrentExecutionIntegration::test_concurrent_vs_sequential_accuracy [32mPASSED[0m[33m [ 37%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_equity_export_enabled [32mPASSED[0m[33m [ 37%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_equity_export_disabled [32mPASSED[0m[33m [ 38%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_equity_export_missing_data [32mPASSED[0m[33m [ 38%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_equity_export_error_handling [32mPASSED[0m[33m [ 38%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_different_strategy_directories [32mPASSED[0m[33m [ 38%][0m
+tests/strategies/tools/test_equity_export_integration.py::TestEquityExportEndToEnd::test_end_to_end_file_overwrite_behavior [32mPASSED[0m[33m [ 39%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_macd_strategy_with_equity_extraction [32mPASSED[0m[33m [ 39%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_sma_strategy_with_equity_extraction [32mPASSED[0m[33m [ 39%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_ema_strategy_with_equity_extraction [32mPASSED[0m[33m [ 39%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_equity_extraction_disabled [32mPASSED[0m[33m [ 40%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_equity_extraction_missing_config [32mPASSED[0m[33m [ 40%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_equity_extraction_with_different_metrics [32mPASSED[0m[33m [ 40%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_equity_extraction_invalid_metric [32mPASSED[0m[33m [ 40%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_equity_extraction_error_handling [32mPASSED[0m[33m [ 41%][0m
+tests/strategies/tools/test_equity_integration.py::TestEquityIntegration::test_strategy_processing_without_equity_data_field [32mPASSED[0m[33m [ 41%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestEnhancedParameterIntegration::test_strategy_spec_analysis_integration [32mPASSED[0m[33m [ 41%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestEnhancedParameterIntegration::test_position_uuid_analysis_integration [32mPASSED[0m[33m [ 42%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestSimpleAnalysisResultIntegration::test_simple_analysis_result_creation [32mPASSED[0m[33m [ 42%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestSimpleAnalysisResultIntegration::test_convert_to_standard_result [32mPASSED[0m[33m [ 42%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestMarketDataAnalyzerFactoryIntegration::test_create_analyzer_ticker_only [32mPASSED[0m[33m [ 42%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestMarketDataAnalyzerFactoryIntegration::test_create_analyzer_strategy_spec [32mPASSED[0m[33m [ 43%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestMarketDataAnalyzerFactoryIntegration::test_create_analyzer_position_uuid [32mPASSED[0m[33m [ 43%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestBuySignalGeneration::test_buy_signal_generation_strong_uptrend [32mPASSED[0m[33m [ 43%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestBuySignalGeneration::test_sell_signal_generation_strong_downtrend [32mPASSED[0m[33m [ 43%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestExportCompatibility::test_export_field_compatibility [32mPASSED[0m[33m [ 44%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestExportCompatibility::test_backward_compatibility_fields [32mPASSED[0m[33m [ 44%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestErrorHandlingIntegration::test_data_fetch_failure_handling [32mPASSED[0m[33m [ 44%][0m
+tests/tools/market_data/test_enhanced_parameter_analysis.py::TestErrorHandlingIntegration::test_analysis_exception_handling [32mPASSED[0m[33m [ 44%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataAnalyzerInitialization::test_initialization_with_valid_ticker [32mPASSED[0m[33m [ 45%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataAnalyzerInitialization::test_initialization_with_custom_logger [32mPASSED[0m[33m [ 45%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataAnalyzerInitialization::test_create_market_data_analyzer_factory [32mPASSED[0m[33m [ 45%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataAnalyzerInitialization::test_create_analyzer_with_custom_logger [32mPASSED[0m[33m [ 46%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataFetching::test_fetch_data_empty_response [32mPASSED[0m[33m [ 46%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataFetching::test_fetch_data_empty_dataframe [32mPASSED[0m[33m [ 46%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataFetching::test_fetch_data_exception_handling [32mPASSED[0m[33m [ 46%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestReturnsCalculation::test_calculate_returns_success [32mPASSED[0m[33m [ 47%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestReturnsCalculation::test_calculate_returns_no_data [32mPASSED[0m[33m [ 47%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestDistributionAnalysis::test_analyze_distribution_success [32mPASSED[0m[33m [ 47%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestDistributionAnalysis::test_analyze_distribution_no_returns [32mPASSED[0m[33m [ 47%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestDistributionAnalysis::test_analyze_distribution_single_return [32mPASSED[0m[33m [ 48%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestFullAnalysisWorkflow::test_analyze_with_fetch_failure [32mPASSED[0m[33m [ 48%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestErrorHandling::test_none_ticker [32mPASSED[0m[33m [ 48%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestErrorHandling::test_special_characters_ticker [32mPASSED[0m[33m [ 48%][0m
+tests/tools/market_data/test_market_data_analyzer.py::TestErrorHandling::test_malformed_data_handling [32mPASSED[0m[33m [ 49%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumMetricsCalculation::test_momentum_metrics_uptrend [32mPASSED[0m[33m [ 49%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumMetricsCalculation::test_momentum_metrics_downtrend [32mPASSED[0m[33m [ 49%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumMetricsCalculation::test_momentum_metrics_sideways [32mPASSED[0m[33m [ 50%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumMetricsCalculation::test_momentum_metrics_short_series [32mPASSED[0m[33m [ 50%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumMetricsCalculation::test_momentum_metrics_empty_array [32mPASSED[0m[33m [ 50%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestRollingMomentumCalculation::test_rolling_momentum_sufficient_data [32mPASSED[0m[33m [ 50%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestRollingMomentumCalculation::test_rolling_momentum_insufficient_data [32mPASSED[0m[33m [ 51%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestRollingMomentumCalculation::test_rolling_momentum_exact_window [32mPASSED[0m[33m [ 51%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestRollingMomentumCalculation::test_rolling_momentum_different_windows [32mPASSED[0m[33m [ 51%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestPriceAcceleration::test_acceleration_accelerating_trend [32mPASSED[0m[33m [ 51%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestPriceAcceleration::test_acceleration_decelerating_trend [32mPASSED[0m[33m [ 52%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestPriceAcceleration::test_acceleration_constant_trend [32mPASSED[0m[33m [ 52%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestPriceAcceleration::test_acceleration_insufficient_data [32mPASSED[0m[33m [ 52%][0m
+tests/tools/market_data/test_momentum_calculations.py::TestMomentumIntegration::test_momentum_in_full_analysis [32mPASSED[0m[33m [ 52%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendMetricsCalculation::test_trend_metrics_insufficient_data [32mPASSED[0m[33m [ 53%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendMetricsCalculation::test_trend_metrics_no_data [32mPASSED[0m[33m [ 53%][0m
+tests/tools/market_data/test_trend_calculations.py::TestMovingAverageCalculations::test_moving_averages_short_series [32mPASSED[0m[33m [ 53%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendDirectionCalculations::test_trend_direction_below_ma [32mPASSED[0m[33m [ 53%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendConsistencyCalculations::test_trend_consistency_mixed [32mPASSED[0m[33m [ 54%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendSlopeCalculations::test_trend_slope_positive [32mPASSED[0m[33m [ 54%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendSlopeCalculations::test_trend_slope_negative [32mPASSED[0m[33m [ 54%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendSlopeCalculations::test_trend_slope_flat [32mPASSED[0m[33m [ 55%][0m
+tests/tools/market_data/test_trend_calculations.py::TestTrendIntegration::test_trend_in_full_analysis [32mPASSED[0m[33m [ 55%][0m
+tests/tools/portfolio/test_data_loaders.py::TestLoadStrategiesFromRawCsv::test_load_strategies_file_not_found [32mPASSED[0m[33m [ 55%][0m
+tests/tools/portfolio/test_data_loaders.py::TestLoadStrategiesFromRawCsv::test_load_strategies_read_csv_error [32mPASSED[0m[33m [ 55%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_standard_format [32mPASSED[0m[33m [ 56%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_hourly_timeframe [32mPASSED[0m[33m [ 56%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_macd_strategy [32mPASSED[0m[33m [ 56%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_ticker_only [32mPASSED[0m[33m [ 56%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_ticker_and_timeframe_only [32mPASSED[0m[33m [ 57%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_empty_filename [32mPASSED[0m[33m [ 57%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_no_extension [32mPASSED[0m[33m [ 57%][0m
+tests/tools/portfolio/test_file_utils.py::TestExtractFileMetadata::test_complex_ticker_name [32mPASSED[0m[33m [ 57%][0m
+tests/tools/portfolio/test_file_utils.py::TestSaveAggregationCsv::test_save_ticker_aggregation [32mPASSED[0m[33m [ 58%][0m
+tests/tools/portfolio/test_file_utils.py::TestSaveAggregationCsv::test_save_strategy_aggregation [32mPASSED[0m[33m [ 58%][0m
+tests/tools/portfolio/test_file_utils.py::TestSaveAggregationCsv::test_save_empty_aggregation [32mPASSED[0m[33m [ 58%][0m
+tests/tools/portfolio/test_file_utils.py::TestSaveAggregationCsv::test_save_both_aggregations [32mPASSED[0m[33m [ 59%][0m
+tests/tools/portfolio/test_file_utils.py::TestSaveAggregationCsv::test_save_handles_none_best_strategy [32mPASSED[0m[33m [ 59%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_concurrent_downloads_without_lock_causes_contamination [32mPASSED[0m[33m [ 59%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_concurrent_downloads_with_lock_prevents_contamination [32mPASSED[0m[33m [ 59%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_thread_lock_ensures_sequential_yfinance_calls [32mPASSED[0m[33m [ 60%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_error_handling_with_concurrent_downloads [32mPASSED[0m[33m [ 60%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_data_integrity_across_concurrent_downloads [32mPASSED[0m[33m [ 60%][0m
+tests/tools/test_download_data_thread_safety.py::TestDownloadDataThreadSafety::test_performance_impact_of_thread_lock [32mPASSED[0m[33m [ 60%][0m
+tests/tools/test_download_data_thread_safety.py::TestConcurrentStrategyExecution::test_full_concurrent_pipeline_with_thread_safety [32mPASSED[0m[33m [ 61%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_concurrent_downloads_with_stable_data [32mPASSED[0m[33m [ 61%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_thread_safety_with_minimal_data [32mPASSED[0m[33m [ 61%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_full_concurrent_pipeline_stabilized [32mPASSED[0m[33m [ 61%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_data_integrity_across_multiple_calls [32mPASSED[0m[33m [ 62%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_error_handling_with_stable_mocks [32mPASSED[0m[33m [ 62%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestDownloadDataThreadSafetyStable::test_performance_comparison_stable_vs_external [32mPASSED[0m[33m [ 62%][0m
+tests/tools/test_download_data_thread_safety_stable.py::TestConcurrentStrategyExecutionStable::test_concurrent_execution_no_timeouts [32mPASSED[0m[33m [ 63%][0m
+tests/tools/test_equity_export.py::TestEquityExportFilenames::test_generate_equity_filename_sma [31mFAILED[0m[31m [ 63%][0m
+tests/tools/test_equity_export.py::TestEquityExportFilenames::test_generate_equity_filename_ema [31mFAILED[0m[31m [ 63%][0m
+tests/tools/test_equity_export.py::TestEquityExportFilenames::test_generate_equity_filename_macd [32mPASSED[0m[31m [ 63%][0m
+tests/tools/test_equity_export.py::TestEquityExportFilenames::test_generate_equity_filename_special_characters [31mFAILED[0m[31m [ 64%][0m
+tests/tools/test_equity_export.py::TestEquityExportFilenames::test_generate_equity_filename_signal_window_none [31mFAILED[0m[31m [ 64%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_get_equity_export_directory_sma [31mFAILED[0m[31m [ 64%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_get_equity_export_directory_ema [31mFAILED[0m[31m [ 64%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_get_equity_export_directory_macd [31mFAILED[0m[31m [ 65%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_get_equity_export_directory_invalid_strategy [32mPASSED[0m[31m [ 65%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_ensure_export_directory_exists_new_directory [32mPASSED[0m[31m [ 65%][0m
+tests/tools/test_equity_export.py::TestEquityExportDirectories::test_ensure_export_directory_exists_existing_directory [32mPASSED[0m[31m [ 65%][0m
+tests/tools/test_equity_export.py::TestEquityDataExport::test_export_equity_data_to_csv_success [31mFAILED[0m[31m [ 66%][0m
+tests/tools/test_equity_export.py::TestEquityDataExport::test_export_equity_data_to_csv_empty_data [32mPASSED[0m[31m [ 66%][0m
+tests/tools/test_equity_export.py::TestEquityDataExport::test_export_equity_data_to_csv_overwrite_disabled [31mFAILED[0m[31m [ 66%][0m
+tests/tools/test_equity_export.py::TestEquityBatchExport::test_export_equity_data_batch_success [32mPASSED[0m[31m [ 67%][0m
+tests/tools/test_equity_export.py::TestEquityBatchExport::test_export_equity_data_batch_disabled [32mPASSED[0m[31m [ 67%][0m
+tests/tools/test_equity_export.py::TestEquityBatchExport::test_export_equity_data_batch_missing_config [32mPASSED[0m[31m [ 67%][0m
+tests/tools/test_equity_export.py::TestEquityBatchExport::test_export_equity_data_batch_with_errors [32mPASSED[0m[31m [ 67%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_valid_sma [32mPASSED[0m[31m [ 68%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_valid_macd [32mPASSED[0m[31m [ 68%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_invalid_ticker [32mPASSED[0m[31m [ 68%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_invalid_strategy [32mPASSED[0m[31m [ 68%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_invalid_windows [32mPASSED[0m[31m [ 69%][0m
+tests/tools/test_equity_export.py::TestEquityExportValidation::test_validate_equity_export_requirements_macd_missing_signal [32mPASSED[0m[31m [ 69%][0m
+tests/tools/test_equity_export.py::TestEquityExportUtilities::test_get_equity_export_file_path [31mFAILED[0m[31m [ 69%][0m
+
+=================================== FAILURES ===================================
+[31m[1m_________ TestEquityExportFilenames.test_generate_equity_filename_sma __________[0m
+[1m[31mtests/tools/test_equity_export.py[0m:38: in test_generate_equity_filename_sma
+    [0m[94massert[39;49;00m filename == [33m"[39;49;00m[33mAAPL_SMA_20_50_0.csv[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'AAPL_SMA_20_50.csv' == 'AAPL_SMA_20_50_0.csv'[0m
+[1m[31mE     [0m
+[1m[31mE     - AAPL_SMA_20_50_0.csv[0m
+[1m[31mE     ?               --[0m
+[1m[31mE     + AAPL_SMA_20_50.csv[0m
+[31m[1m_________ TestEquityExportFilenames.test_generate_equity_filename_ema __________[0m
+[1m[31mtests/tools/test_equity_export.py[0m:43: in test_generate_equity_filename_ema
+    [0m[94massert[39;49;00m filename == [33m"[39;49;00m[33mMSFT_EMA_12_26_0.csv[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'MSFT_EMA_12_26.csv' == 'MSFT_EMA_12_26_0.csv'[0m
+[1m[31mE     [0m
+[1m[31mE     - MSFT_EMA_12_26_0.csv[0m
+[1m[31mE     ?               --[0m
+[1m[31mE     + MSFT_EMA_12_26.csv[0m
+[31m[1m__ TestEquityExportFilenames.test_generate_equity_filename_special_characters __[0m
+[1m[31mtests/tools/test_equity_export.py[0m:53: in test_generate_equity_filename_special_characters
+    [0m[94massert[39;49;00m filename == [33m"[39;49;00m[33mBTC-USD_SMA_20_50_0.csv[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'BTC-USD_SMA_20_50.csv' == 'BTC-USD_SMA_20_50_0.csv'[0m
+[1m[31mE     [0m
+[1m[31mE     - BTC-USD_SMA_20_50_0.csv[0m
+[1m[31mE     ?                  --[0m
+[1m[31mE     + BTC-USD_SMA_20_50.csv[0m
+[31m[1m__ TestEquityExportFilenames.test_generate_equity_filename_signal_window_none __[0m
+[1m[31mtests/tools/test_equity_export.py[0m:61: in test_generate_equity_filename_signal_window_none
+    [0m[94massert[39;49;00m filename == [33m"[39;49;00m[33mTESLA_SMA_15_30_0.csv[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+[1m[31mE   AssertionError: assert 'TESLA_SMA_15_30.csv' == 'TESLA_SMA_15_30_0.csv'[0m
+[1m[31mE     [0m
+[1m[31mE     - TESLA_SMA_15_30_0.csv[0m
+[1m[31mE     ?                --[0m
+[1m[31mE     + TESLA_SMA_15_30.csv[0m
+[31m[1m_______ TestEquityExportDirectories.test_get_equity_export_directory_sma _______[0m
+[1m[31mtests/tools/test_equity_export.py[0m:75: in test_get_equity_export_directory_sma
+    [0m[94massert[39;49;00m export_dir == expected[90m[39;49;00m
+[1m[31mE   AssertionError: assert PosixPath('/test/project/csv/ma_cross/equity_data') == PosixPath('/test/project/data/raw/equity')[0m
+[31m[1m_______ TestEquityExportDirectories.test_get_equity_export_directory_ema _______[0m
+[1m[31mtests/tools/test_equity_export.py[0m:84: in test_get_equity_export_directory_ema
+    [0m[94massert[39;49;00m export_dir == expected[90m[39;49;00m
+[1m[31mE   AssertionError: assert PosixPath('/test/project/csv/ma_cross/equity_data') == PosixPath('/test/project/data/raw/equity')[0m
+[31m[1m______ TestEquityExportDirectories.test_get_equity_export_directory_macd _______[0m
+[1m[31mtests/tools/test_equity_export.py[0m:93: in test_get_equity_export_directory_macd
+    [0m[94massert[39;49;00m export_dir == expected[90m[39;49;00m
+[1m[31mE   AssertionError: assert PosixPath('/test/project/csv/macd_cross/equity_data') == PosixPath('/test/project/data/raw/equity')[0m
+[31m[1m_________ TestEquityDataExport.test_export_equity_data_to_csv_success __________[0m
+[1m[31mtests/tools/test_equity_export.py[0m:186: in test_export_equity_data_to_csv_success
+    [0m[94massert[39;49;00m expected_file.exists()[90m[39;49;00m
+[1m[31mE   AssertionError: assert False[0m
+[1m[31mE    +  where False = exists()[0m
+[1m[31mE    +    where exists = PosixPath('/var/folders/wv/6psymz1153j041rh26kgql4m0000gn/T/tmp3si82cry/AAPL_SMA_20_50_0.csv').exists[0m
+[31m[1m____ TestEquityDataExport.test_export_equity_data_to_csv_overwrite_disabled ____[0m
+[1m[31mtests/tools/test_equity_export.py[0m:274: in test_export_equity_data_to_csv_overwrite_disabled
+    [0m[94massert[39;49;00m success [95mis[39;49;00m [94mFalse[39;49;00m[90m[39;49;00m
+[1m[31mE   assert True is False[0m
+[31m[1m__________ TestEquityExportUtilities.test_get_equity_export_file_path __________[0m
+[1m[31mtests/tools/test_equity_export.py[0m:475: in test_get_equity_export_file_path
+    [0m[94massert[39;49;00m file_path == expected[90m[39;49;00m
+[1m[31mE   AssertionError: assert PosixPath('/test/export/AAPL_SMA_20_50.csv') == PosixPath('/test/export/AAPL_SMA_20_50_0.csv')[0m
+--------------------------- Captured stdout teardown ---------------------------
+
+======================================================================
+✅ Test session complete
+======================================================================
+
+============================= slowest 20 durations =============================
+613.95s call     tests/tools/test_download_data_thread_safety.py::TestConcurrentStrategyExecution::test_full_concurrent_pipeline_with_thread_safety
+9.73s call     tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_filtering_scenario
+6.27s call     tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_mixed_strategies_create_separate_files_per_strategy_per_ticker
+5.81s call     tests/strategies/ma_cross/test_atr_integration.py::TestCompleteATRWorkflow::test_workflow_data_loading_failure
+5.58s call     tests/strategies/ma_cross/test_atr_integration.py::TestCompleteATRWorkflow::test_workflow_partial_failures
+5.48s call     tests/strategies/ma_cross/test_atr_integration.py::TestATRErrorHandlingIntegration::test_graceful_degradation_on_errors
+3.63s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestBuySignalGeneration::test_sell_signal_generation_strong_downtrend
+3.43s call     tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataFetching::test_fetch_data_exception_handling
+3.34s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestErrorHandlingIntegration::test_data_fetch_failure_handling
+3.26s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestErrorHandlingIntegration::test_analysis_exception_handling
+3.25s call     tests/tools/market_data/test_market_data_analyzer.py::TestMarketDataFetching::test_fetch_data_empty_dataframe
+3.16s call     tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_ma_strategies_work_correctly_when_isolated
+2.78s call     tests/concurrency/test_integration_phase5.py::TestConcurrencyIntegrationPhase5::test_performance_benchmarks
+2.08s call     tests/e2e/test_ma_cross_scenarios.py::TestMACrossE2EScenarios::test_current_signals_scenario
+1.63s call     tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_export_directory_structure_correctness
+1.47s call     tests/unit/test_strategy_run_export_separation.py::TestStrategySweepCSVExportSeparation::test_file_naming_convention_correctness
+1.42s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestEnhancedParameterIntegration::test_strategy_spec_analysis_integration
+1.35s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestExportCompatibility::test_backward_compatibility_fields
+1.30s call     tests/tools/market_data/test_momentum_calculations.py::TestMomentumIntegration::test_momentum_in_full_analysis
+1.12s call     tests/tools/market_data/test_enhanced_parameter_analysis.py::TestMarketDataAnalyzerFactoryIntegration::test_create_analyzer_position_uuid
+[36m[1m=========================== short test summary info ============================[0m
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportFilenames::test_generate_equity_filename_sma[0m - AssertionError: assert 'AAPL_SMA_20_50.csv' == 'AAPL_SMA_20_50_0.csv'
+
+  - AAPL_SMA_20_50_0.csv
+  ?               --
+  + AAPL_SMA_20_50.csv
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportFilenames::test_generate_equity_filename_ema[0m - AssertionError: assert 'MSFT_EMA_12_26.csv' == 'MSFT_EMA_12_26_0.csv'
+
+  - MSFT_EMA_12_26_0.csv
+  ?               --
+  + MSFT_EMA_12_26.csv
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportFilenames::test_generate_equity_filename_special_characters[0m - AssertionError: assert 'BTC-USD_SMA_20_50.csv' == 'BTC-USD_SMA_20_50_0.csv'
+
+  - BTC-USD_SMA_20_50_0.csv
+  ?                  --
+  + BTC-USD_SMA_20_50.csv
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportFilenames::test_generate_equity_filename_signal_window_none[0m - AssertionError: assert 'TESLA_SMA_15_30.csv' == 'TESLA_SMA_15_30_0.csv'
+
+  - TESLA_SMA_15_30_0.csv
+  ?                --
+  + TESLA_SMA_15_30.csv
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportDirectories::test_get_equity_export_directory_sma[0m - AssertionError: assert PosixPath('/test/project/csv/ma_cross/equity_data') == PosixPath('/test/project/data/raw/equity')
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportDirectories::test_get_equity_export_directory_ema[0m - AssertionError: assert PosixPath('/test/project/csv/ma_cross/equity_data') == PosixPath('/test/project/data/raw/equity')
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportDirectories::test_get_equity_export_directory_macd[0m - AssertionError: assert PosixPath('/test/project/csv/macd_cross/equity_data') == PosixPath('/test/project/data/raw/equity')
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityDataExport::test_export_equity_data_to_csv_success[0m - AssertionError: assert False
+ +  where False = exists()
+ +    where exists = PosixPath('/var/folders/wv/6psymz1153j041rh26kgql4m0000gn/T/tmp3si82cry/AAPL_SMA_20_50_0.csv').exists
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityDataExport::test_export_equity_data_to_csv_overwrite_disabled[0m - assert True is False
+[31mFAILED[0m tests/tools/test_equity_export.py::[1mTestEquityExportUtilities::test_get_equity_export_file_path[0m - AssertionError: assert PosixPath('/test/export/AAPL_SMA_20_50.csv') == PosixPath('/test/export/AAPL_SMA_20_50_0.csv')
+[31m!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 10 failures !!!!!!!!!!!!!!!!!!!!!!!!!![0m
+[31m= [31m[1m10 failed[0m, [32m239 passed[0m, [33m13 skipped[0m, [33m970 deselected[0m, [33m34 warnings[0m[31m in 691.91s (0:11:31)[0m[31m =[0m

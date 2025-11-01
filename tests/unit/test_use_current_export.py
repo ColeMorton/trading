@@ -77,7 +77,7 @@ class TestUseCurrentExport(unittest.TestCase):
     def _cleanup_test_files(self):
         """Remove test files created during tests."""
         # Clean portfolios_best
-        base_path = self.base_dir / "csv" / "portfolios_best"
+        base_path = self.base_dir / "data" / "raw" / "portfolios_best"
 
         # Clean root directory
         for f in base_path.glob(f"{self.test_ticker}*.csv"):
@@ -90,7 +90,7 @@ class TestUseCurrentExport(unittest.TestCase):
                 f.unlink()
 
         # Clean portfolios_filtered
-        filtered_base = self.base_dir / "csv" / "portfolios_filtered"
+        filtered_base = self.base_dir / "data" / "raw" / "portfolios_filtered"
         for f in filtered_base.glob(f"{self.test_ticker}*.csv"):
             f.unlink()
 
@@ -114,7 +114,7 @@ class TestUseCurrentExport(unittest.TestCase):
         export_best_portfolios([self.test_portfolio], config, self.log)
 
         # Verify file location
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
         files = list(expected_path.glob(f"{self.test_ticker}*.csv"))
 
         self.assertTrue(
@@ -127,7 +127,7 @@ class TestUseCurrentExport(unittest.TestCase):
         )
 
         # Verify no files in root
-        root_path = self.base_dir / "csv" / "portfolios_best"
+        root_path = self.base_dir / "data" / "raw" / "portfolios_best"
         root_files = list(root_path.glob(f"{self.test_ticker}*.csv"))
         self.assertEqual(
             len(root_files),
@@ -150,13 +150,13 @@ class TestUseCurrentExport(unittest.TestCase):
         export_best_portfolios([self.test_portfolio], config, self.log)
 
         # Verify file location
-        root_path = self.base_dir / "csv" / "portfolios_best"
+        root_path = self.base_dir / "data" / "raw" / "portfolios_best"
         files = list(root_path.glob(f"{self.test_ticker}*.csv"))
 
         self.assertTrue(len(files) > 0, "No files found in root directory")
 
         # Verify no files in date subdirectory
-        date_path = self.base_dir / "csv" / "portfolios_best" / self.today
+        date_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
         if date_path.exists():
             date_files = list(date_path.glob(f"{self.test_ticker}*.csv"))
             self.assertEqual(
@@ -186,7 +186,9 @@ class TestUseCurrentExport(unittest.TestCase):
         self.assertTrue(success, "Export failed")
 
         # Verify file location
-        expected_path = self.base_dir / "csv" / "portfolios_filtered" / self.today
+        expected_path = (
+            self.base_dir / "data" / "raw" / "portfolios_filtered" / self.today
+        )
         files = list(expected_path.glob(f"{self.test_ticker}*.csv"))
 
         self.assertTrue(
@@ -231,7 +233,9 @@ class TestUseCurrentExport(unittest.TestCase):
                     self.assertTrue(success, f"Export failed for {export_type}")
 
                 # Verify file location
-                expected_path = self.base_dir / "csv" / export_type / self.today
+                expected_path = (
+                    self.base_dir / "data" / "raw" / export_type / self.today
+                )
                 files = list(expected_path.glob(f"{config['TICKER']}*.csv"))
 
                 self.assertTrue(

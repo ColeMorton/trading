@@ -182,6 +182,10 @@ class AdvancedCache:
         self._hit_count = 0
         self._miss_count = 0
 
+    def __len__(self) -> int:
+        """Return number of entries in cache."""
+        return len(self._cache)
+
 
 class PerformanceMonitor:
     """Advanced performance monitoring with alerting capabilities."""
@@ -233,7 +237,7 @@ class PerformanceMonitor:
         ]
 
         return {
-            "total_operations": total_count,
+            "total_exports": total_count,
             "average_total_time_ms": avg_total_time * 1000,
             "average_schema_validation_time_ms": avg_schema_time * 1000,
             "average_file_write_time_ms": avg_write_time * 1000,

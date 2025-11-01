@@ -207,7 +207,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL",
                 "--strategy",
@@ -230,7 +230,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL",
                 "--strategy",
@@ -249,7 +249,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL",
                 "--strategy",
@@ -355,7 +355,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT,GOOGL",
                 "--batch",
@@ -422,7 +422,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL",
                 "--strategy",
@@ -463,7 +463,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT",
                 "--strategy",
@@ -514,7 +514,7 @@ config:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT",
                 "--strategy",
@@ -597,7 +597,7 @@ class TestStrategySweepBatchResumeIntegration:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT,GOOGL",
                 "--strategy",
@@ -647,7 +647,7 @@ class TestStrategySweepBatchResumeIntegration:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT",
                 "--strategy",
@@ -685,7 +685,7 @@ class TestStrategySweepBatchResumeIntegration:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT,GOOGL,TSLA",
                 "--strategy",
@@ -728,7 +728,7 @@ class TestStrategySweepBatchResumeIntegration:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT,GOOGL",
                 "--strategy",
@@ -762,7 +762,7 @@ class TestStrategySweepBatchEdgeCases:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL,MSFT",
                 "--strategy",
@@ -791,7 +791,7 @@ class TestStrategySweepBatchEdgeCases:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "AAPL",
                 "--strategy",
@@ -830,7 +830,7 @@ class TestStrategySweepBatchEdgeCases:
         result = cli_runner.invoke(
             strategy_app,
             [
-                "run",
+                "sweep",
                 "--ticker",
                 "BTC-USD,STRK/MSTR,TICKER.L",
                 "--strategy",

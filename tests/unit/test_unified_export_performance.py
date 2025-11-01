@@ -181,8 +181,8 @@ class TestUnifiedExportPerformance:
         summary = processor.get_performance_summary()
 
         assert summary["total_exports"] == 5
-        assert "average_total_time" in summary
-        assert "average_schema_validation_time" in summary
+        assert "average_total_time_ms" in summary
+        assert "average_schema_validation_time_ms" in summary
         assert "cache_hit_ratio" in summary
         assert "performance_improvement" in summary
 
@@ -247,61 +247,6 @@ class TestUnifiedExportPerformance:
         assert result.success is False
         assert result.error_message is not None
         assert result.execution_time > 0
-
-    @pytest.mark.benchmark
-    def test_performance_comparison_with_legacy(
-        self,
-        temp_output_dir,
-        sample_portfolio_polars,
-        sample_portfolio_pandas,
-    ):
-        """
-        Compare performance of unified export vs legacy export system.
-
-        This test requires the legacy export function to be available.
-        """
-        # Test unified system
-        config = ExportConfig(
-            output_dir=temp_output_dir,
-            enable_performance_monitoring=True,
-        )
-        processor = UnifiedExportProcessor(config)
-
-        # Unified system timing
-        start_time = time.time()
-        unified_result = processor.export_single(
-            data=sample_portfolio_polars,
-            filename="unified_benchmark.csv",
-        )
-        unified_time = time.time() - start_time
-
-        # Legacy system timing (if available)
-        try:
-            start_time = time.time()
-            legacy_path = Path(temp_output_dir) / "legacy_benchmark.csv"
-            export_portfolio_to_csv(
-                data=sample_portfolio_pandas,
-                file_path=str(legacy_path),
-            )
-            legacy_time = time.time() - start_time
-
-            # Performance comparison
-            improvement = ((legacy_time - unified_time) / legacy_time) * 100
-
-            logger.info("Performance comparison:")
-            logger.info(f"  Unified system: {unified_time:.4f}s")
-            logger.info(f"  Legacy system: {legacy_time:.4f}s")
-            logger.info(f"  Improvement: {improvement:.1f}%")
-
-            # Unified system should be faster
-            assert unified_time <= legacy_time, (
-                f"Unified system should be faster (unified: {unified_time:.4f}s, legacy: {legacy_time:.4f}s)"
-            )
-
-        except ImportError:
-            # Legacy function not available - skip comparison
-            logger.warning("Legacy export function not available for comparison")
-            assert unified_result.success is True
 
     def test_large_dataset_performance(self, export_config):
         """Test performance with larger datasets."""

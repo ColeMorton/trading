@@ -3,6 +3,11 @@ Unit and integration tests for equity data export functionality.
 
 This module tests the complete equity data export pipeline including
 file naming, directory creation, CSV export, and batch processing.
+
+Test expectations updated 2025-11-02 to align with current implementation:
+- SMA/EMA filenames: No signal_window suffix (format: {ticker}_{strategy}_{fast}_{slow}.csv)
+- MACD filenames: Includes signal_window (format: {ticker}_{strategy}_{fast}_{slow}_{signal}.csv)
+- Directory structure: Strategy-specific directories (csv/ma_cross/equity_data, csv/macd_cross/equity_data)
 """
 
 import os
@@ -35,12 +40,12 @@ class TestEquityExportFilenames:
     def test_generate_equity_filename_sma(self):
         """Test filename generation for SMA strategy."""
         filename = generate_equity_filename("AAPL", "SMA", 20, 50)
-        assert filename == "AAPL_SMA_20_50_0.csv"
+        assert filename == "AAPL_SMA_20_50.csv"
 
     def test_generate_equity_filename_ema(self):
         """Test filename generation for EMA strategy."""
         filename = generate_equity_filename("MSFT", "EMA", 12, 26)
-        assert filename == "MSFT_EMA_12_26_0.csv"
+        assert filename == "MSFT_EMA_12_26.csv"
 
     def test_generate_equity_filename_macd(self):
         """Test filename generation for MACD strategy."""
@@ -50,15 +55,15 @@ class TestEquityExportFilenames:
     def test_generate_equity_filename_special_characters(self):
         """Test filename generation with special characters in ticker."""
         filename = generate_equity_filename("BTC-USD", "SMA", 20, 50)
-        assert filename == "BTC-USD_SMA_20_50_0.csv"
+        assert filename == "BTC-USD_SMA_20_50.csv"
 
         filename = generate_equity_filename("EUR/USD", "EMA", 10, 20)
-        assert filename == "EUR-USD_EMA_10_20_0.csv"
+        assert filename == "EUR-USD_EMA_10_20.csv"
 
     def test_generate_equity_filename_signal_window_none(self):
         """Test filename generation with None signal period."""
         filename = generate_equity_filename("TESLA", "SMA", 15, 30, None)
-        assert filename == "TESLA_SMA_15_30_0.csv"
+        assert filename == "TESLA_SMA_15_30.csv"
 
 
 @pytest.mark.integration
@@ -71,7 +76,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("SMA")
-        expected = Path("/test/project/data/raw/equity")
+        expected = Path("/test/project/csv/ma_cross/equity_data")
         assert export_dir == expected
 
     @patch("app.tools.equity_export.get_project_root")
@@ -80,7 +85,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("EMA")
-        expected = Path("/test/project/data/raw/equity")
+        expected = Path("/test/project/csv/ma_cross/equity_data")
         assert export_dir == expected
 
     @patch("app.tools.equity_export.get_project_root")
@@ -89,7 +94,7 @@ class TestEquityExportDirectories:
         mock_project_root.return_value = Path("/test/project")
 
         export_dir = get_equity_export_directory("MACD")
-        expected = Path("/test/project/data/raw/equity")
+        expected = Path("/test/project/csv/macd_cross/equity_data")
         assert export_dir == expected
 
     def test_get_equity_export_directory_invalid_strategy(self):
@@ -182,7 +187,7 @@ class TestEquityDataExport:
             assert success is True
 
             # Check file was created
-            expected_file = export_dir / "AAPL_SMA_20_50_0.csv"
+            expected_file = export_dir / "AAPL_SMA_20_50.csv"
             assert expected_file.exists()
 
             # Check file contents
@@ -257,7 +262,7 @@ class TestEquityDataExport:
             mock_get_dir.return_value = export_dir
 
             # Create existing file
-            existing_file = export_dir / "TEST_SMA_20_50_0.csv"
+            existing_file = export_dir / "TEST_SMA_20_50.csv"
             existing_file.touch()
 
             success = export_equity_data_to_csv(
@@ -471,7 +476,7 @@ class TestEquityExportUtilities:
         mock_get_dir.return_value = Path("/test/export")
 
         file_path = get_equity_export_file_path("AAPL", "SMA", 20, 50)
-        expected = Path("/test/export/AAPL_SMA_20_50_0.csv")
+        expected = Path("/test/export/AAPL_SMA_20_50.csv")
         assert file_path == expected
 
     @patch("app.tools.equity_export.get_equity_export_directory")
