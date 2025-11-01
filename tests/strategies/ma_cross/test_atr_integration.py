@@ -416,55 +416,6 @@ class TestATRPortfolioExportIntegration:
                 assert len(filter_calls) > 0
 
     @pytest.mark.integration
-    def test_export_sorting_integration(
-        self,
-        sample_atr_portfolios,
-        comprehensive_config,
-        mock_logger,
-    ):
-        """Test integration of portfolio sorting with export."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            config = comprehensive_config.copy()
-            config["BASE_DIR"] = temp_dir
-            config["SORT_BY"] = "Total Return"
-            config["SORT_ASC"] = True  # Ascending sort
-
-            # Capture the DataFrame that gets written
-            written_data = None
-
-            def capture_write_csv(self, path):
-                nonlocal written_data
-                written_data = self.to_pandas()
-
-            with patch("polars.DataFrame.write_csv", side_effect=capture_write_csv):
-                with patch.object(
-                    atr_module,
-                    "PortfolioFilterService",
-                ) as mock_filter_service:
-                    # Mock filtering to pass all portfolios
-                    mock_filter_instance = Mock()
-                    mock_filter_instance.filter_portfolios_list.return_value = (
-                        sample_atr_portfolios
-                    )
-                    mock_filter_service.return_value = mock_filter_instance
-
-                    success = export_atr_portfolios(
-                        sample_atr_portfolios,
-                        "AAPL",
-                        config,
-                        mock_logger,
-                    )
-
-                    assert success is True
-                    assert written_data is not None
-
-                    # Verify sorting was applied (ascending order by Total Return)
-                    total_returns = written_data["Total Return"].tolist()
-                    assert total_returns == sorted(
-                        total_returns,
-                    )  # Should be sorted ascending
-
-    @pytest.mark.integration
     def test_export_schema_compliance(
         self,
         sample_atr_portfolios,

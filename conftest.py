@@ -355,8 +355,9 @@ def _check_api_server_available() -> bool:
 
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to add markers and organize tests."""
-    # Check if API server is running for requires_api tests
-    api_available = _check_api_server_available()
+    # Only check API server availability for tests that actually require it
+    # Skip expensive health check during collection unless needed
+    api_available = None
 
     for item in items:
         # Add markers based on test path and name
@@ -372,13 +373,17 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.unit)
 
         # Skip tests that require API server if it's not available
-        if "requires_api" in item.keywords and not api_available:
-            item.add_marker(
-                pytest.mark.skip(
-                    reason="API server not running on localhost:8000. "
-                    "Start it with: ./scripts/start_api.sh"
+        if "requires_api" in item.keywords:
+            # Lazy check: only call API if we haven't checked yet
+            if api_available is None:
+                api_available = _check_api_server_available()
+            if not api_available:
+                item.add_marker(
+                    pytest.mark.skip(
+                        reason="API server not running on localhost:8000. "
+                        "Start it with: ./scripts/start_api.sh"
+                    )
                 )
-            )
 
         # Add strategy marker for strategy tests
         if "strateg" in str(item.fspath):

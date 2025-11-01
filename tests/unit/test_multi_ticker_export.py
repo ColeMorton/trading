@@ -6,6 +6,7 @@ This test ensures that when multiple tickers are provided as a list,
 they are combined into a single date-based portfolios_best file.
 """
 
+import copy
 import os
 import sys
 import unittest
@@ -43,7 +44,8 @@ class TestMultiTickerExport(unittest.TestCase):
         )
 
         # Create test portfolio data for multiple tickers
-        self.test_portfolios = []
+        # Use base list to prevent mutation between tests
+        base_portfolios = []
 
         for i, ticker in enumerate(self.test_tickers):
             # Create different scores to ensure proper sorting
@@ -76,7 +78,10 @@ class TestMultiTickerExport(unittest.TestCase):
                 "Omega Ratio": 1.3 + i * 0.1,
                 "Calmar Ratio": 2.0 + i * 0.3,
             }
-            self.test_portfolios.append(portfolio)
+            base_portfolios.append(portfolio)
+
+        # Each test gets a fresh deep copy to prevent mutation
+        self.test_portfolios = copy.deepcopy(base_portfolios)
 
     def tearDown(self):
         """Clean up test environment."""
@@ -86,7 +91,7 @@ class TestMultiTickerExport(unittest.TestCase):
 
     def _cleanup_test_files(self):
         """Remove test files created during tests."""
-        base_path = self.base_dir / "csv" / "portfolios_best"
+        base_path = self.base_dir / "data" / "raw" / "portfolios_best"
 
         # Clean date-based files
         date_path = base_path / self.today
@@ -118,9 +123,12 @@ class TestMultiTickerExport(unittest.TestCase):
         # Export portfolios
         export_best_portfolios(self.test_portfolios, config, self.log)
 
-        # Check for date-only filename
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
-        date_files = list(expected_path.glob(f"{self.today}_*_D.csv"))
+        # Check for date-only filename (actual implementation creates time-based files like HHMMSS_D_SMA.csv)
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
+        # Look for files with pattern [0-9]_D_*.csv (starts with digits, not ticker symbol)
+        all_files = list(expected_path.glob("*_D_*.csv"))
+        # Filter to only files starting with digits (timestamp-based, not ticker-based)
+        date_files = [f for f in all_files if f.stem[0].isdigit()]
 
         self.assertTrue(len(date_files) > 0, "No date-based file found")
 
@@ -135,6 +143,8 @@ class TestMultiTickerExport(unittest.TestCase):
 
         # Verify file content
         if date_files:
+            # Sort by modification time to get most recent file (the one we just created)
+            date_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
             df = pl.read_csv(str(date_files[0]))
 
             # Check both tickers are present
@@ -153,13 +163,12 @@ class TestMultiTickerExport(unittest.TestCase):
         """Test that a single ticker creates a ticker-specific filename."""
         single_ticker = self.test_tickers[0]
 
-        # Get initial file count
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
-        initial_date_files = (
-            set(expected_path.glob(f"{self.today}_*_D.csv"))
-            if expected_path.exists()
-            else set()
+        # Get initial file count (time-based files start with digits)
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
+        initial_files = (
+            set(expected_path.glob("*_D_*.csv")) if expected_path.exists() else set()
         )
+        initial_date_files = {f for f in initial_files if f.stem[0].isdigit()}
 
         config = {
             "TICKER": single_ticker,  # Single ticker as string
@@ -173,16 +182,17 @@ class TestMultiTickerExport(unittest.TestCase):
         # Export single portfolio
         export_best_portfolios([self.test_portfolios[0]], config, self.log)
 
-        # Check for ticker-specific filename
-        ticker_files = list(expected_path.glob(f"{single_ticker}_*_D.csv"))
+        # Check for ticker-specific filename (actual pattern is {TICKER}_D_{STRATEGY}.csv)
+        ticker_files = list(expected_path.glob(f"{single_ticker}_D_*.csv"))
 
         self.assertTrue(
             len(ticker_files) > 0,
             f"No ticker-specific file found for {single_ticker}",
         )
 
-        # Verify no NEW date-only files were created
-        current_date_files = set(expected_path.glob(f"{self.today}_*_D.csv"))
+        # Verify no NEW date-only files were created (time-based files start with digits)
+        current_files = set(expected_path.glob("*_D_*.csv"))
+        current_date_files = {f for f in current_files if f.stem[0].isdigit()}
         new_date_files = current_date_files - initial_date_files
         self.assertEqual(
             len(new_date_files),
@@ -208,9 +218,10 @@ class TestMultiTickerExport(unittest.TestCase):
         # Export portfolios
         export_best_portfolios(self.test_portfolios, config, self.log)
 
-        # Check for date-only filename
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
-        date_files = list(expected_path.glob(f"{self.today}_*_D.csv"))
+        # Check for date-only filename (time-based files start with digits)
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
+        all_files = list(expected_path.glob("*_D_*.csv"))
+        date_files = [f for f in all_files if f.stem[0].isdigit()]
 
         self.assertTrue(
             len(date_files) > 0,
@@ -271,13 +282,16 @@ class TestMultiTickerExport(unittest.TestCase):
         # Export portfolios
         export_best_portfolios(test_portfolios, config, self.log)
 
-        # Read the exported file
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
-        date_files = list(expected_path.glob(f"{self.today}_*_D.csv"))
+        # Read the exported file (time-based files start with digits)
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
+        all_files = list(expected_path.glob("*_D_*.csv"))
+        date_files = [f for f in all_files if f.stem[0].isdigit()]
 
         self.assertTrue(len(date_files) > 0, "No exported file found")
 
         if date_files:
+            # Sort by modification time to get most recent file (the one we just created)
+            date_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
             df = pl.read_csv(str(date_files[0]))
 
             # Filter to only our test tickers and SMA strategy
@@ -368,13 +382,16 @@ class TestMultiTickerExport(unittest.TestCase):
         # Export portfolios
         export_best_portfolios(test_portfolios, config, self.log)
 
-        # Read the exported file
-        expected_path = self.base_dir / "csv" / "portfolios_best" / self.today
-        date_files = list(expected_path.glob(f"{self.today}_*_D.csv"))
+        # Read the exported file (time-based files start with digits)
+        expected_path = self.base_dir / "data" / "raw" / "portfolios_best" / self.today
+        all_files = list(expected_path.glob("*_D_*.csv"))
+        date_files = [f for f in all_files if f.stem[0].isdigit()]
 
         self.assertTrue(len(date_files) > 0, "No exported file found")
 
         if date_files:
+            # Sort by modification time to get most recent file (the one we just created)
+            date_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
             df = pl.read_csv(str(date_files[0]))
 
             # Should have exactly 4 rows: 2 tickers × 2 strategies = 4 combinations

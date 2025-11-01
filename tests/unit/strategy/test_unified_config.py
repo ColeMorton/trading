@@ -278,14 +278,17 @@ class TestConfigFactory:
     def test_get_default_config(self):
         """Test getting default configurations."""
         sma_defaults = ConfigFactory.get_default_config("SMA")
-        assert sma_defaults["USE_SMA"] is True
         assert sma_defaults["FAST_PERIOD"] == 10
+        assert sma_defaults["SLOW_PERIOD"] == 50
         assert sma_defaults["DIRECTION"] == "Long"
+        assert sma_defaults["USE_CURRENT"] is True
+        assert sma_defaults["DISPLAY_RESULTS"] is True
 
         macd_defaults = ConfigFactory.get_default_config("MACD")
         assert macd_defaults["FAST_PERIOD"] == 12
         assert macd_defaults["SLOW_PERIOD"] == 26
         assert macd_defaults["SIGNAL_PERIOD"] == 9
+        assert macd_defaults["DIRECTION"] == "Long"
 
     def test_get_supported_strategies(self):
         """Test getting list of supported strategies."""
@@ -376,15 +379,13 @@ class TestConfigurationMigration:
         config = {
             "TICKER": "AAPL",
             "BASE_DIR": "/tmp",
-            "SHORT_WINDOW_START": 30,
-            "SHORT_WINDOW_END": 10,  # Invalid: start > end
+            "FAST_PERIOD_START": 30,
+            "FAST_PERIOD_END": 10,  # Invalid: start > end
         }
 
         result = ConfigValidator.validate_base_config(config)
         assert result["is_valid"] is False
-        assert (
-            "SHORT_WINDOW_START must be less than SHORT_WINDOW_END" in result["errors"]
-        )
+        assert "FAST_PERIOD_START must be less than FAST_PERIOD_END" in result["errors"]
 
 
 @pytest.mark.unit

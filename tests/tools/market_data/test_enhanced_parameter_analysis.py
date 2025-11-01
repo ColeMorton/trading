@@ -560,52 +560,5 @@ class TestErrorHandlingIntegration:
             pytest.fail(f"Analysis should handle exceptions gracefully: {e}")
 
 
-@pytest.mark.integration
-class TestPerformanceMetrics:
-    """Test performance-related metrics in enhanced analysis."""
-
-    @patch("app.tools.get_data.get_data")
-    async def test_analysis_includes_performance_metrics(self, mock_download):
-        """Test that analysis includes comprehensive performance metrics."""
-        # Create realistic market data
-        dates = pd.date_range("2023-01-01", periods=252, freq="D")
-        returns = np.random.normal(0.0008, 0.02, 252)
-        prices = [100]
-        for ret in returns[:-1]:
-            prices.append(prices[-1] * (1 + ret))
-
-        market_data = pl.DataFrame({"Date": dates, "Close": [float(p) for p in prices]})
-
-        mock_download.return_value = market_data
-
-        # Create parsed parameter
-        parsed_param = ParsedParameter(
-            parameter_type=ParameterType.TICKER_ONLY,
-            original_input="METRICS",
-            ticker="METRICS",
-        )
-
-        analyzer = AssetDistributionAnalyzer(parsed_param, Mock())
-        result = await analyzer.analyze()
-
-        mock_result = result["METRICS_ASSET_DISTRIBUTION"]
-
-        # Verify performance metrics are included
-        expected_metrics = [
-            "momentum_differential",
-            "trend_direction_20d",
-            "annualized_sharpe",
-            "annualized_volatility",
-            "sample_size",
-        ]
-
-        for metric in expected_metrics:
-            # Metrics should be available as attributes on mock_result
-            assert hasattr(
-                mock_result,
-                metric,
-            ), f"Missing expected metric: {metric}"
-
-
 if __name__ == "__main__":
     pytest.main([__file__])

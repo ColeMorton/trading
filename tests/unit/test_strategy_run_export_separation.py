@@ -84,7 +84,6 @@ class TestStrategySweepCSVExportSeparation:
                 "EMA",
                 "--strategy",
                 "MACD",
-                "--verbose",
             ],
         )
 
@@ -157,7 +156,6 @@ class TestStrategySweepCSVExportSeparation:
                 "SMA",
                 "--strategy",
                 "EMA",  # No MACD to avoid dispatcher issue
-                "--verbose",
             ],
         )
 
@@ -200,7 +198,6 @@ class TestStrategySweepCSVExportSeparation:
                 ",".join(self.tickers),
                 "--strategy",
                 "MACD",
-                "--verbose",
             ],
         )
 
@@ -242,7 +239,6 @@ class TestStrategySweepCSVExportSeparation:
                 "BTC-USD",  # Single ticker for focused test
                 "--strategy",
                 "SMA",
-                "--verbose",
             ],
         )
 
@@ -283,7 +279,7 @@ class TestStrategySweepCSVExportSeparation:
         # Use EMA only to avoid dispatcher issue
         result = self.runner.invoke(
             app,
-            ["strategy", "run", "--ticker", "SPY", "--strategy", "EMA", "--verbose"],
+            ["strategy", "run", "--ticker", "SPY", "--strategy", "EMA"],
         )
 
         assert result.exit_code == 0, (
@@ -391,7 +387,6 @@ class TestDispatcherIntegrationValidation:
                 "--strategy",
                 "MACD",
                 "--dry-run",  # Key: dry-run to test validation without execution
-                "--verbose",
             ],
         )
 
@@ -436,7 +431,6 @@ class TestDispatcherIntegrationValidation:
                     "--strategy",
                     strategy,
                     "--dry-run",
-                    "--verbose",
                 ],
             )
 

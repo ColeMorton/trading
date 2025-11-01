@@ -9,6 +9,38 @@ from enum import Enum
 from typing import Any
 
 
+def to_pascal_case(snake_str: str) -> str:
+    """Convert snake_case to PascalCase.
+
+    Args:
+        snake_str: String in snake_case format
+
+    Returns:
+        String in PascalCase format
+
+    Example:
+        test_execution -> TestExecution
+        sma -> Sma
+    """
+    return "".join(word.capitalize() for word in snake_str.split("_"))
+
+
+def to_title_case(snake_str: str) -> str:
+    """Convert snake_case to Title Case With Spaces.
+
+    Args:
+        snake_str: String in snake_case format
+
+    Returns:
+        String in Title Case format with spaces
+
+    Example:
+        test_execution -> Test Execution
+        comprehensive_test -> Comprehensive Test
+    """
+    return " ".join(word.capitalize() for word in snake_str.split("_"))
+
+
 class StrategyType(Enum):
     """Supported strategy types for template generation."""
 
@@ -157,7 +189,7 @@ class TemplateConfig:
         config_lines = ["from typing import TypedDict, List, Union, Optional", ""]
 
         # Generate the TypedDict class
-        class_name = f"{self.strategy_name.replace('_', '').title()}Config"
+        class_name = f"{to_pascal_case(self.strategy_name)}Config"
         config_lines.append(f"class {class_name}(TypedDict):")
         config_lines.append(
             '    """Configuration for {self.strategy_name} strategy."""',
@@ -190,7 +222,7 @@ class TemplateConfig:
     def get_default_config_instance(self) -> str:
         """Generate default configuration instance."""
         lines = [
-            f"DEFAULT_CONFIG: {self.strategy_name.replace('_', '').title()}Config = {{",
+            f"DEFAULT_CONFIG: {to_pascal_case(self.strategy_name)}Config = {{",
         ]
 
         for key, value in self.config_fields.items():

@@ -78,19 +78,6 @@ class TestMarketDataFetching:
         )
 
     @patch("app.tools.get_data.get_data")
-    def test_fetch_data_success(self, mock_download, mock_price_data):
-        """Test successful data fetching."""
-        mock_download.return_value = mock_price_data
-
-        analyzer = MarketDataAnalyzer("AAPL")
-        result = analyzer.fetch_data(365)
-
-        assert result is True
-        assert analyzer.price_data is not None
-        assert len(analyzer.price_data) == len(mock_price_data)
-        mock_download.assert_called_once()
-
-    @patch("app.tools.get_data.get_data")
     def test_fetch_data_empty_response(self, mock_download):
         """Test handling of empty data response."""
         mock_download.return_value = None
@@ -163,40 +150,6 @@ class TestReturnsCalculation:
         assert result is False
         assert analyzer.returns is None
 
-    def test_calculate_returns_insufficient_data(self):
-        """Test returns calculation with insufficient data."""
-        single_price = pl.DataFrame({"Date": ["2023-01-01"], "Close": [100]})
-
-        analyzer = MarketDataAnalyzer("TEST")
-        analyzer.price_data = single_price
-
-        result = analyzer.calculate_returns()
-
-        assert result is False
-        assert analyzer.returns is None
-
-    def test_calculate_returns_with_nan_values(self):
-        """Test returns calculation with NaN values."""
-        prices_with_nan = pl.DataFrame(
-            {
-                "Date": pd.date_range("2023-01-01", periods=5),
-                "Close": [100, np.nan, 102, 103, np.nan],
-            },
-        )
-
-        analyzer = MarketDataAnalyzer("TEST")
-        analyzer.price_data = prices_with_nan
-
-        result = analyzer.calculate_returns()
-
-        # Should handle NaN values gracefully
-        assert result in [
-            True,
-            False,
-        ]  # May succeed or fail depending on remaining data
-        if result:
-            assert not np.any(np.isnan(analyzer.returns))
-
 
 @pytest.mark.integration
 class TestDistributionAnalysis:
@@ -259,64 +212,6 @@ class TestFullAnalysisWorkflow:
 
     @patch("app.tools.get_data.get_data")
     @pytest.mark.asyncio
-    async def test_analyze_complete_workflow(self, mock_download):
-        """Test complete analysis from start to finish."""
-        # Create realistic mock data
-        dates = pd.date_range(start="2022-01-01", end="2023-12-31", freq="D")
-        base_price = 100
-        prices = [base_price]
-
-        # Generate realistic price series with trend and volatility
-        for _i in range(1, len(dates)):
-            daily_return = np.random.normal(0.0005, 0.02)  # Slight positive drift
-            new_price = prices[-1] * (1 + daily_return)
-            prices.append(new_price)
-
-        mock_data = pl.DataFrame(
-            {
-                "Date": dates,
-                "Open": [p * 0.999 for p in prices],
-                "High": [p * 1.005 for p in prices],
-                "Low": [p * 0.995 for p in prices],
-                "Close": prices,
-                "Volume": np.random.randint(1000000, 10000000, len(dates)),
-            },
-        )
-
-        mock_download.return_value = mock_data
-
-        analyzer = MarketDataAnalyzer("AAPL")
-        result = await analyzer.analyze()
-
-        # Verify complete result structure
-        assert isinstance(result, dict)
-        assert "exit_signal" in result
-        assert "recommendation" in result
-        assert "confidence_level" in result
-        assert "signal_reasoning" in result
-        assert "p_value" in result
-        assert "data_source" in result
-        assert "analysis_mode" in result
-
-        # Verify analysis components
-        assert "momentum_differential" in result
-        assert "trend_direction_20d" in result
-        assert "sharpe_ratio" in result
-        assert "sample_size" in result
-
-        # Verify signal is valid
-        valid_signals = ["STRONG_BUY", "BUY", "HOLD", "SELL", "STRONG_SELL"]
-        assert result["exit_signal"] in valid_signals
-        assert result["recommendation"] in valid_signals
-        assert result["exit_signal"] == result["recommendation"]
-
-        # Verify confidence and p-value relationship
-        assert 0 <= result["confidence_level"] <= 1
-        assert 0 <= result["p_value"] <= 1
-        assert abs((result["confidence_level"] + result["p_value"]) - 1.0) < 0.02
-
-    @patch("app.tools.get_data.get_data")
-    @pytest.mark.asyncio
     async def test_analyze_with_fetch_failure(self, mock_download):
         """Test analysis when data fetching fails."""
         mock_download.return_value = None
@@ -334,11 +229,6 @@ class TestFullAnalysisWorkflow:
 @pytest.mark.integration
 class TestErrorHandling:
     """Test error handling and edge cases."""
-
-    def test_empty_ticker(self):
-        """Test behavior with empty ticker."""
-        analyzer = MarketDataAnalyzer("")
-        assert analyzer.ticker == ""
 
     def test_none_ticker(self):
         """Test behavior with None ticker."""

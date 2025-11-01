@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from .config_template import TemplateConfig
+from .config_template import TemplateConfig, to_pascal_case, to_title_case
 from .execution_template import ExecutionTemplate
 from .validation_template import ValidationTemplate
 
@@ -152,7 +152,7 @@ class StrategyTemplateGenerator:
     def _generate_config_file(self, config: TemplateConfig) -> str:
         """Generate the configuration file."""
         strategy_name = config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         # Generate imports
         imports = [
@@ -195,7 +195,7 @@ __all__ = [
     def _generate_package_init(self, config: TemplateConfig) -> str:
         """Generate package __init__.py file."""
         strategy_name = config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         return f'''"""
 {class_name} Strategy Package
@@ -231,14 +231,25 @@ __author__ = "Strategy Template Generator"
     def _generate_readme(self, config: TemplateConfig) -> str:
         """Generate README.md file."""
         strategy_name = config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
+        title_name = to_title_case(strategy_name)
 
         # Generate parameter documentation
         param_docs = []
         for key, value in config.config_fields.items():
             param_docs.append(f"- `{key}`: {self._describe_parameter(key, value)}")
 
-        return f"""# {class_name} Strategy
+        # Map position sizing to display name
+        position_sizing_map = {
+            "fixed": "Fixed",
+            "percentage": "Percentage",
+            "kelly": "Kelly Criterion",
+        }
+        position_sizing_display = position_sizing_map.get(
+            config.position_sizing, config.position_sizing.title()
+        )
+
+        return f"""# {title_name} Strategy
 
 {config.description}
 
@@ -262,7 +273,7 @@ This strategy was generated using the Strategy Template Generator framework. It 
 
 - **Stop Loss**: {"Enabled" if config.stop_loss_enabled else "Disabled"}
 - **Take Profit**: {"Enabled" if config.take_profit_enabled else "Disabled"}
-- **Position Sizing**: {config.position_sizing.title()}
+- **Position Sizing**: {position_sizing_display}
 
 ## Configuration
 

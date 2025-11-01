@@ -4,7 +4,7 @@ Validation Template Generator
 Provides testing and validation templates for generated strategies.
 """
 
-from .config_template import TemplateConfig
+from .config_template import TemplateConfig, to_pascal_case
 
 
 class ValidationTemplate:
@@ -16,7 +16,7 @@ class ValidationTemplate:
     def generate_test_file(self) -> str:
         """Generate comprehensive test file for the strategy."""
         strategy_name = self.config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         return f'''"""
 Test Suite for {class_name} Strategy
@@ -521,7 +521,7 @@ if __name__ == "__main__":
     def generate_benchmark_file(self) -> str:
         """Generate performance benchmark file."""
         strategy_name = self.config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         return f'''"""
 Performance Benchmarks for {class_name} Strategy

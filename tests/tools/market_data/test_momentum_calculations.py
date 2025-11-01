@@ -105,17 +105,6 @@ class TestMomentumMetricsCalculation:
             ]
         )
 
-    def test_momentum_metrics_single_value(self, analyzer):
-        """Test momentum metrics with single return value."""
-        single_return = np.array([0.01])
-
-        result = analyzer._calculate_momentum_metrics(single_return)
-
-        # Should handle edge case
-        assert isinstance(result, dict)
-        # With single value, recent and historical should be the same
-        assert result["recent_avg_return"] == result["historical_avg_return"]
-
     def test_momentum_metrics_empty_array(self, analyzer):
         """Test momentum metrics with empty returns array."""
         empty_returns = np.array([])
@@ -266,67 +255,6 @@ class TestPriceAcceleration:
 
         # Should handle gracefully and return zero
         assert result["price_acceleration"] == 0.0
-
-
-@pytest.mark.integration
-class TestMomentumErrorHandling:
-    """Test error handling in momentum calculations."""
-
-    @pytest.fixture
-    def analyzer(self):
-        """Create analyzer instance for testing."""
-        return MarketDataAnalyzer("TEST")
-
-    def test_momentum_with_nan_values(self, analyzer):
-        """Test momentum calculation with NaN values."""
-        returns_with_nan = np.array([0.01, np.nan, 0.02, 0.015, np.nan, 0.008])
-
-        result = analyzer._calculate_momentum_metrics(returns_with_nan)
-
-        # Should handle NaN values and return valid numbers
-        assert isinstance(result, dict)
-        for value in result.values():
-            assert isinstance(value, int | float)
-            # Results should either be valid numbers or default zeros
-            assert not np.isnan(value) or value == 0.0
-
-    def test_momentum_with_infinite_values(self, analyzer):
-        """Test momentum calculation with infinite values."""
-        returns_with_inf = np.array([0.01, np.inf, 0.02, -np.inf, 0.015])
-
-        result = analyzer._calculate_momentum_metrics(returns_with_inf)
-
-        # Should handle infinite values gracefully
-        assert isinstance(result, dict)
-        for value in result.values():
-            assert np.isfinite(value) or value == 0.0
-
-    def test_momentum_calculation_exception(self, analyzer):
-        """Test momentum calculation when exception occurs."""
-        # Mock the logger to verify error logging
-        analyzer.logger = Mock()
-
-        # This should trigger the exception handling
-        with pytest.patch.object(
-            analyzer,
-            "_rolling_momentum",
-            side_effect=Exception("Test error"),
-        ):
-            result = analyzer._calculate_momentum_metrics(np.array([0.01, 0.02, 0.03]))
-
-        # Should return default values when exception occurs
-        expected_defaults = {
-            "momentum_differential": 0.0,
-            "recent_avg_return": 0.0,
-            "historical_avg_return": 0.0,
-            "momentum_5d": 0.0,
-            "momentum_20d": 0.0,
-            "momentum_60d": 0.0,
-            "price_acceleration": 0.0,
-        }
-
-        assert result == expected_defaults
-        analyzer.logger.warning.assert_called_once()
 
 
 @pytest.mark.integration

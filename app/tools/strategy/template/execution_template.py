@@ -4,7 +4,7 @@ Execution Template Generator
 Provides parameterized execution workflow templates for new strategies.
 """
 
-from .config_template import StrategyType, TemplateConfig
+from .config_template import StrategyType, TemplateConfig, to_pascal_case
 
 
 class ExecutionTemplate:
@@ -16,10 +16,13 @@ class ExecutionTemplate:
     def generate_main_execution_file(self) -> str:
         """Generate the main execution file (1_get_portfolios.py) template."""
         strategy_name = self.config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
+        description = self.config.description
 
         return f'''"""
 Portfolio Analysis Module for {class_name} Strategy
+
+{description}
 
 This module handles portfolio analysis for the {strategy_name} strategy, supporting both
 single ticker and multiple ticker analysis. It includes functionality for parameter
@@ -350,7 +353,7 @@ if __name__ == "__main__":
     def generate_strategy_execution_file(self) -> str:
         """Generate the strategy execution file template."""
         strategy_name = self.config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         # Generate indicator calculation code based on strategy type
         indicator_code = self._generate_indicator_calculations()
@@ -731,7 +734,7 @@ def validate_strategy_config(config: Dict[str, Any]) -> bool:
     def generate_exceptions_file(self) -> str:
         """Generate strategy-specific exceptions file."""
         strategy_name = self.config.strategy_name
-        class_name = strategy_name.replace("_", "").title()
+        class_name = to_pascal_case(strategy_name)
 
         return f'''"""
 Exception classes for {class_name} Strategy
