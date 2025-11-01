@@ -308,7 +308,7 @@ async def test_complete_webhook_flow():
             logger.info("STEP 4: Fetch Best Results from API")
             logger.info("=" * 70)
 
-            best_result = client.get_best_result(sweep_run_id, "AAPL")
+            best_result = client.get_best_result(sweep_run_id, "NVDA")
 
             assert "results" in best_result, "No results in best_result"
             assert len(best_result["results"]) > 0, "Empty results array"
@@ -323,7 +323,7 @@ async def test_complete_webhook_flow():
             logger.info("STEP 5: Validate Data Integrity")
             logger.info("=" * 70)
 
-            assert first_result["ticker"] == "AAPL", "Ticker mismatch"
+            assert first_result["ticker"] == "NVDA", "Ticker mismatch"
             assert "score" in first_result, "No score in result"
             assert "fast_period" in first_result, "No fast_period in result"
             assert "slow_period" in first_result, "No slow_period in result"
