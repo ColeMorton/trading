@@ -173,6 +173,27 @@ jobs:
           curl -v http://localhost:8000/health/detailed || true
           docker compose -f docker-compose.e2e.yml ps
 
+      - name: Verify ARQ worker is running
+        run: |
+          echo "🔍 Verifying ARQ worker status..."
+
+          # Check if ARQ worker container is running
+          if docker ps | grep arq-worker-e2e; then
+            echo "✅ ARQ worker container is running"
+          else
+            echo "❌ ARQ worker container is not running"
+            docker compose -f docker-compose.e2e.yml logs arq-worker
+            exit 1
+          fi
+
+          # Check ARQ worker logs for startup messages
+          echo "📋 ARQ worker logs (last 20 lines):"
+          docker compose -f docker-compose.e2e.yml logs --tail=20 arq-worker
+
+          # Test network connectivity from ARQ worker to host
+          echo "🌐 Testing host.docker.internal connectivity from ARQ worker..."
+          docker compose -f docker-compose.e2e.yml exec -T arq-worker sh -c "ping -c 2 host.docker.internal || echo 'Warning: Cannot ping host.docker.internal'" || true
+
       - name: Run E2E tests
         run: |
           poetry run pytest -m e2e \

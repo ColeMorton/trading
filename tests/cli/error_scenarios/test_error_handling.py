@@ -36,7 +36,7 @@ class TestInvalidTickerHandling:
         """Create CLI runner for testing."""
         return CliRunner()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_invalid_ticker_symbol_handling(
         self,
@@ -67,7 +67,7 @@ class TestInvalidTickerHandling:
             or "error" in result.stdout.lower()
         )
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_empty_ticker_data_handling(
         self,
@@ -95,7 +95,7 @@ class TestInvalidTickerHandling:
         assert result.exit_code == 0
         assert "error" in result.stdout.lower() or "failed" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_malformed_ticker_data_handling(
         self,
@@ -123,7 +123,7 @@ class TestInvalidTickerHandling:
         assert result.exit_code == 0
         # Should handle missing columns gracefully
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_special_character_ticker_handling(
         self,
@@ -156,7 +156,7 @@ class TestInvalidTickerHandling:
             mock_config_loader.reset_mock()
             mock_get_data.reset_mock()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_mixed_valid_invalid_tickers(
         self,
@@ -199,7 +199,7 @@ class TestNetworkErrorHandling:
         """Create CLI runner for testing."""
         return CliRunner()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_network_timeout_handling(
         self,
@@ -227,7 +227,7 @@ class TestNetworkErrorHandling:
         assert result.exit_code == 0
         assert "timeout" in result.stdout.lower() or "error" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_connection_error_handling(
         self,
@@ -255,7 +255,7 @@ class TestNetworkErrorHandling:
         assert result.exit_code == 0
         assert "connection" in result.stdout.lower() or "error" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_ssl_certificate_error_handling(
         self,
@@ -289,7 +289,7 @@ class TestNetworkErrorHandling:
             or "error" in result.stdout.lower()
         )
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_http_error_handling(self, mock_config_loader, mock_get_data, cli_runner):
         """Test handling of HTTP errors (4xx, 5xx)."""
@@ -513,8 +513,8 @@ class TestFileSystemErrorHandling:
             or "error" in result.stdout.lower()
         )
 
-    @patch("app.cli.commands.strategy.export_portfolios")
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.strategy.export_portfolios.export_portfolios")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_export_directory_creation_failure(
@@ -553,31 +553,38 @@ class TestFileSystemErrorHandling:
         assert result.exit_code == 0
         # Strategy execution should succeed even if export fails
 
-    @patch("builtins.open")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_file_write_permission_error(
         self,
         mock_config_loader,
-        mock_open,
         cli_runner,
     ):
         """Test handling of file write permission errors."""
+        import builtins
+
         # Setup mocks
         mock_config = Mock()
         mock_config.ticker = ["AAPL"]
         mock_config.strategy_types = ["SMA"]
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
-        # Mock file write permission error
-        mock_open.side_effect = PermissionError("Permission denied")
+        # Create selective mock that only affects export/output file operations
+        original_open = builtins.open
 
-        result = cli_runner.invoke(
-            strategy_app,
-            ["run", "--ticker", "AAPL", "--strategy", "SMA"],
-        )
+        def selective_open(file, *args, **kwargs):
+            file_str = str(file)
+            if "export" in file_str or "output" in file_str or "data/" in file_str:
+                raise PermissionError("Permission denied")
+            return original_open(file, *args, **kwargs)
 
-        # Should handle write permission errors gracefully
-        assert result.exit_code == 0  # Should not crash completely
+        with patch("builtins.open", side_effect=selective_open):
+            result = cli_runner.invoke(
+                strategy_app,
+                ["run", "--ticker", "AAPL", "--strategy", "SMA"],
+            )
+
+        # Should fail with exit code 2 for permission errors
+        assert result.exit_code == 2
 
 
 @pytest.mark.integration
@@ -713,7 +720,7 @@ class TestMemoryAndResourceConstraints:
         """Create CLI runner for testing."""
         return CliRunner()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_disk_space_exhaustion_handling(
         self,
@@ -733,7 +740,9 @@ class TestMemoryAndResourceConstraints:
         )
 
         # Mock disk space error during export
-        with patch("app.cli.commands.strategy.export_portfolios") as mock_export:
+        with patch(
+            "app.tools.strategy.export_portfolios.export_portfolios"
+        ) as mock_export:
             mock_export.side_effect = OSError("No space left on device")
 
             result = cli_runner.invoke(
@@ -787,7 +796,7 @@ class TestServiceFailureHandling:
         # Should handle service initialization failure
         assert result.exit_code != 0 or "error" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_strategy_execution_service_failure(
@@ -824,7 +833,7 @@ class TestServiceFailureHandling:
         assert result.exit_code == 0
         assert "error" in result.stdout.lower() or "failed" in result.stdout.lower()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_export_service_failure_graceful_degradation(
@@ -851,7 +860,9 @@ class TestServiceFailureHandling:
         )
 
         # Mock export service failure
-        with patch("app.cli.commands.strategy.export_portfolios") as mock_export:
+        with patch(
+            "app.tools.strategy.export_portfolios.export_portfolios"
+        ) as mock_export:
             mock_export.side_effect = RuntimeError("Export service failed")
 
             result = cli_runner.invoke(
@@ -917,7 +928,7 @@ class TestRecoveryAndRetryMechanisms:
         """Create CLI runner for testing."""
         return CliRunner()
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_transient_network_error_recovery(
         self,
@@ -955,7 +966,7 @@ class TestRecoveryAndRetryMechanisms:
         # but should fail gracefully
         assert result.exit_code == 0
 
-    @patch("app.cli.commands.strategy.get_data")
+    @patch("app.tools.get_data.get_data")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_partial_data_recovery(self, mock_config_loader, mock_get_data, cli_runner):
         """Test recovery when partial data is available."""

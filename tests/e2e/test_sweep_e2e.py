@@ -76,22 +76,46 @@ async def test_sweep_e2e() -> None:
 
         # 4) Fallback: if SSE didn't provide sweep_run_id, fetch final job status
         if not sweep_run_id:
+            print("⚠️  sweep_run_id not found in SSE stream, querying job status API...")
             status_resp = await client.get(
                 f"{API_BASE}/api/v1/jobs/{job_id}", headers={"X-API-Key": API_KEY}
             )
             status_resp.raise_for_status()
-            result_data = status_resp.json().get("result_data") or {}
+            job_data = status_resp.json()
+            result_data = job_data.get("result_data") or {}
             sweep_run_id = result_data.get("sweep_run_id")
+
+            # Debug logging
+            print(f"📊 Job Status: {job_data.get('status')}")
+            print(f"📊 Job Progress: {job_data.get('progress')}")
+            print(
+                f"📊 Result Data Keys: {list(result_data.keys()) if isinstance(result_data, dict) else type(result_data)}"
+            )
 
             # Accept the case where the job is skipped because results are up-to-date
             if not sweep_run_id:
                 output_text = result_data.get("output", "")
+                print(
+                    f"📋 CLI Output Preview (first 1000 chars):\n{output_text[:1000]}"
+                )
+
                 if (
                     "All analysis is complete and up-to-date!" in output_text
                     or "Skipping execution" in output_text
                 ):
+                    print("ℹ️  Job skipped (results already up-to-date)")
                     return
-                pytest.fail("No sweep_run_id found in completion data")
+
+                # Enhanced error message
+                error_msg = job_data.get("error_message", "No error message")
+                pytest.fail(
+                    f"No sweep_run_id found in completion data.\n"
+                    f"Job Status: {job_data.get('status')}\n"
+                    f"Error Message: {error_msg}\n"
+                    f"Output Preview: {output_text[:500]}"
+                )
+        else:
+            print(f"✅ sweep_run_id extracted from SSE: {sweep_run_id}")
 
         # 5) Retrieve results for the sweep
         results = await client.get(

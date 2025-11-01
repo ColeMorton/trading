@@ -13,6 +13,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 20s
     networks:
       - trading-network
 
@@ -40,6 +41,7 @@ services:
       - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - POSTGRES_PASSWORD=changeme
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=test
       - DEBUG=true
@@ -55,11 +57,11 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/']
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 40s
+      start_period: 60s
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
 
   arq-worker:
@@ -70,10 +72,13 @@ services:
     container_name: arq-worker-e2e
     environment:
       - DATABASE_URL=postgresql://trading_user:changeme@postgres:5432/trading_db
+      - POSTGRES_PASSWORD=changeme
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=test
       - DEBUG=true
     depends_on:
+      trading-api:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:

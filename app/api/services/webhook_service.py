@@ -25,9 +25,10 @@ class WebhookService:
         payload: dict[str, Any],
         headers: dict[str, str] | None = None,
         timeout: int = 30,
+        max_retries: int = 3,
     ) -> tuple[int, str]:
         """
-        Send webhook notification.
+        Send webhook notification with retry logic.
 
         Args:
             job_id: Job identifier
@@ -35,10 +36,13 @@ class WebhookService:
             payload: JSON payload to send
             headers: Optional custom headers
             timeout: Request timeout in seconds
+            max_retries: Maximum number of retry attempts
 
         Returns:
             Tuple of (status_code, response_text)
         """
+        import asyncio
+
         default_headers = {
             "Content-Type": "application/json",
             "User-Agent": "TradingAPI-Webhook/1.0",
@@ -48,39 +52,80 @@ class WebhookService:
         if headers:
             default_headers.update(headers)
 
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                logger.info(
-                    f"Sending webhook for job {job_id} to {webhook_url} "
-                    f"(payload keys: {list(payload.keys())})"
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    if attempt > 0:
+                        logger.info(
+                            f"Retry attempt {attempt + 1}/{max_retries} for job {job_id} webhook to {webhook_url}"
+                        )
+                    else:
+                        logger.info(
+                            f"Sending webhook for job {job_id} to {webhook_url} "
+                            f"(payload keys: {list(payload.keys())})"
+                        )
+
+                    response = await client.post(
+                        webhook_url,
+                        json=payload,
+                        headers=default_headers,
+                    )
+
+                    logger.info(
+                        f"Webhook delivered successfully for job {job_id}: "
+                        f"status={response.status_code}, response_length={len(response.text)}"
+                    )
+
+                    return response.status_code, response.text
+
+            except httpx.ConnectError as e:
+                last_error = e
+                logger.warning(
+                    f"Webhook connection failed for job {job_id} (attempt {attempt + 1}/{max_retries}): {e}"
                 )
-
-                response = await client.post(
-                    webhook_url,
-                    json=payload,
-                    headers=default_headers,
+                if attempt < max_retries - 1:
+                    backoff_delay = 2**attempt  # Exponential backoff: 1s, 2s, 4s
+                    logger.info(f"Retrying in {backoff_delay}s...")
+                    await asyncio.sleep(backoff_delay)
+                else:
+                    logger.error(
+                        f"Webhook connection failed after {max_retries} attempts for job {job_id} to {webhook_url}: {e}. "
+                        f"If using Docker, ensure 'host.docker.internal' is configured.",
+                        exc_info=True,
+                    )
+            except httpx.TimeoutException as e:
+                last_error = e
+                logger.warning(
+                    f"Webhook timeout for job {job_id} (attempt {attempt + 1}/{max_retries})"
                 )
-
-                logger.info(
-                    f"Webhook delivered successfully for job {job_id}: "
-                    f"status={response.status_code}, response_length={len(response.text)}"
+                if attempt < max_retries - 1:
+                    backoff_delay = 2**attempt
+                    logger.info(f"Retrying in {backoff_delay}s...")
+                    await asyncio.sleep(backoff_delay)
+                else:
+                    logger.error(
+                        f"Webhook timeout after {max_retries} attempts for job {job_id} to {webhook_url}",
+                        exc_info=True,
+                    )
+            except Exception as e:
+                last_error = e
+                logger.error(
+                    f"Webhook error for job {job_id} (attempt {attempt + 1}/{max_retries}): {e}",
+                    exc_info=True,
                 )
+                if attempt < max_retries - 1:
+                    backoff_delay = 2**attempt
+                    logger.info(f"Retrying in {backoff_delay}s...")
+                    await asyncio.sleep(backoff_delay)
 
-                return response.status_code, response.text
-
-        except httpx.ConnectError as e:
-            logger.error(
-                f"Webhook connection failed for job {job_id} to {webhook_url}: {e}. "
-                f"If using Docker, ensure 'host.docker.internal' is configured.",
-                exc_info=True,
-            )
-            return 0, f"connection_error: {e}"
-        except httpx.TimeoutException:
-            logger.exception(f"Webhook timeout for job {job_id} to {webhook_url}")
+        # All retries failed
+        error_msg = str(last_error) if last_error else "Unknown error"
+        if isinstance(last_error, httpx.ConnectError):
+            return 0, f"connection_error: {error_msg}"
+        if isinstance(last_error, httpx.TimeoutException):
             return 0, "timeout"
-        except Exception as e:
-            logger.error(f"Webhook error for job {job_id}: {e}", exc_info=True)
-            return 0, str(e)
+        return 0, error_msg
 
     @staticmethod
     async def notify_job_completion(

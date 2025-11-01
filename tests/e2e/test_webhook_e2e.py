@@ -217,6 +217,7 @@ async def test_complete_webhook_flow():
         logger.info("\n" + "=" * 70)
         logger.info("STEP 1: Submit Strategy Sweep Job")
         logger.info("=" * 70)
+        logger.info(f"Webhook receiver listening at: {receiver.webhook_url}")
 
         job_response = client.submit_sweep(receiver.webhook_url)
 
@@ -227,6 +228,7 @@ async def test_complete_webhook_flow():
 
         job_id = job_response["job_id"]
         logger.info(f"✅ Job submitted successfully: {job_id}")
+        logger.info(f"   Webhook URL registered: {receiver.webhook_url}")
 
         # Step 2: Wait for webhook callback
         logger.info("\n" + "=" * 70)
@@ -236,6 +238,27 @@ async def test_complete_webhook_flow():
         start_time = time.time()
         webhook_data = await receiver.wait_for_webhook(timeout=60.0)
         elapsed = time.time() - start_time
+
+        # If webhook not received, check job status for debugging
+        if webhook_data is None:
+            logger.error("Webhook not received, checking job status for debugging...")
+            try:
+                job_status = client.session.get(
+                    f"{client.base_url}/api/v1/jobs/{job_id}"
+                ).json()
+                logger.error(f"Job status: {job_status.get('status')}")
+                logger.error(
+                    f"Webhook delivery status: {job_status.get('webhook_response_status')}"
+                )
+                logger.error(
+                    f"Webhook response body: {job_status.get('webhook_response_body')}"
+                )
+                logger.error(f"Job progress: {job_status.get('progress')}")
+                logger.error(
+                    f"Job error: {job_status.get('error_message', 'No error')}"
+                )
+            except Exception as e:
+                logger.error(f"Failed to fetch job status: {e}")
 
         assert webhook_data is not None, "Webhook not received within timeout"
         logger.info(f"✅ Webhook received after {elapsed:.1f}s")

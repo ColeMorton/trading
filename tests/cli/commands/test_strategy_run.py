@@ -854,18 +854,18 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Test that omitting --strategy flag includes all strategy types in execution."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["CCJ"]
-        mock_config.strategy_types = [
-            StrategyType.SMA,
-            StrategyType.EMA,
-            StrategyType.MACD,
-        ]
+        mock_config = create_mock_strategy_config(
+            ticker=["CCJ"],
+            strategy_types=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="CCJ",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command without --strategy flag
@@ -894,9 +894,10 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Test that using a profile with specific strategy types overrides the defaults."""
         # Setup mock for profile with only SMA
-        mock_config = Mock()
-        mock_config.ticker = ["CCJ"]
-        mock_config.strategy_types = [StrategyType.SMA]  # Profile specifies only SMA
+        mock_config = create_mock_strategy_config(
+            ticker=["CCJ"],
+            strategy_types=[StrategyType.SMA],  # Profile specifies only SMA
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         # Run command with profile but no --strategy flag
@@ -921,14 +922,18 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Test that explicit --strategy flag overrides the defaults."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["CCJ"]
-        mock_config.strategy_types = [StrategyType.MACD]  # Should be overridden
+        mock_config = create_mock_strategy_config(
+            ticker=["CCJ"],
+            strategy_types=[StrategyType.MACD],  # Should be overridden
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="CCJ",
+            strategy_type="MACD",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command WITH explicit --strategy flag
@@ -943,30 +948,40 @@ class TestDefaultStrategyTypesFeature:
         # Verify override was applied in configuration loading
         call_args = mock_config_loader.return_value.load_from_profile.call_args
         overrides = call_args[0][2]  # Third argument is overrides
-        assert "strategy_type" in overrides
-        assert overrides["strategy_type"] == ["MACD"]
+        assert "strategy_types" in overrides
+        assert overrides["strategy_types"] == ["MACD"]
 
+    @patch("app.cli.commands.strategy.validate_parameter_relationships")
+    @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
     def test_multiple_tickers_no_strategy_defaults_to_all_types(
         self,
         mock_config_loader,
+        mock_dispatcher_class,
+        mock_validate,
         cli_runner,
     ):
         """Test that multiple tickers without strategy flag defaults to all strategy types."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["CCJ", "AAPL", "MSFT"]
-        mock_config.strategy_types = [
-            StrategyType.SMA,
-            StrategyType.EMA,
-            StrategyType.MACD,
-        ]
+        mock_config = create_mock_strategy_config(
+            ticker=["CCJ", "AAPL", "MSFT"],
+            strategy_types=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
+
+        mock_dispatcher = Mock()
+        mock_dispatcher.validate_strategy_compatibility.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="CCJ",
+            strategy_type="SMA",
+            tickers_processed=["CCJ", "AAPL", "MSFT"],
+        )
+        mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with multiple tickers but no --strategy flag
         result = cli_runner.invoke(
             strategy_app,
-            ["sweep", "--ticker", "CCJ,AAPL,MSFT", "--dry-run"],
+            ["sweep", "--ticker", "CCJ,AAPL,MSFT"],
         )
 
         # Verify all strategy types are included
@@ -982,13 +997,10 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Regression test: Verify old behavior of only SMA+EMA is changed to include MACD."""
         # Setup mocks to return the NEW expected behavior (all three strategies)
-        mock_config = Mock()
-        mock_config.ticker = ["TEST"]
-        mock_config.strategy_types = [
-            StrategyType.SMA,
-            StrategyType.EMA,
-            StrategyType.MACD,
-        ]
+        mock_config = create_mock_strategy_config(
+            ticker=["TEST"],
+            strategy_types=[StrategyType.SMA, StrategyType.EMA, StrategyType.MACD],
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         # Run command without strategy (should now include MACD, not just SMA+EMA)
@@ -1013,10 +1025,11 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Edge case: Test handling of string strategy types from profile."""
         # Setup mock config with string strategy types (as they come from YAML)
-        mock_config = Mock()
-        mock_config.ticker = ["TEST"]
-        # Simulate how strategy types come from YAML parsing
-        mock_config.strategy_types = ["SMA", "EMA", "MACD"]
+        mock_config = create_mock_strategy_config(
+            ticker=["TEST"],
+            # Simulate how strategy types come from YAML parsing
+            strategy_types=["SMA", "EMA", "MACD"],
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         result = cli_runner.invoke(
@@ -1038,10 +1051,11 @@ class TestDefaultStrategyTypesFeature:
     ):
         """Edge case: Test handling of mixed enum/string strategy types."""
         # Setup mock config with mixed types
-        mock_config = Mock()
-        mock_config.ticker = ["TEST"]
-        # Mix of enum and string types (edge case scenario)
-        mock_config.strategy_types = [StrategyType.SMA, "EMA", StrategyType.MACD]
+        mock_config = create_mock_strategy_config(
+            ticker=["TEST"],
+            # Mix of enum and string types (edge case scenario)
+            strategy_types=[StrategyType.SMA, "EMA", StrategyType.MACD],
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         result = cli_runner.invoke(
@@ -1076,16 +1090,20 @@ class TestYearsParameter:
     ):
         """Test that providing --years enables year-based analysis."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
-        mock_config.use_years = True
-        mock_config.years = 5
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"],
+            strategy_types=[StrategyType.SMA],
+            use_years=True,
+            years=5,
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="AAPL",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with years parameter
@@ -1115,16 +1133,20 @@ class TestYearsParameter:
     ):
         """Test that -y shorthand works correctly."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
-        mock_config.use_years = True
-        mock_config.years = 3
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"],
+            strategy_types=[StrategyType.SMA],
+            use_years=True,
+            years=3,
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="AAPL",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with -y shorthand
@@ -1172,16 +1194,20 @@ class TestYearsParameter:
     ):
         """Test that omitting --years uses complete history."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
-        mock_config.use_years = False
-        mock_config.years = None
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"],
+            strategy_types=[StrategyType.SMA],
+            use_years=False,
+            years=None,
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="AAPL",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command without years parameter
@@ -1210,16 +1236,20 @@ class TestYearsParameter:
     ):
         """Test that years parameter correctly limits data history."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
-        mock_config.use_years = True
-        mock_config.years = 10
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"],
+            strategy_types=[StrategyType.SMA],
+            use_years=True,
+            years=10,
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="AAPL",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with specific years
@@ -1249,16 +1279,20 @@ class TestYearsParameter:
     ):
         """Test that years parameter works without separate use_years flag."""
         # Setup mocks
-        mock_config = Mock()
-        mock_config.ticker = ["AAPL"]
-        mock_config.strategy_types = [StrategyType.SMA]
-        mock_config.use_years = True
-        mock_config.years = 7
+        mock_config = create_mock_strategy_config(
+            ticker=["AAPL"],
+            strategy_types=[StrategyType.SMA],
+            use_years=True,
+            years=7,
+        )
         mock_config_loader.return_value.load_from_profile.return_value = mock_config
 
         mock_dispatcher = Mock()
         mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = True
+        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
+            ticker="AAPL",
+            strategy_type="SMA",
+        )
         mock_dispatcher_class.return_value = mock_dispatcher
 
         # Run command with only years parameter (no use_years flag)

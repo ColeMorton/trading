@@ -1597,6 +1597,14 @@ async def _persist_sweep_results_to_database(
     from app.database.strategy_sweep_repository import StrategySweepRepository
 
     try:
+        # Generate unique sweep run ID early (before database check)
+        # This ensures the ID is available even if database persistence fails
+        sweep_run_id = uuid.uuid4()
+        run_id_short = str(sweep_run_id)[:8]
+
+        # Log sweep run ID for API extraction
+        console.info(f"🆔 Sweep Run ID: {run_id_short}...")
+
         # Get database manager instance
         db_manager = get_db_manager()
 
@@ -1605,12 +1613,11 @@ async def _persist_sweep_results_to_database(
 
         # Check database availability
         if not await is_database_available():
-            console.warning("💾 Database unavailable - results saved to CSV files only")
+            console.warning(
+                f"💾 Database unavailable - results saved to CSV files only (run ID: {run_id_short}...)"
+            )
             await db_manager.close()
             return
-
-        # Generate unique sweep run ID
-        sweep_run_id = uuid.uuid4()
 
         # Build sweep configuration dict
         sweep_config = {

@@ -117,10 +117,8 @@ class TestConcurrencyConstructCommand:
         assert result.exit_code == 0
         assert "construct" in result.stdout.lower()
         assert "asset" in result.stdout.lower()
-        # Check for min-score without ANSI codes (case insensitive)
-        assert (
-            "min-score" in result.stdout.lower() or "min_score" in result.stdout.lower()
-        )
+        # Check for --min-score option (Typer adds -- prefix)
+        assert "--min-score" in result.stdout.lower()
 
     def test_construct_requires_asset_or_ticker_flags(self, runner):
         """Test that construct requires either ASSET argument or -t1/-t2 flags."""

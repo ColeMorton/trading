@@ -77,14 +77,13 @@ class TestExportDirectoryRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolios,
-                config=config,
-                export_type="portfolios_best",
-                feature_dir="",  # Empty feature_dir should use export_type
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolios,
+            config=config,
+            export_type="portfolios_best",
+            feature_dir="",  # Empty feature_dir should use export_type
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -116,14 +115,13 @@ class TestExportDirectoryRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                feature_dir="",  # Empty feature_dir should use export_type
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            feature_dir="",  # Empty feature_dir should use export_type
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -145,14 +143,13 @@ class TestExportDirectoryRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=sample_portfolios,
-                config=config,
-                export_type="portfolios_best",
-                feature_dir="ma_cross",  # Explicit feature_dir should be used
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=sample_portfolios,
+            config=config,
+            export_type="portfolios_best",
+            feature_dir="ma_cross",  # Explicit feature_dir should be used
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -245,13 +242,12 @@ class TestMetricTypeColumnRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=diverse_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=diverse_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -280,13 +276,12 @@ class TestMetricTypeColumnRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=diverse_portfolios,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=diverse_portfolios,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -308,13 +303,12 @@ class TestMetricTypeColumnRegression:
         """
         config = base_config.copy()
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=diverse_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=diverse_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -358,13 +352,12 @@ class TestMetricTypeColumnRegression:
 
         # Test that the dual normalization bug is fixed by verifying
         # the column survives the complete export pipeline
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=diverse_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=diverse_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -429,13 +422,12 @@ class TestFilenameGenerationRegression:
         }
 
         # Test portfolios_best export
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=single_strategy_portfolio,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=single_strategy_portfolio,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -472,13 +464,12 @@ class TestFilenameGenerationRegression:
         }
 
         # Test portfolios_filtered export
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=single_strategy_portfolio,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=single_strategy_portfolio,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -533,13 +524,12 @@ class TestFilenameGenerationRegression:
             "STRATEGY_TYPE": "Multi",
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=mixed_portfolios,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=mixed_portfolios,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -574,13 +564,12 @@ class TestFilenameGenerationRegression:
             # STRATEGY_TYPE should be set based on STRATEGY_TYPES
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            _df, success = export_portfolios(
-                portfolios=single_strategy_portfolio,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        _df, success = export_portfolios(
+            portfolios=single_strategy_portfolio,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -665,13 +654,12 @@ class TestSortingConsistencyRegression:
             "SORT_ASC": False,
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=unsorted_portfolios,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=unsorted_portfolios,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -715,13 +703,12 @@ class TestSortingConsistencyRegression:
             "SORT_ASC": False,
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=ema_portfolios,
-                config=config,
-                export_type="portfolios",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=ema_portfolios,
+            config=config,
+            export_type="portfolios",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -787,13 +774,12 @@ class TestSortingConsistencyRegression:
             "SORT_ASC": False,
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=mixed_portfolios,
-                config=config,
-                export_type="portfolios_filtered",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=mixed_portfolios,
+            config=config,
+            export_type="portfolios_filtered",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -867,13 +853,12 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=cbre_aggregation_data,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=cbre_aggregation_data,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -910,13 +895,12 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=cbre_aggregation_data,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=cbre_aggregation_data,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 
@@ -975,13 +959,12 @@ class TestCBREAggregationRegression:
             "STRATEGY_TYPE": "SMA",
         }
 
-        with patch("app.tools.strategy.export_portfolios.logging_context"):
-            df, success = export_portfolios(
-                portfolios=multi_ticker_data,
-                config=config,
-                export_type="portfolios_best",
-                log=Mock(),
-            )
+        df, success = export_portfolios(
+            portfolios=multi_ticker_data,
+            config=config,
+            export_type="portfolios_best",
+            log=Mock(),
+        )
 
         assert success is True
 

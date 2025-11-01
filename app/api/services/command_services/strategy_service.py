@@ -106,6 +106,7 @@ class StrategyService(BaseCommandService):
         logger = logging.getLogger(__name__)
 
         patterns = [
+            r"🆔 Sweep Run ID:\s*([a-f0-9A-F-]{8,})",  # Primary: "🆔 Sweep Run ID: abc12345..."
             r"run ID: ([a-f0-9A-F-]{8,})",  # Original: "run ID: abc12345..." (supports uppercase and full UUIDs)
             r"Run ID: ([a-f0-9A-F-]{8,})",  # Capitalized: "Run ID: abc12345..."
             r"run_id:\s*([a-f0-9A-F-]{8,})",  # Underscore: "run_id: abc12345..."
@@ -127,8 +128,9 @@ class StrategyService(BaseCommandService):
         if not sweep_run_id:
             logger.warning(
                 f"Could not extract sweep_run_id from output. "
-                f"Output preview (first 500 chars): {output[:500]}"
+                f"Output preview (first 1000 chars): {output[:1000]}"
             )
+            logger.debug(f"Full CLI output:\n{output}")
 
         return {
             "success": True,
