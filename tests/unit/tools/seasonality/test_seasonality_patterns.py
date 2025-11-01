@@ -21,7 +21,7 @@ def get_analyzer_class():
 
 def get_pattern_type():
     """Late import to avoid circular dependency."""
-    from app.cli.models.seasonality import PatternType
+    from app.tools.models.seasonality import PatternType
 
     return PatternType
 

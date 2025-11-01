@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     netcat-openbsd \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry with specific version for reproducibility
@@ -50,14 +51,16 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app
 
-# Create data directory with proper ownership
-RUN mkdir -p /app/data/api_results && \
+# Create data, logs, and cache directories with proper ownership
+RUN mkdir -p /app/data/api_results /app/logs /app/.cache/matplotlib /app/.cache/numba && \
     chown -R app:app /app
 
 USER app
 
-# Add /app to PYTHONPATH
-ENV PYTHONPATH=/app:$PYTHONPATH
+# Add /app to PYTHONPATH and configure cache directories
+ENV PYTHONPATH=/app:$PYTHONPATH \
+    MPLCONFIGDIR=/app/.cache/matplotlib \
+    NUMBA_CACHE_DIR=/app/.cache/numba
 
 # Expose port
 EXPOSE 8000
@@ -89,6 +92,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     curl \
     netcat-openbsd \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry with specific version for reproducibility
@@ -127,8 +131,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN groupadd -g 1001 app && \
     useradd -r -u 1001 -g app -s /bin/false app
 
-# Create data directory with proper ownership
-RUN mkdir -p /app/data/api_results && \
+# Create data, logs, and cache directories with proper ownership
+RUN mkdir -p /app/data/api_results /app/logs /app/.cache/matplotlib /app/.cache/numba && \
     chown -R app:app /app
 
 # Switch to non-root user
@@ -138,7 +142,9 @@ USER app
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    MPLCONFIGDIR=/app/.cache/matplotlib \
+    NUMBA_CACHE_DIR=/app/.cache/numba
 
 # Expose port
 EXPOSE 8000

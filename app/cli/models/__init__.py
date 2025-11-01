@@ -5,15 +5,19 @@ This package contains Pydantic models for type-safe configuration management
 across all trading modules.
 """
 
+# Import domain models from app.tools.models.seasonality (moved location)
+from app.tools.models.seasonality import (
+    PatternType,
+    SeasonalityPattern,
+    SeasonalityResult,
+)
+
 from .base import AllocationConfig, BaseConfig, FilterConfig, StopLossConfig
 from .concurrency import ConcurrencyAnalysisConfig, ConcurrencyConfig
 from .portfolio import PortfolioConfig, PortfolioProcessingConfig
 from .seasonality import (
-    PatternType,
     SeasonalityConfig,
     SeasonalityExpectancyConfig,
-    SeasonalityPattern,
-    SeasonalityResult,
 )
 from .spds import (
     SPDSAnalyzeConfig,

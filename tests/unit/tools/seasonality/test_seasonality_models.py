@@ -12,9 +12,9 @@ from pydantic import ValidationError
 
 def get_models():
     """Late import to avoid circular dependency."""
-    from app.cli.models.seasonality import (
+    from app.cli.models.seasonality import SeasonalityConfig
+    from app.tools.models.seasonality import (
         PatternType,
-        SeasonalityConfig,
         SeasonalityPattern,
         SeasonalityResult,
     )

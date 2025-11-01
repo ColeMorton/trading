@@ -367,10 +367,15 @@ def pytest_collection_modifyitems(config, items):
         if "async" in item.name or item.function.__name__.startswith("test_async"):
             item.add_marker(pytest.mark.asyncio)
 
-        if "integration" in str(item.fspath):
-            item.add_marker(pytest.mark.integration)
-        elif "unit" in str(item.fspath):
-            item.add_marker(pytest.mark.unit)
+        # Only auto-add primary markers (unit/integration/e2e) if test doesn't already have one
+        existing_markers = {mark.name for mark in item.iter_markers()}
+        has_primary_marker = bool(existing_markers & {"unit", "integration", "e2e"})
+
+        if not has_primary_marker:
+            if "integration" in str(item.fspath):
+                item.add_marker(pytest.mark.integration)
+            elif "unit" in str(item.fspath):
+                item.add_marker(pytest.mark.unit)
 
         # Skip tests that require API server if it's not available
         if "requires_api" in item.keywords:

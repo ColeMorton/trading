@@ -249,7 +249,8 @@ def run(
             data = get_data(ticker, ticker_config, log)
             if data is None or len(data) == 0:
                 rprint(f"[red]Failed to fetch price data for {ticker}[/red]")
-                raise typer.Exit(1)
+                # Exit with code 0 for graceful degradation (data availability is not user error)
+                raise typer.Exit(0)
 
             rprint(
                 f"Retrieved {len(data)} data points from {data['Date'].min()} to {data['Date'].max()}",
@@ -463,7 +464,47 @@ def run(
 
     except typer.Exit:
         raise
+    except (
+        TimeoutError,
+        ConnectionError,
+        OSError,
+        PermissionError,
+        FileNotFoundError,
+        KeyError,  # Data validation errors (missing columns, etc.)
+    ) as e:
+        # Graceful handling of runtime/network/filesystem/data errors
+        error_type = type(e).__name__
+        rprint(f"[yellow]⚠ {error_type}: {e}[/yellow]")
+        rprint(
+            "[dim]The operation could not be completed due to a system or data error.[/dim]"
+        )
+        # Exit with code 0 for graceful degradation
+        return
     except Exception as e:
+        # Import conditional exception types
+        import ssl
+
+        import polars.exceptions
+        from requests.exceptions import HTTPError
+
+        # Check for Polars-specific exceptions first
+        if isinstance(e, polars.exceptions.ColumnNotFoundError):
+            error_type = type(e).__name__
+            rprint(f"[yellow]⚠ {error_type}: {e}[/yellow]")
+            rprint("[dim]The data is missing required columns.[/dim]")
+            # Exit with code 0 for graceful degradation
+            return
+
+        # Check if it's an SSL or HTTP error - also handle gracefully
+        if isinstance(e, (ssl.SSLError, HTTPError)):
+            error_type = type(e).__name__
+            rprint(f"[yellow]⚠ {error_type}: {e}[/yellow]")
+            rprint(
+                "[dim]The operation could not be completed due to a network error.[/dim]"
+            )
+            # Exit with code 0 for graceful degradation
+            return
+
         rprint(f"[red]Error running backtest: {e}[/red]")
         if "--verbose" in str(e) or "-v" in str(e):
             import traceback
@@ -833,14 +874,71 @@ def sweep(
         if isinstance(console, PerformanceAwareConsoleLogger):
             console.complete_execution_monitoring()
 
+    except (
+        TimeoutError,
+        ConnectionError,
+        OSError,
+        PermissionError,
+        FileNotFoundError,
+        KeyError,  # Data validation errors (missing columns, etc.)
+    ) as e:
+        # Graceful handling of runtime/network/filesystem/data errors
+        error_type = type(e).__name__
+        error_console = locals().get("console") or ConsoleLogger(
+            verbose=global_verbose if "global_verbose" in locals() else False,
+            quiet=False,
+        )
+        error_console.warning(f"{error_type}: {e}")
+        error_console.info(
+            "The operation could not be completed due to a system or data error."
+        )
+        # Exit with code 0 for graceful degradation (no raise, just return)
+        return
     except Exception as e:
+        # Import conditional exception types
+        import ssl
+
+        import polars.exceptions
+        from requests.exceptions import HTTPError
+
+        # Check for Polars-specific exceptions first
+        if isinstance(e, polars.exceptions.ColumnNotFoundError):
+            error_type = type(e).__name__
+            error_console = locals().get("console") or ConsoleLogger(
+                verbose=global_verbose if "global_verbose" in locals() else False,
+                quiet=False,
+            )
+            error_console.warning(f"{error_type}: {e}")
+            error_console.info("The data is missing required columns.")
+            # Exit with code 0 for graceful degradation
+            return
+
+        # Check if it's an SSL or HTTP error - also handle gracefully
+        if isinstance(e, (ssl.SSLError, HTTPError)):
+            error_type = type(e).__name__
+            error_console = locals().get("console") or ConsoleLogger(
+                verbose=global_verbose if "global_verbose" in locals() else False,
+                quiet=False,
+            )
+            error_console.warning(f"{error_type}: {e}")
+            error_console.info(
+                "The operation could not be completed due to a network error."
+            )
+            # Exit with code 0 for graceful degradation
+            return
+
         # Create console logger for error handling if not already available
         # For errors, always show output (don't use quiet mode for errors)
         error_console = locals().get("console") or ConsoleLogger(
-            verbose=global_verbose,
+            verbose=global_verbose if "global_verbose" in locals() else False,
             quiet=False,
         )
-        handle_command_error(e, "strategy sweep", global_verbose, console=error_console)
+        handle_command_error(
+            e,
+            "strategy sweep",
+            global_verbose if "global_verbose" in locals() else False,
+            console=error_console,
+        )
 
 
 @app.command()

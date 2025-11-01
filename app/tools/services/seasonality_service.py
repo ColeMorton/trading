@@ -15,11 +15,8 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from app.cli.models.seasonality import (
-    SeasonalityConfig,
-    SeasonalityPattern,
-    SeasonalityResult,
-)
+from app.cli.models.seasonality import SeasonalityConfig
+from app.tools.models.seasonality import SeasonalityPattern, SeasonalityResult
 from app.tools.seasonality_analyzer import SeasonalityAnalyzer
 
 

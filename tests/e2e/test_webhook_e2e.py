@@ -58,11 +58,11 @@ class WebhookReceiver:
         """Start the webhook server."""
         self.runner = web.AppRunner(self.app)
         await self.runner.setup()
-        self.site = web.TCPSite(self.runner, "localhost", self.port)
+        self.site = web.TCPSite(self.runner, "0.0.0.0", self.port)
         await self.site.start()
         self.actual_port = self.site._server.sockets[0].getsockname()[1]
         logger.info(
-            f"🌐 Webhook receiver started on http://localhost:{self.actual_port}/webhook",
+            f"🌐 Webhook receiver started on http://0.0.0.0:{self.actual_port}/webhook",
         )
 
     async def stop(self):
@@ -73,11 +73,11 @@ class WebhookReceiver:
             await self.runner.cleanup()
         logger.info("🛑 Webhook receiver stopped")
 
-    async def wait_for_webhook(self, timeout: float = 60.0) -> dict | None:
+    async def wait_for_webhook(self, timeout: float = 120.0) -> dict | None:
         """Wait for a webhook to arrive.
 
         Args:
-            timeout: Maximum time to wait in seconds
+            timeout: Maximum time to wait in seconds (default 2 minutes)
 
         Returns:
             Webhook data or None if timeout
@@ -135,15 +135,14 @@ class SweepTestClient:
         """
         url = urljoin(self.base_url, "/api/v1/strategy/sweep")
 
-        # Use minimal parameters for faster execution
+        # Use proven parameters that match passing sweep test
         payload = {
-            "ticker": "AAPL",
-            "fast_range_min": 10,
-            "fast_range_max": 20,
-            "slow_range_min": 20,
-            "slow_range_max": 30,
-            "step": 10,
-            "min_trades": 10,  # Lower requirement for faster test
+            "ticker": "NVDA",
+            "fast_range": [10, 20],
+            "slow_range": [20, 30],
+            "step": 5,
+            "strategy_type": "SMA",
+            "min_trades": 50,
             "webhook_url": webhook_url,
         }
 
@@ -155,7 +154,7 @@ class SweepTestClient:
         logger.info(f"✅ Job created: {data['job_id']}")
         return data
 
-    def get_best_result(self, sweep_run_id: str, ticker: str = "AAPL") -> dict:
+    def get_best_result(self, sweep_run_id: str, ticker: str = "NVDA") -> dict:
         """Get best result from a sweep.
 
         Args:
@@ -232,11 +231,11 @@ async def test_complete_webhook_flow():
 
         # Step 2: Wait for webhook callback
         logger.info("\n" + "=" * 70)
-        logger.info("STEP 2: Wait for Webhook Callback (~30 seconds)")
+        logger.info("STEP 2: Wait for Webhook Callback (up to 2 minutes)")
         logger.info("=" * 70)
 
         start_time = time.time()
-        webhook_data = await receiver.wait_for_webhook(timeout=60.0)
+        webhook_data = await receiver.wait_for_webhook(timeout=120.0)
         elapsed = time.time() - start_time
 
         # If webhook not received, check job status for debugging

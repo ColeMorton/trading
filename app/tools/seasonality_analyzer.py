@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from app.cli.models.seasonality import PatternType, SeasonalityPattern
+from app.tools.models.seasonality import PatternType, SeasonalityPattern
 
 
 class SeasonalityAnalyzer:

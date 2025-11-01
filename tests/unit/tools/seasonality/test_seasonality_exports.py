@@ -27,21 +27,21 @@ def get_config_class():
 
 def get_result_class():
     """Late import to avoid circular dependency."""
-    from app.cli.models.seasonality import SeasonalityResult
+    from app.tools.models.seasonality import SeasonalityResult
 
     return SeasonalityResult
 
 
 def get_pattern_class():
     """Late import to avoid circular dependency."""
-    from app.cli.models.seasonality import SeasonalityPattern
+    from app.tools.models.seasonality import SeasonalityPattern
 
     return SeasonalityPattern
 
 
 def get_pattern_type():
     """Late import to avoid circular dependency."""
-    from app.cli.models.seasonality import PatternType
+    from app.tools.models.seasonality import PatternType
 
     return PatternType
 

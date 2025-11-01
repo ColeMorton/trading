@@ -21,6 +21,7 @@ from app.tools.portfolio.base_extended_schemas import (
     SchemaTransformer,
     SchemaType,
 )
+from app.tools.portfolio.collection import sort_portfolios
 from app.tools.portfolio.strategy_types import STRATEGY_TYPE_FIELDS
 from app.tools.portfolio.strategy_utils import get_strategy_type_for_export
 
@@ -196,8 +197,8 @@ class ExportTypeRouter:
             "validation_level": "strict",
         },
         "portfolios_filtered": {
-            "schema": SchemaType.EXTENDED,
-            "description": "62 columns, canonical format for minimums-filtered results",
+            "schema": SchemaType.FILTERED,
+            "description": "63 columns, includes Metric Type for filtered results",
             "allocation_handling": "none",
             "validation_level": "strict",
         },
@@ -433,6 +434,20 @@ def export_portfolios(
 
         # Convert portfolios to DataFrame
         df = pl.DataFrame(portfolios)
+
+        # Apply sorting if SORT_BY is specified in config
+        if config.get("SORT_BY"):
+            sort_by = config["SORT_BY"]
+            sort_asc = config.get("SORT_ASC", False)
+
+            # Sort the DataFrame
+            df = sort_portfolios(df, config)
+
+            if log:
+                log(
+                    f"Sorted portfolios by {sort_by} ({'ascending' if sort_asc else 'descending'})",
+                    "debug",
+                )
 
         # Initialize SchemaTransformer for unified schema handling
         transformer = SchemaTransformer()
