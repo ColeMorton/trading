@@ -41,7 +41,12 @@ class TestStrategyDispatcherErrorHandling:
             slow_period_max=40,
         )
 
-    def test_mixed_valid_invalid_tickers(self, dispatcher):
+    @patch("app.tools.export_csv.os.access", return_value=True)
+    @patch("app.tools.export_csv.os.makedirs")
+    @patch("app.tools.export_csv.pl.DataFrame.write_csv")
+    def test_mixed_valid_invalid_tickers(
+        self, mock_write_csv, mock_makedirs, mock_access, dispatcher
+    ):
         """Test handling of mixed valid and invalid tickers."""
         # Create config with mixed tickers
         config = StrategyConfig(

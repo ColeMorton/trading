@@ -13,6 +13,8 @@ Fixture hierarchy:
       └── tests/e2e/conftest.py ← E2E-specific fixtures
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 
@@ -21,6 +23,146 @@ pytest_plugins = [
     "tests.fixtures.api_fixtures",
     "tests.fixtures.db_fixtures",
 ]
+
+
+@pytest.fixture
+def mock_os_makedirs():
+    """
+    Mock os.makedirs to prevent actual directory creation in unit tests.
+
+    Usage:
+        def test_something(mock_os_makedirs):
+            # File operations won't touch the file system
+            export_function()
+            mock_os_makedirs.assert_called()
+    """
+    with patch("os.makedirs") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_os_access():
+    """
+    Mock os.access to control permission checks in unit tests.
+
+    Usage:
+        def test_something(mock_os_access):
+            mock_os_access.return_value = True
+            # Code will think the path is writable
+    """
+    with patch("os.access") as mock:
+        mock.return_value = True  # Default: paths are writable
+        yield mock
+
+
+@pytest.fixture
+def mock_os_path_exists():
+    """
+    Mock os.path.exists to control file existence checks in unit tests.
+
+    Usage:
+        def test_something(mock_os_path_exists):
+            mock_os_path_exists.return_value = True
+            # Code will think the path exists
+    """
+    with patch("os.path.exists") as mock:
+        mock.return_value = False  # Default: paths don't exist
+        yield mock
+
+
+@pytest.fixture
+def mock_polars_write_csv():
+    """
+    Mock polars DataFrame.write_csv to prevent actual file writes in unit tests.
+
+    Usage:
+        def test_something(mock_polars_write_csv):
+            # CSV export won't create files
+            df.write_csv("fake_path.csv")
+            mock_polars_write_csv.assert_called()
+    """
+    with patch("polars.DataFrame.write_csv") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_pandas_to_csv():
+    """
+    Mock pandas DataFrame.to_csv to prevent actual file writes in unit tests.
+
+    Usage:
+        def test_something(mock_pandas_to_csv):
+            # CSV export won't create files
+            df.to_csv("fake_path.csv")
+            mock_pandas_to_csv.assert_called()
+    """
+    with patch("pandas.DataFrame.to_csv") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_file_operations(mock_os_makedirs, mock_os_path_exists):
+    """
+    Composite fixture that mocks common file system operations.
+
+    Includes:
+    - os.makedirs
+    - os.path.exists
+
+    Usage:
+        def test_something(mock_file_operations):
+            # All file operations are mocked
+            makedirs, path_exists = mock_file_operations
+            makedirs.assert_called()
+    """
+    return mock_os_makedirs, mock_os_path_exists
+
+
+@pytest.fixture
+def mock_export_csv():
+    """
+    Mock the export_csv function to prevent file I/O in unit tests.
+
+    Usage:
+        def test_something(mock_export_csv):
+            export_best_portfolios(...)
+            mock_export_csv.assert_called()
+    """
+    with patch("app.tools.export_csv.export_csv") as mock:
+        mock.return_value = True  # Simulate successful export
+        yield mock
+
+
+@pytest.fixture
+def mock_export_portfolios():
+    """
+    Mock the export_portfolios function to prevent file I/O in unit tests.
+
+    Usage:
+        def test_something(mock_export_portfolios):
+            some_high_level_function()
+            mock_export_portfolios.assert_called()
+    """
+    with patch("app.tools.strategy.export_portfolios.export_portfolios") as mock:
+        mock.return_value = True  # Simulate successful export
+        yield mock
+
+
+@pytest.fixture
+def mock_export_best_portfolios():
+    """
+    Mock the export_best_portfolios function to prevent file I/O in unit tests.
+
+    Usage:
+        def test_something(mock_export_best_portfolios):
+            dispatcher.execute()
+            mock_export_best_portfolios.assert_called()
+    """
+    with patch(
+        "app.tools.strategy.export_best_portfolios.export_best_portfolios"
+    ) as mock:
+        mock.return_value = True  # Simulate successful export
+        yield mock
 
 
 def pytest_configure(config):
