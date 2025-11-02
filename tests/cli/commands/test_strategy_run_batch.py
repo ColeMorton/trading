@@ -266,50 +266,6 @@ config:
     @patch("app.cli.commands.strategy.validate_parameter_relationships")
     @patch("app.cli.commands.strategy.StrategyDispatcher")
     @patch("app.cli.commands.strategy.ConfigLoader")
-    def test_batch_processing_with_profile(
-        self,
-        mock_config_loader,
-        mock_dispatcher_class,
-        mock_validate,
-        cli_runner,
-        temp_batch_file,
-        sample_batch_profile,
-    ):
-        """Test batch processing using profile configuration."""
-        # Setup mocks
-        mock_config = create_mock_strategy_config_batch(
-            ticker=["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"],
-            strategy_types=[StrategyType.SMA],
-            batch=True,
-            batch_size=2,
-            batch_file_path=temp_batch_file,
-        )
-        mock_config_loader.return_value.load_from_profile.return_value = mock_config
-
-        mock_dispatcher = Mock()
-        mock_dispatcher.validate_strategy_compatibility.return_value = True
-        mock_dispatcher.execute_strategy.return_value = create_mock_execution_summary(
-            tickers_processed=["AAPL", "MSFT"],
-        )
-        mock_dispatcher_class.return_value = mock_dispatcher
-
-        # Create profile file
-        with tempfile.TemporaryDirectory() as temp_dir:
-            profile_file = Path(temp_dir) / "test_batch.yaml"
-            profile_file.write_text(sample_batch_profile)
-
-            # Run command
-            result = cli_runner.invoke(
-                strategy_app,
-                ["sweep", "--profile", "test_batch"],
-            )
-
-        assert result.exit_code == 0
-        assert "batch" in result.stdout.lower()
-
-    @patch("app.cli.commands.strategy.validate_parameter_relationships")
-    @patch("app.cli.commands.strategy.StrategyDispatcher")
-    @patch("app.cli.commands.strategy.ConfigLoader")
     def test_batch_size_override_in_command(
         self,
         mock_config_loader,

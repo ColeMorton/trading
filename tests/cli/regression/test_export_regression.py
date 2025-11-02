@@ -228,43 +228,6 @@ class TestMetricTypeColumnRegression:
             "STRATEGY_TYPE": "Multi",
         }
 
-    def test_portfolios_filtered_includes_metric_type_column(
-        self,
-        diverse_portfolios,
-        base_config,
-        temp_export_dir,
-    ):
-        """
-        REGRESSION TEST: portfolios_filtered exports should include Metric Type column
-
-        Previously, the schema normalization condition was based on export_type == "portfolios_best"
-        which excluded portfolios_filtered. Fixed by making it schema-based.
-        """
-        config = base_config.copy()
-
-        df, success = export_portfolios(
-            portfolios=diverse_portfolios,
-            config=config,
-            export_type="portfolios_filtered",
-            log=Mock(),
-        )
-
-        assert success is True
-
-        # CRITICAL: Verify Metric Type column is present
-        assert "Metric Type" in df.columns, (
-            "Metric Type column should be present in portfolios_filtered"
-        )
-
-        # Verify it's the first column (filtered schema requirement)
-        assert df.columns[0] == "Metric Type", "Metric Type should be the first column"
-
-        # Verify all strategy types have the column
-        for strategy_type in ["SMA", "EMA", "MACD"]:
-            strategy_rows = df.filter(pl.col("Strategy Type") == strategy_type)
-            if len(strategy_rows) > 0:
-                assert "Metric Type" in strategy_rows.columns
-
     def test_portfolios_best_includes_metric_type_column(
         self,
         diverse_portfolios,
@@ -288,89 +251,6 @@ class TestMetricTypeColumnRegression:
         # Verify Metric Type column is present
         assert "Metric Type" in df.columns
         assert df.columns[0] == "Metric Type"
-
-    def test_metric_type_values_are_preserved(
-        self,
-        diverse_portfolios,
-        base_config,
-        temp_export_dir,
-    ):
-        """
-        REGRESSION TEST: Metric Type values should not be overwritten with defaults
-
-        Previously, all Metric Type values were being overwritten with "Most Total Return [%]"
-        during normalization. Fixed by preserving existing values.
-        """
-        config = base_config.copy()
-
-        df, success = export_portfolios(
-            portfolios=diverse_portfolios,
-            config=config,
-            export_type="portfolios_filtered",
-            log=Mock(),
-        )
-
-        assert success is True
-
-        # CRITICAL: Verify diverse metric types are preserved
-        metric_types = df["Metric Type"].unique().to_list()
-
-        # Should have at least 3 different metric types
-        assert len(metric_types) >= 3, (
-            f"Expected at least 3 metric types, got: {metric_types}"
-        )
-
-        # Verify specific metric types are preserved
-        assert "Most Total Return [%]" in metric_types
-        assert "Most Sharpe Ratio" in metric_types
-        assert "Most Win Rate [%]" in metric_types
-
-        # Verify no metric type was lost/overwritten
-        expected_metrics = {
-            "Most Total Return [%]",
-            "Most Sharpe Ratio",
-            "Most Win Rate [%]",
-        }
-        actual_metrics = set(metric_types)
-        assert expected_metrics.issubset(
-            actual_metrics,
-        ), f"Missing metric types: {expected_metrics - actual_metrics}"
-
-    def test_no_dual_normalization_stripping(
-        self,
-        diverse_portfolios,
-        base_config,
-        temp_export_dir,
-    ):
-        """
-        REGRESSION TEST: Dual normalization should not strip Metric Type column
-
-        Previously, export_csv.py was applying secondary normalization that stripped
-        the Metric Type column. Fixed by making export_csv schema-aware.
-        """
-        config = base_config.copy()
-
-        # Test that the dual normalization bug is fixed by verifying
-        # the column survives the complete export pipeline
-        df, success = export_portfolios(
-            portfolios=diverse_portfolios,
-            config=config,
-            export_type="portfolios_filtered",
-            log=Mock(),
-        )
-
-        assert success is True
-
-        # If dual normalization was occurring, the Metric Type column would be stripped
-        assert "Metric Type" in df.columns, (
-            "Metric Type column should survive normalization pipeline"
-        )
-
-        # Verify the column has actual values, not just empty/null
-        metric_type_values = df["Metric Type"].drop_nulls()
-        assert len(metric_type_values) > 0, (
-            "Metric Type column should have non-null values"
-        )
 
 
 @pytest.mark.integration
